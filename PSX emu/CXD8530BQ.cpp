@@ -1,9 +1,9 @@
 #include "CXD8530BQ.h"
 
 CXD8530BQ::CXD8530BQ(Playstation* playstation)
-	: cw3300(this)
-	, cp0(this)
-	, gte(this)
+	: _cw3300(this)
+	, _cp0(this)
+	, _gte(this)
 	, _playstation(playstation)
 {
 }

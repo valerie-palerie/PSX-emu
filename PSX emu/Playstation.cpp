@@ -3,8 +3,15 @@
 #include <iterator>
 #include <vector>
 #include <cstdint>
+#include "CXD8530BQ.h"
+#include "CW33300.h"
 
-Playstation::Playstation() 
+void Playstation::Tick(float deltaTime)
+{
+	_cpu.cw3300()->ProcessNextInstruction();
+}
+
+Playstation::Playstation()
 	: _cpu(this)
 	, _bios(512 * 1024)
 {
