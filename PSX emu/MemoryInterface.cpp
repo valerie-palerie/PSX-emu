@@ -33,6 +33,7 @@ std::uint8_t MemoryInterface::Read8(std::uint32_t address)
 		return target->Read8(offset);
 
 	//throw exception, maybe panic
+	__debugbreak();
 	return 0;
 }
 
@@ -44,6 +45,7 @@ std::uint16_t MemoryInterface::Read16(std::uint32_t address)
 		return target->Read16(offset);
 
 	//throw exception, maybe panic
+	__debugbreak();
 	return 0;
 }
 
@@ -55,6 +57,7 @@ std::uint32_t MemoryInterface::Read32(std::uint32_t address)
 		return target->Read32(offset);
 
 	//throw exception, maybe panic
+	__debugbreak();
 	return 0;
 }
 
@@ -66,6 +69,7 @@ void MemoryInterface::Write(std::uint32_t address, std::vector<std::uint8_t> dat
 		target->Write(offset, data);
 
 	//throw exception, maybe panic
+	__debugbreak();
 }
 
 void MemoryInterface::AddComponent(MemoryMappedComponent component)

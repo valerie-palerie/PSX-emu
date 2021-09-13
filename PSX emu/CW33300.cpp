@@ -74,27 +74,36 @@ void CW33300::ProcessNextInstruction()
     std::uint32_t instruction = cpu()->memInterface()->Read32(registers.pc);
     Opcode opcode(instruction);
     registers.pc += 4;
-    
-    if (opcode.op == 0x00)
-    {
-        //special
-    }
-    else if(opcode.op & 0b010000)
+
+    if(opcode.op & 0x10)
     {
         //coprocessor
     }
+    else if (opcode.op == 0x00)
+    {
+        specialInstructionMap[opcode.func].instruction(opcode);
+    }
+    else if (opcode.op == 0x01)
+    {
+        branchInstructionMap[opcode.rt].instruction(opcode);
+    }
     else
     {
-        //map to thing
+        instructionMap[opcode.op].instruction(opcode);
     }
+}
 
-
+CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu) 
+{
+#define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
+    //instructionMap = { INST(add) };
 }
 
 //****** Instructions ******//
+//Get/Set functions for the register pointed to by the opcode part.
 #define R_GET(name) auto name = registers.R_get(op.name)
 #define R_SET(name, val) registers.R_set(op.name, val);
-void CW33300::op_add(const Opcode& op)
+std::int8_t CW33300::op_add(const Opcode& op)
 {
     R_GET(rs);
     R_GET(rt);
@@ -103,17 +112,21 @@ void CW33300::op_add(const Opcode& op)
         //throw exception?
 
     R_SET(rd, rs + rt);
+
+    return 0;
 }
 
-void CW33300::op_addu(const Opcode& op)
+std::int8_t CW33300::op_addu(const Opcode& op)
 {
     R_GET(rs);
     R_GET(rt);
 
     R_SET(rd, rs + rt);
+
+    return 0;
 }
 
-void CW33300::op_sub(const Opcode& op)
+std::int8_t CW33300::op_sub(const Opcode& op)
 {
     R_GET(rs);
     R_GET(rt);
@@ -122,17 +135,21 @@ void CW33300::op_sub(const Opcode& op)
         //throw exception?
 
     R_SET(rd, rs - rt);
+
+    return 0;
 }
 
-void CW33300::op_subu(const Opcode& op)
+std::int8_t CW33300::op_subu(const Opcode& op)
 {
     R_GET(rs);
     R_GET(rt);
 
     R_SET(rd, rs - rt);
+
+    return 0;
 }
 
-void CW33300::op_addi(const Opcode& op)
+std::int8_t CW33300::op_addi(const Opcode& op)
 {
     R_GET(rs);
 
@@ -140,13 +157,23 @@ void CW33300::op_addi(const Opcode& op)
         //throw exception?
 
     R_SET(rt, rs + op.imm);
+
+    return 0;
 }
 
-void CW33300::op_addiu(const Opcode& op)
+std::int8_t CW33300::op_addiu(const Opcode& op)
 {
     R_GET(rs);
-
     R_SET(rt, rs + op.imm);
+
+    return 0;
+}
+
+std::int8_t CW33300::op_invalid(const Opcode& op)
+{
+    //invalid instruction, do something!!!!!!
+    __debugbreak();
+    return 0;
 }
 
 #undef R_GET

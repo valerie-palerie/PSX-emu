@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <functional>
+#include <string>
 
 struct Opcode
 {
@@ -31,4 +33,16 @@ public:
 
 	Opcode(const Opcode& opcode) = default;
 	Opcode() = default;
+};
+
+struct ProcessorInstruction
+{
+public:
+	std::string name;
+	std::function<std::int8_t(const Opcode&)> instruction;
+
+	ProcessorInstruction(std::string name, std::function<std::int8_t(const Opcode&)> instruction)
+		: name(name)
+		, instruction(instruction)
+	{ }
 };

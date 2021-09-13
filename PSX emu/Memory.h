@@ -23,7 +23,7 @@ public:
 class MemoryChip : public IMemory
 {
 private:
-	const std::uint64_t _size;
+	const std::uint32_t _size;
 	const MemoryEndianness _endianness;
 	std::vector<std::uint8_t> _mem;
 

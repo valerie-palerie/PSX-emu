@@ -16,11 +16,11 @@ public:
 		typedef std::uint32_t ureg_t;
 		reg_t zero = 0;
 		reg_t at = 0;
-		reg_t v[2];
-		reg_t a[4];
-		reg_t t[10];
-		reg_t s[8];
-		reg_t k[2];
+		reg_t v[2] = { 0 };
+		reg_t a[4] = { 0 };
+		reg_t t[10] = { 0 };
+		reg_t s[8] = { 0 };
+		reg_t k[2] = { 0 };
 		reg_t gp = 0;
 		reg_t sp = 0;
 		reg_t fp = 0;
@@ -39,8 +39,12 @@ public:
 
 	Registers registers;
 
+	std::vector<ProcessorInstruction> instructionMap;
+	std::vector<ProcessorInstruction> branchInstructionMap;
+	std::vector<ProcessorInstruction> specialInstructionMap;
+
 	//****** Instruction definitions ******//
-#define INST(name) void op_##name(const Opcode& op)
+#define INST(name) std::int8_t op_##name(const Opcode& op)
 	//---ALU arithmetic
 	INST(add); INST(addu); INST(sub); INST(subu); INST(addi); INST(addiu);
 	//---ALU Comparison
@@ -57,11 +61,13 @@ public:
 	INST(sb); INST(sh); INST(sw); INST(swr); INST(swl);
 	//---Jump
 	INST(jmp); INST(jal); INST(jr); INST(jalr); INST(beq); INST(bne); INST(bltz); INST(bgez); INST(bgtz); INST(blez); INST(bltzal); INST(bgezal);
+	//---Utility
+	INST(invalid);
 #undef INST
 	//****** Instruction definitions ******//
 
 	void ProcessNextInstruction();
 
-	CW33300(CXD8530BQ* cpu) : Processor(cpu) {}
+	CW33300(CXD8530BQ* cpu);
 };
 
