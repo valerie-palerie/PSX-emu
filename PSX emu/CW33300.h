@@ -14,17 +14,17 @@ public:
 	public:
 		typedef std::int32_t reg_t;
 		typedef std::uint32_t ureg_t;
-		reg_t zero = 0;
-		reg_t at = 0;
-		reg_t v[2] = { 0 };
-		reg_t a[4] = { 0 };
-		reg_t t[10] = { 0 };
-		reg_t s[8] = { 0 };
-		reg_t k[2] = { 0 };
-		reg_t gp = 0;
-		reg_t sp = 0;
-		reg_t fp = 0;
-		reg_t ra = 0;
+		reg_t zero = 0;			//R0
+		reg_t at = 0;			//R1
+		reg_t v[2] = { 0 };		//R2-R3
+		reg_t a[4] = { 0 };		//R4-R7
+		reg_t t[10] = { 0 };	//R8-R15 (0-7) + R24-R25 (8-9)
+		reg_t s[8] = { 0 };		//R16-R23
+		reg_t k[2] = { 0 };		//R26-R27
+		reg_t gp = 0;			//R28
+		reg_t sp = 0;			//R29
+		reg_t fp = 0;			//R30
+		reg_t ra = 0;			//R31
 		ureg_t pc = 0xbfc00000;
 		reg_t hi = 0;
 		reg_t lo = 0;
