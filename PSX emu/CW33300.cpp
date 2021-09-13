@@ -71,7 +71,7 @@ void CW33300::Registers::R_set(std::uint8_t index, CW33300::Registers::reg_t val
 
 void CW33300::ProcessNextInstruction()
 {
-    std::uint32_t instruction = cpu()->playstation()->bios()->Read32(0);
+    std::uint32_t instruction = cpu()->memInterface()->Read32(registers.pc);
     Opcode opcode(instruction);
     registers.pc += 4;
     

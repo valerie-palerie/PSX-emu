@@ -1,27 +1,27 @@
 #include "Memory.h"
 
-std::uint8_t Memory::Read8(std::uint64_t offset)
+std::uint8_t MemoryChip::Read8(std::uint32_t address)
 {
-	if (offset >= _mem.size())
+	if (address >= _mem.size())
 	{
 		//throw some kinda exception
 		return 0;
 	}
 	
-	return _mem[offset];
+	return _mem[address];
 }
 
-std::uint16_t Memory::Read16(std::uint64_t offset)
+std::uint16_t MemoryChip::Read16(std::uint32_t address)
 {
-	if (offset + 1 >= _mem.size())
+	if (address + 1 >= _mem.size())
 	{
 		//throw some kinda exception
 		return 0;
 	}
 
 	std::vector<std::uint32_t> bytes;
-	bytes.push_back(std::uint32_t(_mem[offset]));
-	bytes.push_back(std::uint32_t(_mem[offset + 1]));
+	bytes.push_back(std::uint32_t(_mem[address]));
+	bytes.push_back(std::uint32_t(_mem[address + 1]));
 
 	if (_endianness == MemoryEndianness::LittleEndian)
 	{
@@ -33,19 +33,19 @@ std::uint16_t Memory::Read16(std::uint64_t offset)
 	}
 }
 
-std::uint32_t Memory::Read32(std::uint64_t offset)
+std::uint32_t MemoryChip::Read32(std::uint32_t address)
 {
-	if (offset + 3 >= _mem.size())
+	if (address + 3 >= _mem.size())
 	{
 		//throw some kinda exception
 		return 0;
 	}
 
 	std::vector<std::uint32_t> bytes;
-	bytes.push_back(std::uint32_t(_mem[offset]));
-	bytes.push_back(std::uint32_t(_mem[offset + 1]));
-	bytes.push_back(std::uint32_t(_mem[offset + 2]));
-	bytes.push_back(std::uint32_t(_mem[offset + 3]));
+	bytes.push_back(std::uint32_t(_mem[address]));
+	bytes.push_back(std::uint32_t(_mem[address + 1]));
+	bytes.push_back(std::uint32_t(_mem[address + 2]));
+	bytes.push_back(std::uint32_t(_mem[address + 3]));
 
 	if (_endianness == MemoryEndianness::LittleEndian)
 	{
@@ -57,20 +57,20 @@ std::uint32_t Memory::Read32(std::uint64_t offset)
 	}
 }
 
-void Memory::Write(std::uint64_t offset, std::vector<std::uint8_t> data)
+void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
-	for (int i = 0; i < data.size(); ++i)
+	for (std::uint32_t i = 0; i < data.size(); ++i)
 	{
-		if (offset + i >= _mem.size())
+		if ((address + i) >= _mem.size())
 		{
 			//throw some kinda exception?
 			break;
 		}
-		_mem[offset + i] = data[i];
+		_mem[address + i] = data[i];
 	}
 }
 
-Memory::Memory(const std::uint64_t size, const MemoryEndianness endianness)
+MemoryChip::MemoryChip(const std::uint32_t size, const MemoryEndianness endianness)
 	: _size(size)
 	, _endianness(endianness)
 {

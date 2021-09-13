@@ -1,6 +1,6 @@
 #pragma once
-#include<vector>
-#include<cstdint>
+#include <vector>
+#include <cstdint>
 
 enum class MemoryEndianness
 {
@@ -8,7 +8,19 @@ enum class MemoryEndianness
 	BigEndian
 };
 
-class Memory
+class IMemory
+{
+public:
+	virtual std::uint8_t Read8(std::uint32_t address) = 0;
+	virtual std::uint16_t Read16(std::uint32_t address) = 0;
+	virtual std::uint32_t Read32(std::uint32_t address) = 0;
+
+	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) = 0;
+
+	virtual ~IMemory() = default;
+};
+
+class MemoryChip : public IMemory
 {
 private:
 	const std::uint64_t _size;
@@ -16,14 +28,14 @@ private:
 	std::vector<std::uint8_t> _mem;
 
 public:
-	std::uint8_t Read8(std::uint64_t offset);
-	std::uint16_t Read16(std::uint64_t offset);
-	std::uint32_t Read32(std::uint64_t offset);
+	virtual std::uint8_t Read8(std::uint32_t address) override;
+	virtual std::uint16_t Read16(std::uint32_t address) override;
+	virtual std::uint32_t Read32(std::uint32_t address) override;
 
-	void Write(std::uint64_t offset, std::vector<std::uint8_t> data);
+	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
 
-	std::uint64_t size() const { return _size; }
+	std::uint32_t size() const { return _size; }
 	MemoryEndianness endianness() const { return _endianness; }
 
-	Memory(const std::uint64_t size, const MemoryEndianness endianness = MemoryEndianness::LittleEndian);
+	MemoryChip(const std::uint32_t size, const MemoryEndianness endianness = MemoryEndianness::LittleEndian);
 };
