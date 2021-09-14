@@ -89,7 +89,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	}
 	else
 	{
-		R_SET(rd, rss + imms);
+		R_SET(rt, rss + imms);
 	}
 
 	return 0;
