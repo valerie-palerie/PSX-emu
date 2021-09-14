@@ -572,74 +572,89 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	
-	return 1;
+	registers.pc = (registers.pc & 0xF0000000) + (op.cop << 2);
+	return 0;
 }
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
-
-	return 1;
+	registers.ra = registers.pc + 8;
+	registers.pc = (registers.pc & 0xF0000000) + (op.cop << 2);
+	return 0;
 }
 
 std::int8_t CW33300::op_jr(const Opcode& op)
 {
-
-	return 1;
+	R_GET(rs);
+	registers.pc = rs;
+	return 0;
 }
 
+//Potentially weird, one source says i might have to swap rs with rd.
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-
-	return 1;
+	R_SET(rd, registers.pc + 8);
+	R_GET(rs);
+	registers.pc = rs;
+	return 0;
 }
 
 std::int8_t CW33300::op_beq(const Opcode& op)
 {
-
-	return 1;
+	R_GET(rs);
+	R_GET(rt);
+	if (rs == rt)
+	{
+		registers.pc = registers.pc + 4 + (std::int32_t(op.imm) << 2);
+	}
+	return 0;
 }
 
 std::int8_t CW33300::op_bne(const Opcode& op)
 {
-
-	return 1;
+	R_GET(rs);
+	R_GET(rt);
+	if (rs == rt)
+	{
+		registers.pc = registers.pc + 4 + (std::int32_t(op.imm) << 2);
+	}
+	return 0;
 }
 
 std::int8_t CW33300::op_bltz(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_bgez(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_bgtz(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_blez(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_bltzal(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_bgezal(const Opcode& op)
 {
 
-	return 1;
+	return 0;
 }
 
 std::int8_t CW33300::op_syscall(const Opcode& op)
