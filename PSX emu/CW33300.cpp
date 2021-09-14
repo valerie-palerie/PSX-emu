@@ -3,6 +3,7 @@
 #include "CXD8530BQ.h"
 #include "Playstation.h"
 #include "Memory.h"
+#include "MemoryInterface.h"
 
 CW33300::Registers::reg_t& CW33300::Registers::R(std::uint8_t index)
 {
@@ -102,7 +103,8 @@ ProcessorInstruction* CW33300::MapInstruction(const Opcode& opcode)
 
 void CW33300::ProcessNextInstruction()
 {
-	std::uint32_t instruction = cpu()->memInterface()->Read32(registers.pc);
+	std::uint32_t instruction = nextInstruction;
+	nextInstruction = cpu()->memInterface()->Read32(registers.pc);
 	registers.pc += 4;
 
 	Opcode opcode(instruction);
@@ -145,7 +147,6 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(bltzal), INST(bgezal), INST(invalid), INST(invalid)
-		//if crash, fill with invalid up to index 31 or clamp to bounds
 	};
 
 	specialInstructionMap =
@@ -400,10 +401,7 @@ std::int8_t CW33300::op_mult(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	std::int32_t rss = std::int32_t(rs);
-	std::int32_t rts = std::int32_t(rt);
-
-	std::int64_t result = rss * rts;
+	std::int64_t result = std::int64_t(rs) * std::int64_t(rt);
 
 	registers.lo = result & 0x7FFFFFFF;
 	registers.hi = result >> 32;
@@ -416,7 +414,7 @@ std::int8_t CW33300::op_multu(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 	
-	std::uint64_t result = rs * rt;
+	std::uint64_t result = std::uint64_t(rs) * std::uint64_t(rt);
 
 	registers.lo = result & 0x7FFFFFFF;
 	registers.hi = result >> 32;
@@ -574,7 +572,7 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	ProcessNextInstruction();
+	
 	return 1;
 }
 

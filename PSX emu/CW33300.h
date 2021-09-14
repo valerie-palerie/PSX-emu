@@ -42,6 +42,8 @@ public:
 	std::vector<ProcessorInstruction> branchInstructionMap;
 	std::vector<ProcessorInstruction> specialInstructionMap;
 
+	std::uint32_t nextInstruction = 0x0;
+
 	//****** Instruction definitions ******//
 #define INST(name) std::int8_t op_##name(const Opcode& op)
 	//---ALU arithmetic
