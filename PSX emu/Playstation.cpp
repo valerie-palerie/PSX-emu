@@ -14,6 +14,7 @@ void Playstation::Tick(float deltaTime)
 Playstation::Playstation()
 	: _cpu(this)
 	, _bios(512 * 1024)
+	, _dram(2048 * 1024)
 {
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
 
@@ -23,5 +24,5 @@ Playstation::Playstation()
 
 	input.close();
 
-	_bios.Write(0, buffer);
+	_bios.Write(0, std::move(buffer));
 }

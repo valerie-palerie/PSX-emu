@@ -14,8 +14,8 @@ public:
 	std::uint8_t shift : 5; //bits 10-6
 	std::uint8_t func : 6; //bits 5-0
 
-	std::uint16_t imm; //bits 0-15
-	std::uint32_t cop : 26; //bits 0 - 25
+	std::uint16_t imm; //bits 15-0
+	std::uint32_t cop : 26; //bits 25 - 0
 
 
 	explicit Opcode(std::uint32_t binary)
@@ -44,5 +44,6 @@ public:
 	ProcessorInstruction(std::string name, std::function<std::int8_t(const Opcode&)> instruction)
 		: name(name)
 		, instruction(instruction)
-	{ }
+	{
+	}
 };

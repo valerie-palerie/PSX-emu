@@ -7,6 +7,7 @@ class Playstation
 private:
 	CXD8530BQ _cpu;
 	MemoryChip _bios;
+	MemoryChip _dram;
 
 public:
 	CXD8530BQ* cpu() { return &_cpu; }

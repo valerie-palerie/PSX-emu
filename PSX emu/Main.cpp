@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Playstation.h"
 
-int main() 
+int main()
 {
 	Playstation psx;
 

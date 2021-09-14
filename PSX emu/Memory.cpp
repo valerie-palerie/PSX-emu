@@ -7,21 +7,21 @@ std::uint8_t MemoryChip::Read8(std::uint32_t address)
 		//throw some kinda exception
 		return 0;
 	}
-	
+
 	return _mem[address];
 }
 
 std::uint16_t MemoryChip::Read16(std::uint32_t address)
 {
-	if (address + 1 >= _mem.size())
+	if (size_t(address) + 1 >= _mem.size())
 	{
 		//throw some kinda exception
 		return 0;
 	}
 
 	std::vector<std::uint32_t> bytes;
-	bytes.push_back(std::uint32_t(_mem[address]));
-	bytes.push_back(std::uint32_t(_mem[address + 1]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address)]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address) + 1]));
 
 	if (_endianness == MemoryEndianness::LittleEndian)
 	{
@@ -35,17 +35,17 @@ std::uint16_t MemoryChip::Read16(std::uint32_t address)
 
 std::uint32_t MemoryChip::Read32(std::uint32_t address)
 {
-	if (address + 3 >= _mem.size())
+	if (size_t(address) + 3 >= _mem.size())
 	{
 		//throw some kinda exception
 		return 0;
 	}
 
 	std::vector<std::uint32_t> bytes;
-	bytes.push_back(std::uint32_t(_mem[address]));
-	bytes.push_back(std::uint32_t(_mem[address + 1]));
-	bytes.push_back(std::uint32_t(_mem[address + 2]));
-	bytes.push_back(std::uint32_t(_mem[address + 3]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address)]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address) + 1]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address) + 2]));
+	bytes.push_back(std::uint32_t(_mem[size_t(address) + 3]));
 
 	if (_endianness == MemoryEndianness::LittleEndian)
 	{
@@ -61,12 +61,12 @@ void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
 	for (std::uint32_t i = 0; i < data.size(); ++i)
 	{
-		if ((address + i) >= _mem.size())
+		if ((size_t(address) + i) >= _mem.size())
 		{
 			//throw some kinda exception?
 			break;
 		}
-		_mem[address + i] = data[i];
+		_mem[size_t(address) + i] = data[i];
 	}
 }
 
@@ -74,5 +74,5 @@ MemoryChip::MemoryChip(const std::uint32_t size, const MemoryEndianness endianne
 	: _size(size)
 	, _endianness(endianness)
 {
-	_mem.resize(size, 0);
+	_mem.resize(size, 0x3f);
 }

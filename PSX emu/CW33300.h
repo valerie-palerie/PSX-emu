@@ -12,22 +12,21 @@ public:
 	struct Registers
 	{
 	public:
-		typedef std::int32_t reg_t;
-		typedef std::uint32_t ureg_t;
-		reg_t zero = 0;			//R0
-		reg_t at = 0;			//R1
-		reg_t v[2] = { 0 };		//R2-R3
-		reg_t a[4] = { 0 };		//R4-R7
-		reg_t t[10] = { 0 };	//R8-R15 (0-7) + R24-R25 (8-9)
-		reg_t s[8] = { 0 };		//R16-R23
-		reg_t k[2] = { 0 };		//R26-R27
-		reg_t gp = 0;			//R28
-		reg_t sp = 0;			//R29
-		reg_t fp = 0;			//R30
-		reg_t ra = 0;			//R31
-		ureg_t pc = 0xbfc00000;
-		reg_t hi = 0;
-		reg_t lo = 0;
+		using reg_t = std::uint32_t;
+		reg_t zero = 0;					//R0
+		reg_t at = 0xbadbad;			//R1
+		reg_t v[2] = { 0xbadbad };		//R2-R3
+		reg_t a[4] = { 0xbadbad };		//R4-R7
+		reg_t t[10] = { 0xbadbad };		//R8-R15 (0-7) + R24-R25 (8-9)
+		reg_t s[8] = { 0xbadbad };		//R16-R23
+		reg_t k[2] = { 0xbadbad };		//R26-R27
+		reg_t gp = 0xbadbad;			//R28
+		reg_t sp = 0xbadbad;			//R29
+		reg_t fp = 0xbadbad;			//R30
+		reg_t ra = 0xbadbad;			//R31
+		reg_t pc = 0xbfc00000;			//Program Counter
+		reg_t hi = 0xbadbad;			//Div Remainder
+		reg_t lo = 0xbadbad;			//Div Quotient
 
 	protected:
 		reg_t& R(std::uint8_t index);
@@ -50,22 +49,27 @@ public:
 	//---ALU Comparison
 	INST(slt); INST(sltu); INST(slti); INST(sltiu);
 	//---ALU Logical
-	INST(and); INST(or); INST(xor); INST(nor); INST(andi); INST(ori); INST(xori);
+	INST(and); INST(or ); INST(xor); INST(nor); INST(andi); INST(ori); INST(xori);
 	//---ALU Shifting
 	INST(sllv); INST(srlv); INST(srav); INST(sll); INST(srl); INST(sra); INST(lui);
 	//---ALU Multiply/div
-	INST(mult); INST(multu); INST(div); INST(divu); INST(mfhi); INST(mflo); INST(mthi); INST(mtlo);	
+	INST(mult); INST(multu); INST(div); INST(divu); INST(mfhi); INST(mflo); INST(mthi); INST(mtlo);
 	//---Load
 	INST(lb); INST(lbu); INST(lh); INST(lhu); INST(lw); INST(lwl); INST(lwr);
 	//---Store
 	INST(sb); INST(sh); INST(sw); INST(swr); INST(swl);
 	//---Jump
-	INST(jmp); INST(jal); INST(jr); INST(jalr); INST(beq); INST(bne); INST(bltz); INST(bgez); INST(bgtz); INST(blez); INST(bltzal); INST(bgezal);
+	INST(j); INST(jal); INST(jr); INST(jalr); INST(beq); INST(bne); INST(bltz); INST(bgez); INST(bgtz); INST(blez); INST(bltzal); INST(bgezal);
+	//---Coprocessor
+	INST(copn); INST(lwcn); INST(swcn);
+	//---Exception
+	INST(syscall); INST(break);
 	//---Utility
 	INST(invalid);
 #undef INST
 	//****** Instruction definitions ******//
 
+	ProcessorInstruction* MapInstruction(const Opcode& opcode);
 	void ProcessNextInstruction();
 
 	CW33300(CXD8530BQ* cpu);

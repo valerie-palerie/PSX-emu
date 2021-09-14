@@ -12,4 +12,3 @@ public:
 
 	Processor(CXD8530BQ* cpu);
 };
-

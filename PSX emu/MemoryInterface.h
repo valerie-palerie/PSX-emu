@@ -14,7 +14,8 @@ public:
 	AddressRange(std::uint32_t start, std::uint32_t end)
 		: start(start)
 		, end(end)
-	{}
+	{
+	}
 };
 
 struct MemoryMappedComponent
@@ -27,10 +28,11 @@ public:
 	IMemory* component() const { return _component; }
 	const AddressRange& range() const { return _range; }
 
-	MemoryMappedComponent(IMemory* component, AddressRange range) 
+	MemoryMappedComponent(IMemory* component, AddressRange range)
 		: _component(component)
 		, _range(range)
-	{}
+	{
+	}
 };
 
 class MemoryInterface : public IMemory
@@ -40,7 +42,7 @@ private:
 
 	IMemory* MapAddress(std::uint32_t address, std::uint32_t& out_offset);
 public:
-	
+
 	// Inherited via IMemory
 	virtual std::uint8_t Read8(std::uint32_t address) override;
 	virtual std::uint16_t Read16(std::uint32_t address) override;
