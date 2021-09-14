@@ -1,4 +1,8 @@
 #include "CW33300.h"
+
+#include <bitset>
+#include <iostream>
+
 #include "Utils.h"
 #include "CXD8530BQ.h"
 #include "Playstation.h"
@@ -55,7 +59,8 @@ CW33300::Registers::reg_t& CW33300::Registers::R(std::uint8_t index)
 	case 31:
 		return ra;
 	default:
-		throw;
+		__debugbreak();
+		return zero;
 	}
 }
 
@@ -85,19 +90,19 @@ ProcessorInstruction* CW33300::MapInstruction(const Opcode& opcode)
 	{
 		//clamp to bounds
 		size_t op = opcode.rt;
-		if (specialInstructionMap.size() <= op)
-			op = specialInstructionMap.size() - 1;
+		if (branchInstructionMap.size() <= op)
+			op = branchInstructionMap.size() - 1;
 
-		return &specialInstructionMap[op];
+		return &branchInstructionMap[op];
 	}
 	else
 	{
 		//clamp to bounds
 		size_t op = opcode.op;
-		if (specialInstructionMap.size() <= op)
-			op = specialInstructionMap.size() - 1;
+		if (instructionMap.size() <= op)
+			op = instructionMap.size() - 1;
 
-		return &specialInstructionMap[op];
+		return &instructionMap[op];
 	}
 }
 
@@ -109,7 +114,22 @@ void CW33300::ProcessNextInstruction()
 
 	Opcode opcode(instruction);
 	ProcessorInstruction* instructionRef = MapInstruction(opcode);
+#if _DEBUG
+	std::cout << instructionRef->name << "(" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n	op:"<< std::uint16_t(opcode.op) <<" rs:" << std::uint16_t(opcode.rs) << " rt:" << std::uint16_t(opcode.rt) << " rd:" << std::uint16_t(opcode.rd) << " shift:" << std::uint16_t(opcode.shift) << " func:" << std::uint16_t(opcode.func) << " imm:"<< opcode.imm <<" cop:"<< opcode.cop << "\n";
+#endif
+
 	std::int8_t opResult = instructionRef->instruction(opcode);
+
+#if _DEBUG
+	for(std::uint16_t i = 0 ; i < 32 ; ++i)
+		if(debugRegisters.R_get(i) != registers.R_get(i))
+		{
+			std::cout << "		R" << i << ": 0x" << std::hex << debugRegisters.R_get(i) << " -> 0x" << registers.R_get(i) << "\n";
+			debugRegisters.R_set(i, registers.R_get(i));
+		}
+
+	std::cout << "\n";
+#endif
 }
 
 CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
@@ -229,7 +249,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 std::int8_t CW33300::op_addiu(const Opcode& op)
 {
 	R_GET(rs);
-	R_SET(rt, rs + op.imm);
+	R_SET(rt, rs + op.imm_se);
 	return 0;
 }
 
@@ -242,7 +262,7 @@ std::int8_t CW33300::op_slt(const Opcode& op)
 	auto rt_signed = std::int32_t(rt);
 
 	R_SET(rd, (rs_signed < rt_signed) ? 1 : 0);
-	
+
 	return 0;
 }
 
@@ -272,7 +292,7 @@ std::int8_t CW33300::op_sltiu(const Opcode& op)
 	R_GET(rs);
 
 	R_SET(rt, (rs < op.imm) ? 1 : 0);
-	
+
 	return 0;
 }
 
@@ -413,7 +433,7 @@ std::int8_t CW33300::op_multu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-	
+
 	std::uint64_t result = std::uint64_t(rs) * std::uint64_t(rt);
 
 	registers.lo = result & 0x7FFFFFFF;
@@ -430,12 +450,12 @@ std::int8_t CW33300::op_div(const Opcode& op)
 	std::int32_t rss = std::int32_t(rs);
 	std::int32_t rts = std::int32_t(rt);
 
-	if(rts == 0)
+	if (rts == 0)
 	{
 		registers.lo = (rss >= 0) ? 0xffffffff : 1;
 		registers.hi = rss;
 	}
-	else if(rs == 0x80000000 && rts == -1)
+	else if (rs == 0x80000000 && rts == -1)
 	{
 		registers.lo = 0x80000000;
 		registers.hi = 0;
@@ -542,19 +562,25 @@ std::int8_t CW33300::op_lwr(const Opcode& op)
 
 std::int8_t CW33300::op_sb(const Opcode& op)
 {
-
+	R_GET(rs);
+	R_GET(rt);
+	cpu()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
 	return 0;
 }
 
 std::int8_t CW33300::op_sh(const Opcode& op)
 {
-
+	R_GET(rs);
+	R_GET(rt);
+	cpu()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
 	return 0;
 }
 
 std::int8_t CW33300::op_sw(const Opcode& op)
 {
-
+	R_GET(rs);
+	R_GET(rt);
+	cpu()->memInterface()->Write32(op.imm_se + rs, rt);
 	return 0;
 }
 
@@ -572,14 +598,14 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	registers.pc = (registers.pc & 0xF0000000) + (op.cop << 2);
+	registers.pc = ((registers.pc - 4) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
 	return 0;
 }
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
-	registers.ra = registers.pc + 8;
-	registers.pc = (registers.pc & 0xF0000000) + (op.cop << 2);
+	registers.ra = registers.pc + 4;
+	registers.pc = ((registers.pc - 4) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
 	return 0;
 }
 
@@ -593,7 +619,7 @@ std::int8_t CW33300::op_jr(const Opcode& op)
 //Potentially weird, one source says i might have to swap rs with rd.
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-	R_SET(rd, registers.pc + 8);
+	R_SET(rd, registers.pc + 4);
 	R_GET(rs);
 	registers.pc = rs;
 	return 0;
@@ -605,7 +631,7 @@ std::int8_t CW33300::op_beq(const Opcode& op)
 	R_GET(rt);
 	if (rs == rt)
 	{
-		registers.pc = registers.pc + 4 + (std::int32_t(op.imm) << 2);
+		registers.pc += (std::int32_t(op.imm) << 2);
 	}
 	return 0;
 }
@@ -614,45 +640,77 @@ std::int8_t CW33300::op_bne(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-	if (rs == rt)
+	if (rs != rt)
 	{
-		registers.pc = registers.pc + 4 + (std::int32_t(op.imm) << 2);
+		registers.pc += (std::int32_t(op.imm) << 2);
 	}
 	return 0;
 }
 
 std::int8_t CW33300::op_bltz(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) < 0)
+	{
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }
 
 std::int8_t CW33300::op_bgez(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) >= 0)
+	{
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }
 
 std::int8_t CW33300::op_bgtz(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) > 0)
+	{
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }
 
 std::int8_t CW33300::op_blez(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) <= 0)
+	{
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }
 
 std::int8_t CW33300::op_bltzal(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) < 0)
+	{
+		registers.ra = registers.pc + 4;
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }
 
 std::int8_t CW33300::op_bgezal(const Opcode& op)
 {
+	R_GET(rs);
+	if (std::int32_t(rs) >= 0)
+	{
+		registers.ra = registers.pc + 4;
+		registers.pc += (std::int32_t(op.imm) << 2);
+	}
 
 	return 0;
 }

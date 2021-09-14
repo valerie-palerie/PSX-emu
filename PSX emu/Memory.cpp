@@ -57,6 +57,25 @@ std::uint32_t MemoryChip::Read32(std::uint32_t address)
 	}
 }
 
+void MemoryChip::Write8(std::uint32_t address, std::uint8_t data)
+{
+	_mem[size_t(address)] = data;
+}
+
+void MemoryChip::Write16(std::uint32_t address, std::uint16_t data)
+{
+	_mem[size_t(address)] = std::uint8_t(data & 0xff);
+	_mem[size_t(address) + 1] = std::uint8_t((data >> 8) & 0xff);
+}
+
+void MemoryChip::Write32(std::uint32_t address, std::uint32_t data)
+{
+	_mem[size_t(address)] = std::uint8_t(data & 0xff);
+	_mem[size_t(address) + 1] = std::uint8_t((data >> 8) & 0xff);
+	_mem[size_t(address) + 2] = std::uint8_t((data >> 16) & 0xff);
+	_mem[size_t(address) + 3] = std::uint8_t((data >> 24) & 0xff);
+}
+
 void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
 	for (std::uint32_t i = 0; i < data.size(); ++i)
@@ -64,6 +83,7 @@ void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 		if ((size_t(address) + i) >= _mem.size())
 		{
 			//throw some kinda exception?
+			__debugbreak();
 			break;
 		}
 		_mem[size_t(address) + i] = data[i];

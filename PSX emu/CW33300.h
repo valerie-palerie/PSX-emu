@@ -24,7 +24,7 @@ public:
 		reg_t sp = 0xbadbad;			//R29
 		reg_t fp = 0xbadbad;			//R30
 		reg_t ra = 0xbadbad;			//R31
-		reg_t pc = 0xbfc00000;			//Program Counter
+		reg_t pc = MEM_BIOS;			//Program Counter
 		reg_t hi = 0xbadbad;			//Div Remainder
 		reg_t lo = 0xbadbad;			//Div Quotient
 
@@ -37,6 +37,11 @@ public:
 	};
 
 	Registers registers;
+
+#if _DEBUG
+	Registers debugRegisters;
+#endif
+
 
 	std::vector<ProcessorInstruction> instructionMap;
 	std::vector<ProcessorInstruction> branchInstructionMap;

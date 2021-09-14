@@ -32,8 +32,6 @@ std::uint8_t MemoryInterface::Read8(std::uint32_t address)
 	if (target != nullptr)
 		return target->Read8(offset);
 
-	//throw exception, maybe panic
-	__debugbreak();
 	return 0;
 }
 
@@ -44,8 +42,6 @@ std::uint16_t MemoryInterface::Read16(std::uint32_t address)
 	if (target != nullptr)
 		return target->Read16(offset);
 
-	//throw exception, maybe panic
-	__debugbreak();
 	return 0;
 }
 
@@ -56,9 +52,31 @@ std::uint32_t MemoryInterface::Read32(std::uint32_t address)
 	if (target != nullptr)
 		return target->Read32(offset);
 
-	//throw exception, maybe panic
-	__debugbreak();
 	return 0;
+}
+
+void MemoryInterface::Write8(std::uint32_t address, std::uint8_t data)
+{
+	std::uint32_t offset = 0;
+	IMemory* target = MapAddress(address, offset);
+	if (target != nullptr)
+		target->Write8(offset, data);
+}
+
+void MemoryInterface::Write16(std::uint32_t address, std::uint16_t data)
+{
+	std::uint32_t offset = 0;
+	IMemory* target = MapAddress(address, offset);
+	if (target != nullptr)
+		target->Write16(offset, data);
+}
+
+void MemoryInterface::Write32(std::uint32_t address, std::uint32_t data)
+{
+	std::uint32_t offset = 0;
+	IMemory* target = MapAddress(address, offset);
+	if (target != nullptr)
+		target->Write32(offset, data);
 }
 
 void MemoryInterface::Write(std::uint32_t address, std::vector<std::uint8_t> data)
@@ -67,9 +85,6 @@ void MemoryInterface::Write(std::uint32_t address, std::vector<std::uint8_t> dat
 	IMemory* target = MapAddress(address, offset);
 	if (target != nullptr)
 		target->Write(offset, data);
-
-	//throw exception, maybe panic
-	__debugbreak();
 }
 
 void MemoryInterface::AddComponent(MemoryMappedComponent component)
