@@ -8,46 +8,20 @@ class CXD8530BQ;
 
 class CW33300 : public Processor
 {
+protected:
+	std::uint32_t _r_pc;
+	std::uint32_t _r_lo;
+	std::uint32_t _r_hi;
+	std::uint32_t& r_ra() { return _registers_read[31]; }
+
+	std::uint32_t _delayJumpTarget = 0;
+
+	std::vector<ProcessorInstruction> _branchInstructionMap;
+	std::vector<ProcessorInstruction> _specialInstructionMap;
+
+	std::uint32_t _nextInstruction = 0x0;
+
 public:
-	struct Registers
-	{
-	public:
-		using reg_t = std::uint32_t;
-		reg_t zero = 0;					//R0
-		reg_t at = 0xbadbad;			//R1
-		reg_t v[2] = { 0xbadbad };		//R2-R3
-		reg_t a[4] = { 0xbadbad };		//R4-R7
-		reg_t t[10] = { 0xbadbad };		//R8-R15 (0-7) + R24-R25 (8-9)
-		reg_t s[8] = { 0xbadbad };		//R16-R23
-		reg_t k[2] = { 0xbadbad };		//R26-R27
-		reg_t gp = 0xbadbad;			//R28
-		reg_t sp = 0xbadbad;			//R29
-		reg_t fp = 0xbadbad;			//R30
-		reg_t ra = 0xbadbad;			//R31
-		reg_t pc = MEM_BIOS;			//Program Counter
-		reg_t hi = 0xbadbad;			//Div Remainder
-		reg_t lo = 0xbadbad;			//Div Quotient
-
-	protected:
-		reg_t& R(std::uint8_t index);
-
-	public:
-		reg_t R_get(std::uint8_t index);
-		void R_set(std::uint8_t index, reg_t value);
-	};
-
-	Registers registers;
-
-#if _DEBUG
-	Registers debugRegisters;
-#endif
-
-
-	std::vector<ProcessorInstruction> instructionMap;
-	std::vector<ProcessorInstruction> branchInstructionMap;
-	std::vector<ProcessorInstruction> specialInstructionMap;
-
-	std::uint32_t nextInstruction = 0x0;
 
 	//****** Instruction definitions ******//
 #define INST(name) std::int8_t op_##name(const Opcode& op)
@@ -74,11 +48,16 @@ public:
 	//---Utility
 	INST(invalid);
 #undef INST
-	//****** Instruction definitions ******//
 
-	ProcessorInstruction* MapInstruction(const Opcode& opcode);
+	//****** Processor Implementation ******//
+	std::uint32_t GetRegister(std::uint8_t index) override;
+	void SetRegister(std::uint8_t index, std::uint32_t value) override;
+	void ExecuteInstruction(Opcode opcode) override;
+
+	//****** CW333300 ******//
+	Processor* GetCoprocessor(std::uint8_t idx) const;
 	void ProcessNextInstruction();
+	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
 
-	CW33300(CXD8530BQ* cpu);
+	explicit CW33300(CXD8530BQ* cpu);
 };
-

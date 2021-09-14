@@ -8,13 +8,14 @@
 
 void Playstation::Tick(float deltaTime)
 {
-	_cpu.cw3300()->ProcessNextInstruction();
+	_cpu.cw33300()->ProcessNextInstruction();
 }
 
 Playstation::Playstation()
-	: _cpu(this)
-	, _bios(512 * 1024)
+	: _bios(512 * 1024)
 	, _dram(2048 * 1024)
+	, _cpu(this)
+
 {
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
 

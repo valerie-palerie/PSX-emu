@@ -5,13 +5,14 @@
 class Playstation
 {
 private:
-	CXD8530BQ _cpu;
 	MemoryChip _bios;
 	MemoryChip _dram;
+	CXD8530BQ _cpu;
 
 public:
-	CXD8530BQ* cpu() { return &_cpu; }
 	MemoryChip* bios() { return &_bios; }
+	MemoryChip* dram() { return &_dram; }
+	CXD8530BQ* cpu() { return &_cpu; }
 
 	void Tick(float deltaTime);
 

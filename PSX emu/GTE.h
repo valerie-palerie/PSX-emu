@@ -4,6 +4,9 @@
 class GTE : public Processor
 {
 public:
-	GTE(CXD8530BQ* cpu) : Processor(cpu) {}
+	//****** Processor Implementation ******//
+	void ExecuteInstruction(Opcode opcode) override;
+
+	explicit GTE(CXD8530BQ* cpu);
 };
 

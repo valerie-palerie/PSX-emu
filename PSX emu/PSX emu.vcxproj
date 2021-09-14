@@ -142,7 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CP0.cpp" />
+    <ClCompile Include="COP0.cpp" />
     <ClCompile Include="CXD8530BQ.cpp" />
     <ClCompile Include="GTE.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -153,7 +153,7 @@
     <ClCompile Include="Processor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CP0.h" />
+    <ClInclude Include="COP0.h" />
     <ClInclude Include="CXD8530BQ.h" />
     <ClInclude Include="GTE.h" />
     <ClInclude Include="Memory.h" />

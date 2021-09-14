@@ -27,7 +27,7 @@
     <ClCompile Include="CXD8530BQ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CP0.cpp">
+    <ClCompile Include="COP0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GTE.cpp">
@@ -56,7 +56,7 @@
     <ClInclude Include="CXD8530BQ.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CP0.h">
+    <ClInclude Include="COP0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GTE.h">

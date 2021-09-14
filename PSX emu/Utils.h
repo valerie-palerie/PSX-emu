@@ -5,6 +5,7 @@
 #include <string>
 
 #define MEM_BIOS 0xbfc00000
+#define MEM_RAM 0xa0000000
 #define MEM_RAM_SIZE_REG 0x1f801060
 #define MEM_CACHE_CONTROL_REG 0xfffe0130
 
@@ -21,6 +22,7 @@ public:
 	std::uint16_t imm; //bits 15-0
 	std::uint32_t imm_se; //bits 15-0 sign-extended
 	std::uint32_t cop : 26; //bits 25 - 0
+	std::uint32_t opcode; //bits 31 - 0
 
 
 	explicit Opcode(std::uint32_t binary)
@@ -30,11 +32,12 @@ public:
 		rt = ((binary >> 16) & 0b11111);
 		rd = ((binary >> 11) & 0b11111);
 		shift = ((binary >> 6) & 0b11111);
-		func = ((binary) & 0b11111);
+		func = ((binary) & 0b111111);
 
 		imm = std::uint16_t(binary & 0xffff);
 		imm_se = std::uint32_t(std::int16_t(binary & 0xffff));
 		cop = binary & 0x3FFFFFF;
+		opcode = binary;
 	}
 
 	Opcode(const Opcode& opcode) = default;
@@ -53,3 +56,7 @@ public:
 	{
 	}
 };
+
+//Get/Set functions for the register pointed to by the opcode part.
+#define R_GET(name) auto (name) = GetRegister(op.name)
+#define R_SET(name, val) SetRegister(op.name, val)
