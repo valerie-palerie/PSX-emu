@@ -21,7 +21,7 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, std::uint32_t& out_o
 		if (comp.range().MapAddress(address, out_offset))
 			return comp.component();
 	}
-
+	__debugbreak();
 	return nullptr;
 }
 
