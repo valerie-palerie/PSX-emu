@@ -9,15 +9,18 @@ CXD8530BQ::CXD8530BQ(Playstation* playstation)
 {
 	//BIOS
 	_memInterface.AddComponent(
-		MemoryMappedComponent(_playstation->bios(), AddressRange(MEM_BIOS, MEM_BIOS + _playstation->bios()->size())));
+		MemoryMappedComponent("BIOS", _playstation->bios(), AddressRange(MEM_BIOS, MEM_BIOS + _playstation->bios()->size())));
 	//RAM
 	_memInterface.AddComponent(
-		MemoryMappedComponent(_playstation->dram(), AddressRange(MEM_RAM, MEM_RAM + _playstation->dram()->size())));
+		MemoryMappedComponent("BIOS", _playstation->dram(), AddressRange(MEM_RAM, MEM_RAM + _playstation->dram()->size())));
 	//RAM size register
 	_memInterface.AddComponent(
-		MemoryMappedComponent(nullptr, AddressRange(MEM_RAM_SIZE_REG, MEM_RAM_SIZE_REG + 4)));
+		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_RAM_SIZE_REG, MEM_RAM_SIZE_REG + 4)));
 	//Cache control register
 	_memInterface.AddComponent(
-		MemoryMappedComponent(nullptr, AddressRange(MEM_CACHE_CONTROL_REG, MEM_CACHE_CONTROL_REG + 4)));
+		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_CACHE_CONTROL_REG, MEM_CACHE_CONTROL_REG + 4)));
+	//System control register
+	_memInterface.AddComponent(
+		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_CACHE_CONTROL_REG, MEM_CACHE_CONTROL_REG + 4)));
 	
 }

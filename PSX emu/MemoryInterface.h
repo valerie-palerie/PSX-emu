@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <string>
+
 #include "Memory.h"
 
 struct AddressRange
@@ -21,15 +23,18 @@ public:
 struct MemoryMappedComponent
 {
 private:
+	std::string _name;
 	IMemory* _component;
 	AddressRange _range;
 
 public:
+	const std::string& name() const { return _name; }
 	IMemory* component() const { return _component; }
 	const AddressRange& range() const { return _range; }
 
-	MemoryMappedComponent(IMemory* component, AddressRange range)
-		: _component(component)
+	MemoryMappedComponent(const std::string& name, IMemory* component, AddressRange range)
+		: _name(name)
+		, _component(component)
 		, _range(range)
 	{
 	}

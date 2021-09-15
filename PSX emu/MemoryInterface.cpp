@@ -16,13 +16,14 @@ bool AddressRange::MapAddress(std::uint32_t address, std::uint32_t& out_offset) 
 
 IMemory* MemoryInterface::MapAddress(std::uint32_t address, std::uint32_t& out_offset)
 {
+	const MemoryMappedComponent* component = nullptr;
 	for (const MemoryMappedComponent& comp : _components)
 	{
 		if (comp.range().MapAddress(address, out_offset))
-			return comp.component();
+			component = &comp;
 	}
 	__debugbreak();
-	return nullptr;
+	return component->component();
 }
 
 std::uint8_t MemoryInterface::Read8(std::uint32_t address)
