@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
-
+#include "Utils.h"
 #include "Memory.h"
 
 struct AddressRange
@@ -46,7 +46,9 @@ private:
 	std::vector<MemoryMappedComponent> _components;
 
 	IMemory* MapAddress(std::uint32_t address, std::uint32_t& out_offset);
+
 public:
+	MemorySegment GetMemSegmentFromAddress(std::uint32_t address);
 
 	// Inherited via IMemory
 	virtual std::uint8_t Read8(std::uint32_t address) override;

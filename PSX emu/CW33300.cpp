@@ -773,7 +773,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 {
 	_registers_read.resize(32, 0xbadbad);
 	_registers_write.resize(32, 0xbadbad);
-	_r_pc = MEM_BIOS;
+	_r_pc = MemoryMap::BIOS_BASE;
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
 	_instructionMap =

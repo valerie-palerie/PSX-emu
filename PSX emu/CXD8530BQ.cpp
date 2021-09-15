@@ -7,20 +7,22 @@ CXD8530BQ::CXD8530BQ(Playstation* playstation)
 	, _gte(this)
 	, _playstation(playstation)
 {
-	//BIOS
-	_memInterface.AddComponent(
-		MemoryMappedComponent("BIOS", _playstation->bios(), AddressRange(MEM_BIOS, MEM_BIOS + _playstation->bios()->size())));
-	//RAM
-	_memInterface.AddComponent(
-		MemoryMappedComponent("BIOS", _playstation->dram(), AddressRange(MEM_RAM, MEM_RAM + _playstation->dram()->size())));
-	//RAM size register
-	_memInterface.AddComponent(
-		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_RAM_SIZE_REG, MEM_RAM_SIZE_REG + 4)));
-	//Cache control register
-	_memInterface.AddComponent(
-		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_CACHE_CONTROL_REG, MEM_CACHE_CONTROL_REG + 4)));
-	//System control register
-	_memInterface.AddComponent(
-		MemoryMappedComponent("BIOS", nullptr, AddressRange(MEM_CACHE_CONTROL_REG, MEM_CACHE_CONTROL_REG + 4)));
-	
+#define COMP(name, comp) _memInterface.AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE)))
+	COMP(BIOS, _playstation->bios());
+	COMP(RAM, _playstation->dram());
+	COMP(MEMCTRL, nullptr);
+	COMP(MEMCTRL2, nullptr);
+	COMP(EXP1, nullptr);
+	COMP(EXP2, nullptr);
+	COMP(EXP3, nullptr);
+	COMP(PAD, nullptr);
+	COMP(SIO, nullptr);
+	COMP(INTERRUPT_CONTROLLER, nullptr);
+	COMP(DMA, nullptr);
+	COMP(TIMERS, nullptr);
+	COMP(CDROM, nullptr);
+	COMP(GPU, nullptr);
+	COMP(MDEC, nullptr);
+	COMP(SPU, nullptr);
+	COMP(CACHE_CONTROL, nullptr);
 }
