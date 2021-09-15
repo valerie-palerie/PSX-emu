@@ -374,6 +374,10 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 		//cache read
 		return 0;
 	}
+
+	R_GET(rs);
+	R_SET(rt, std::int32_t(cpu()->memInterface()->Read8(op.imm_se + rs)));
+
 	return 0;
 }
 
@@ -384,6 +388,10 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 		//cache read
 		return 0;
 	}
+
+	R_GET(rs);
+	R_SET(rt, cpu()->memInterface()->Read8(op.imm_se + rs));
+
 	return 0;
 }
 
@@ -394,6 +402,10 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 		//cache read
 		return 0;
 	}
+
+	R_GET(rs);
+	R_SET(rt, std::int32_t(cpu()->memInterface()->Read16(op.imm_se + rs)));
+
 	return 0;
 }
 
@@ -404,6 +416,10 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 		//cache read
 		return 0;
 	}
+
+	R_GET(rs);
+	R_SET(rt, cpu()->memInterface()->Read16(op.imm_se + rs));
+
 	return 0;
 }
 
@@ -511,7 +527,7 @@ std::int8_t CW33300::op_j(const Opcode& op)
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
-	r_ra() = _r_pc;
+	r_ra() = _r_pc + 8;
 	_delayJumpTarget = ((_r_pc) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
 	return 0;
 }

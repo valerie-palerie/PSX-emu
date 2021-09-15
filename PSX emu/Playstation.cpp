@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "CXD8530BQ.h"
 #include "CW33300.h"
+#include "Utils.h"
 
 void Playstation::Tick(float deltaTime)
 {
@@ -12,8 +13,8 @@ void Playstation::Tick(float deltaTime)
 }
 
 Playstation::Playstation()
-	: _bios(512 * 1024)
-	, _dram(2048 * 1024)
+	: _bios(MemoryMap::BIOS_SIZE)
+	, _dram(MemoryMap::RAM_2MB_SIZE)
 	, _cpu(this)
 
 {
