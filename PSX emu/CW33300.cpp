@@ -21,8 +21,8 @@ std::int8_t CW33300::op_add(const Opcode& op)
 
 	auto rss = std::int32_t(rs);
 	auto rts = std::int32_t(rt);
-	auto int_max = std::numeric_limits<std::int32_t>::max();
-	auto int_min = std::numeric_limits<std::int32_t>::min();
+	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
+	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
 	if ((rss > 0 && rss > int_max - rts) || (rss < 0 && rss < int_min - rts))
 	{
 		//throw exception
@@ -51,8 +51,8 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 
 	auto rss = std::int32_t(rs);
 	auto rts = std::int32_t(rt);
-	auto int_max = std::numeric_limits<std::int32_t>::max();
-	auto int_min = std::numeric_limits<std::int32_t>::min();
+	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
+	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
 	if ((rss > 0 && rss > int_max + rts) || (rss < 0 && rss < int_min + rts))
 	{
 		//throw exception
@@ -81,8 +81,8 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	auto rss = std::int32_t(rs);
 	auto imms = std::int32_t(op.imm_se);
 
-	auto int_max = std::numeric_limits<std::int32_t>::max();
-	auto int_min = std::numeric_limits<std::int32_t>::min();
+	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
+	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
 	if ((rss > 0 && rss > int_max - imms) || (rss < 0 && rss < int_min - imms))
 	{
 		//throw exception
@@ -434,7 +434,6 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 	R_GET(rs);
 	R_SET(rt, cpu()->memInterface()->Read32(op.imm_se + rs));
 
-
 	return 0;
 }
 
@@ -445,6 +444,8 @@ std::int8_t CW33300::op_lwl(const Opcode& op)
 		//cache read
 		return 0;
 	}
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
@@ -455,6 +456,8 @@ std::int8_t CW33300::op_lwr(const Opcode& op)
 		//cache read
 		return 0;
 	}
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
@@ -504,7 +507,8 @@ std::int8_t CW33300::op_swr(const Opcode& op)
 		//cache read
 		return 0;
 	}
-
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
@@ -515,7 +519,8 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 		//cache read
 		return 0;
 	}
-
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
@@ -527,6 +532,7 @@ std::int8_t CW33300::op_j(const Opcode& op)
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
+	//There are conflicting sources as to whether the pc should point to the delay slot or one slot after. I'm picking the latter let's see how it goes.
 	r_ra() = _r_pc + 8;
 	_delayJumpTarget = ((_r_pc) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
 	return 0;
@@ -640,13 +646,15 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 
 std::int8_t CW33300::op_syscall(const Opcode& op)
 {
-
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t CW33300::op_break(const Opcode& op)
 {
-
+	//-UNIMPLEMENTED
+	__debugbreak();
 	return 0;
 }
 
@@ -659,8 +667,11 @@ std::int8_t CW33300::op_copn(const Opcode& op)
 	return 0;
 }
 
+//LWCn and SWCn might need to be implemented on the coprocessor, i'll get back to this when i know more.
 std::int8_t CW33300::op_lwcn(const Opcode& op)
 {
+	//-UNIMPLEMENTED
+	__debugbreak();
 	//Processor* coprocessor = GetCoprocessor(op.op & 0b011);
 	//if (coprocessor != nullptr)
 	//	coprocessor->ExecuteInstruction(op);
@@ -670,6 +681,8 @@ std::int8_t CW33300::op_lwcn(const Opcode& op)
 
 std::int8_t CW33300::op_swcn(const Opcode& op)
 {
+	//-UNIMPLEMENTED
+	__debugbreak();
 	//Processor* coprocessor = GetCoprocessor(op.op & 0b011);
 	//if (coprocessor != nullptr)
 	//	coprocessor->ExecuteInstruction(op);
@@ -679,7 +692,8 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 
 std::int8_t CW33300::op_invalid(const Opcode& op)
 {
-	//invalid instruction, do something!!!!!!
+	//invalid instruction, i think we're meant to raise an exception on the coprocessor.
+	//-UNIMPLEMENTED
 	__debugbreak();
 	return 0;
 }
@@ -696,6 +710,7 @@ void CW33300::SetRegister(std::uint8_t index, std::uint32_t value)
 	_registers_write[0] = 0;
 }
 
+
 void CW33300::ExecuteInstruction(Opcode opcode)
 {
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
@@ -703,16 +718,20 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	std::cout << std::hex << "0x" << _r_pc << ": 0x" << opcode.opcode << std::dec << (_delayJumpTarget != 0 ? " (delay)" : "") << "\n[" << instructionRef->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n	op:" << std::uint16_t(opcode.op) << " rs:" << std::uint16_t(opcode.rs) << " rt:" << std::uint16_t(opcode.rt) << " rd:" << std::uint16_t(opcode.rd) << " shift:" << std::uint16_t(opcode.shift) << " func:" << std::uint16_t(opcode.func) << " imm:" << opcode.imm << " cop:" << opcode.cop << "\n";
 #endif
 
-	bool advancePC = true;
-	if (_delayJumpTarget != 0)
-	{
-		_r_pc = _delayJumpTarget;
-		_delayJumpTarget = 0;
-		advancePC = false;
-	}
+	//The processor will unconditionally execute the instruction immediately after a jump.
+	//Instead of jumping directly, we store the jump to a delay jump target and defer it until the next instruction.
+	//Cache the delay jump target in case the delay slot is also a jump, in which case the order of operations will be j->delay slot j->j target->delay slot j target.
+	//Maybe find out if that's how the PS1 works.
+	std::uint32_t currentDelayJumpTarget = _delayJumpTarget;
+	_delayJumpTarget = 0;
+
 	std::int8_t opResult = instructionRef->instruction(opcode);
 
-	if(advancePC)
+	//Other emulators advance the program counter register after fetching an instruction rather than after executing the instruction.
+	//For now i'm keeping it like this since it makes instruction code nicer, if there's problems move this above the instruction call.
+	if (currentDelayJumpTarget != 0)
+		_r_pc = currentDelayJumpTarget;
+	else
 		_r_pc += 4;
 
 #if _DEBUG
@@ -741,33 +760,21 @@ Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
 
 ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 {
+	//Bits 31-26 being 0x0 suggests we should look at bits 5-0 where a special instruction is encoded.
 	if (opcode.op == 0x00)
 	{
-		//clamp to bounds
-		size_t op = opcode.func;
-		if (_specialInstructionMap.size() <= op)
-			op = _specialInstructionMap.size() - 1;
-
-		return &_specialInstructionMap[op];
+		//Clamp map lookup to the end of map, handles invalid instructions at the end of the mapping that i don't wanna manually add.
+		return &_specialInstructionMap[std::min(size_t(opcode.func), _specialInstructionMap.size() - 1)];
 	}
-	else if (opcode.op == 0x01)
+
+	//Branching instructions that are marked with 0x1 on bits 31-26 and are differentiated with bits 20-16
+	if (opcode.op == 0x01)
 	{
-		//clamp to bounds
-		size_t op = opcode.rt;
-		if (_branchInstructionMap.size() <= op)
-			op = _branchInstructionMap.size() - 1;
-
-		return &_branchInstructionMap[op];
+		return &_branchInstructionMap[std::min(size_t(opcode.rt), _specialInstructionMap.size() - 1)];
 	}
-	else
-	{
-		//clamp to bounds
-		size_t op = opcode.op;
-		if (_instructionMap.size() <= op)
-			op = _instructionMap.size() - 1;
 
-		return &_instructionMap[op];
-	}
+	//All other instructions are mapped normally in bots 31-26
+	return &_instructionMap[std::min(size_t(opcode.op), _specialInstructionMap.size() - 1)];
 }
 
 void CW33300::ProcessNextInstruction()
@@ -787,11 +794,13 @@ void CW33300::ProcessNextInstruction()
 
 CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 {
+	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
 	_registers_read.resize(32, 0xbadbad);
 	_registers_write.resize(32, 0xbadbad);
 	_r_pc = MemoryMap::BIOS_BASE;
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
+	//Since operations are encoded in 5 or 6 bit values, just put them in a vector and retrieve by index.
 	_instructionMap =
 	{
 		/*  00h=SPECIAL 08h=ADDI  10h=COP0 18h=N/A   20h=LB   28h=SB   30h=LWC0 38h=SWC0

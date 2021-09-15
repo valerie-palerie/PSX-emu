@@ -9,20 +9,21 @@ class CXD8530BQ;
 class CW33300 : public Processor
 {
 protected:
+	//Internal registers 
 	std::uint32_t _r_pc;
 	std::uint32_t _r_lo;
 	std::uint32_t _r_hi;
+
+	//return address register getter for convenience
 	std::uint32_t& r_ra() { return _registers_read[31]; }
 
+	//See ExecuteInstruction()
 	std::uint32_t _delayJumpTarget = 0;
 
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
 
-	std::uint32_t _nextInstruction = 0x0;
-
 public:
-
 	//****** Instruction definitions ******//
 #define INST(name) std::int8_t op_##name(const Opcode& op)
 	//---ALU arithmetic
@@ -42,7 +43,7 @@ public:
 	//---Jump
 	INST(j); INST(jal); INST(jr); INST(jalr); INST(beq); INST(bne); INST(bltz); INST(bgez); INST(bgtz); INST(blez); INST(bltzal); INST(bgezal);
 	//---Coprocessor
-	INST(copn); INST(lwcn); INST(swcn);
+	INST(copn); INST(lwcn); INST(swcn); //LWCn and SWCn might need to be implemented on the coprocessor, i'll get back to this when i know more.
 	//---Exception
 	INST(syscall); INST(break);
 	//---Utility
