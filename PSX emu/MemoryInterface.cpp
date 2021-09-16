@@ -16,6 +16,8 @@ bool AddressRange::MapAddress(std::uint32_t address, std::uint32_t& out_offset) 
 
 IMemory* MemoryInterface::MapAddress(std::uint32_t address, std::uint32_t& out_offset)
 {
+	//The PS1 mirrors its addressable memory in 3 separate places
+	//But KSEG2 maps to some hardware registers, handle it later
 	MemorySegment seg = GetMemSegmentFromAddress(address);
 	switch (seg)
 	{
@@ -23,18 +25,27 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, std::uint32_t& out_o
 	case MemorySegment::KSEG1:
 		address &= 0x1FFFFFFF; //set 3 msb to 0
 		break;
-	default:
+	case MemorySegment::KUSEG:
+	case MemorySegment::KSEG2:
 		break;
 	}
 
 	const MemoryMappedComponent* component = nullptr;
 	for (const MemoryMappedComponent& comp : _components)
 	{
+		//TODO: Add a check here if multiple components map to same address
 		if (comp.range().MapAddress(address, out_offset))
+		{
 			component = &comp;
+			break;
+		}
 	}
 
-	if(component == nullptr || component->component() == nullptr)
+	//I think accessing past KSEG0/KSEG1 + 0x20000000 (512MB) is meant to throw an exception? (https://psx-spx.consoledev.net/memorymap/)
+	//if((seg == MemorySegment::KSEG0 || seg == MemorySegment::KSEG1) && offset >= 0x20000000)
+	//	__debugbreak();
+
+	if(component == nullptr)// || component->component() == nullptr)
 		__debugbreak();
 	return component->component();
 }

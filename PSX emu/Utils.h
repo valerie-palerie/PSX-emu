@@ -1,11 +1,12 @@
 #pragma once
 #include <cstdint>
-#include <vector>
+#include <utility>
 #include <functional>
 #include <string>
 
 namespace MemoryMap
 {
+	//Addresses of stuff. Taken from duckstation's source code for convenience.
 	//https://github.com/stenzek/duckstation/blob/master/src/core/bus.h
 	enum MemoryMap : std::uint32_t
 	{
@@ -77,6 +78,26 @@ public:
 	std::uint32_t cop : 26; //bits 25 - 0
 	std::uint32_t opcode; //bits 31 - 0
 
+	//Helper function for debugging
+	std::uint8_t GetSegment(std::uint8_t index)
+	{
+		switch (index)
+		{
+		case 0:
+			return func;
+		case 1:
+			return shift;
+		case 2:
+			return rd;
+		case 3:
+			return rt;
+		case 4:
+			return rs;
+		default:
+		case 5:
+			return op;
+		}
+	}
 
 	explicit Opcode(std::uint32_t binary)
 	{
@@ -97,15 +118,38 @@ public:
 	Opcode() = default;
 };
 
+
+enum class InstructionFormat
+{
+	R,
+	I,
+	J
+};
+
+struct InstructionStructure
+{
+public:
+	InstructionFormat format;
+	std::uint8_t segmentMask;
+
+	InstructionStructure(InstructionFormat format = InstructionFormat::R, std::uint8_t segmentMask = 0x00)
+		: format(format)
+		, segmentMask(segmentMask)
+	{
+	}
+};
+
 struct ProcessorInstruction
 {
 public:
 	std::string name;
 	std::function<std::int8_t(const Opcode&)> instruction;
+	InstructionStructure structure;
 
-	ProcessorInstruction(std::string name, std::function<std::int8_t(const Opcode&)> instruction)
-		: name(name)
-		, instruction(instruction)
+	ProcessorInstruction(std::string name, std::function<std::int8_t(const Opcode&)> instruction, InstructionStructure structure = InstructionStructure())
+		: name(std::move(name))
+		, instruction(std::move(instruction))
+		, structure(structure)
 	{
 	}
 };

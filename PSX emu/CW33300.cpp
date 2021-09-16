@@ -533,7 +533,7 @@ std::int8_t CW33300::op_j(const Opcode& op)
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
 	//There are conflicting sources as to whether the pc should point to the delay slot or one slot after. I'm picking the latter let's see how it goes.
-	r_ra() = _r_pc + 8;
+	SetRegister(31, _r_pc + 8);
 	_delayJumpTarget = ((_r_pc) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
 	return 0;
 }
@@ -625,7 +625,7 @@ std::int8_t CW33300::op_bltzal(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) < 0)
 	{
-		r_ra() = _r_pc + 8;
+		SetRegister(31, _r_pc + 8);
 		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
 	}
 
@@ -637,7 +637,7 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) >= 0)
 	{
-		r_ra() = _r_pc + 8;
+		SetRegister(31, _r_pc + 8);
 		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
 	}
 
@@ -714,8 +714,67 @@ void CW33300::SetRegister(std::uint8_t index, std::uint32_t value)
 void CW33300::ExecuteInstruction(Opcode opcode)
 {
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
+
 #if _DEBUG
-	std::cout << std::hex << "0x" << _r_pc << ": 0x" << opcode.opcode << std::dec << (_delayJumpTarget != 0 ? " (delay)" : "") << "\n[" << instructionRef->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n	op:" << std::uint16_t(opcode.op) << " rs:" << std::uint16_t(opcode.rs) << " rt:" << std::uint16_t(opcode.rt) << " rd:" << std::uint16_t(opcode.rd) << " shift:" << std::uint16_t(opcode.shift) << " func:" << std::uint16_t(opcode.func) << " imm:" << opcode.imm << " cop:" << opcode.cop << "\n";
+	//Print the details of the opcode we're processing.
+	std::cout << std::hex << "0x" << _r_pc << ": 0x" << opcode.opcode << std::dec << (_delayJumpTarget != 0 ? " (delay)" : "") << "\n[" << instructionRef->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n";
+	std::cout << "	op:" << std::uint16_t(opcode.op) << " rs : " << std::uint16_t(opcode.rs) << " rt : " << std::uint16_t(opcode.rt) << " rd : " << std::uint16_t(opcode.rd) << " shift : " << std::uint16_t(opcode.shift) << " func : " << std::uint16_t(opcode.func) << " imm : " << opcode.imm << " cop : " << opcode.cop << "\n";
+
+	if (instructionRef->structure.segmentMask != 0)
+	{
+		switch (instructionRef->structure.format)
+		{
+		case InstructionFormat::R:
+			std::cout << "	" << instructionRef->name;
+			for (std::uint8_t i = 4; i > 0; --i)
+			{
+				if ((0x1 << i) & instructionRef->structure.segmentMask)
+				{
+					if (i == 1 && !(opcode.func & 0b111100)) //stinky immediate shift instruction
+						std::cout << std::hex << " 0x" << std::uint16_t(opcode.GetSegment(i)) << std::dec;
+					else
+						std::cout << " $" << std::uint16_t(opcode.GetSegment(i));
+				}
+			}
+
+			std::cout << "\n	" << instructionRef->name;
+
+			for (std::uint8_t i = 4; i > 0; --i)
+			{
+				if ((0x1 << i) & instructionRef->structure.segmentMask)
+				{
+					if (i == 1 && !(opcode.func & 0b111100)) //stinky immediate shift instruction
+						std::cout << " " << std::uint16_t(opcode.GetSegment(i));
+					else
+						std::cout << std::hex << " 0x" << GetRegister(opcode.GetSegment(i)) << std::dec;
+				}
+			}
+			break;
+		case InstructionFormat::I:
+			std::cout << "	" << instructionRef->name;
+			for (std::uint8_t i = 4; i > 2; --i)
+			{
+				if ((0x1 << i) & instructionRef->structure.segmentMask)
+					std::cout << " $" << std::uint16_t(opcode.GetSegment(i));
+			}
+			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
+			std::cout << "\n	" << instructionRef->name;
+
+			for (std::uint8_t i = 4; i > 2; --i)
+			{
+				if ((0x1 << i) & instructionRef->structure.segmentMask)
+					std::cout << std::hex << " 0x" << GetRegister(opcode.GetSegment(i)) << std::dec;
+			}
+			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
+
+			break;
+		case InstructionFormat::J:
+			std::cout << std::hex << "	" << instructionRef->name << " 0x" << opcode.cop << std::dec << " << 2 (" << (std::int32_t(opcode.cop << 2)) << ")";
+			break;
+		}
+
+		std::cout << '\n';
+	}
 #endif
 
 	//The processor will unconditionally execute the instruction immediately after a jump.
@@ -735,6 +794,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 		_r_pc += 4;
 
 #if _DEBUG
+	//Print any changed registers.
 	for (std::uint8_t i = 0; i < 32; ++i)
 		if (_registers_write[i] != _registers_read[i])
 			std::cout << "		R" << std::uint16_t(i) << ": 0x" << std::hex << _registers_read[i] << " -> 0x" << _registers_write[i] << "\n";
@@ -779,14 +839,6 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 
 void CW33300::ProcessNextInstruction()
 {
-	/*
-	std::uint32_t instruction = _nextInstruction;
-	_nextInstruction = cpu()->memInterface()->Read32(_r_pc);
-	_r_pc += 4;
-
-	Opcode opcode(instruction)
-	*/
-
 	Opcode opcode(cpu()->memInterface()->Read32(_r_pc));
 	ExecuteInstruction(opcode);
 }
@@ -797,10 +849,14 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
 	_registers_read.resize(32, 0xbadbad);
 	_registers_write.resize(32, 0xbadbad);
+	_registers_read[0] = 0;
+	_registers_write[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
+#define INST_F(name, format, mask) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); }, InstructionStructure(InstructionFormat::##format, mask))
 	//Since operations are encoded in 5 or 6 bit values, just put them in a vector and retrieve by index.
+
 	_instructionMap =
 	{
 		/*  00h=SPECIAL 08h=ADDI  10h=COP0 18h=N/A   20h=LB   28h=SB   30h=LWC0 38h=SWC0
@@ -811,12 +867,12 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 			05h=BNE     0Dh=ORI   15h=N/A  1Dh=N/A   25h=LHU  2Dh=N/A  35h=N/A  3Dh=N/A
 			06h=BLEZ    0Eh=XORI  16h=N/A  1Eh=N/A   26h=LWR  2Eh=SWR  36h=N/A  3Eh=N/A
 			07h=BGTZ    0Fh=LUI   17h=N/A  1Fh=N/A   27h=N/A  2Fh=N/A  37h=N/A  3Fh=N/A    */
-		INST(invalid), INST(invalid), INST(j), INST(jal), INST(beq), INST(bne), INST(blez), INST(bgtz),
-		INST(addi), INST(addiu), INST(slti), INST(sltiu), INST(andi), INST(ori), INST(xori), INST(lui),
-		INST(copn), INST(copn), INST(copn), INST(copn), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
+		INST(invalid), INST(invalid), INST_F(j, J, 0xff), INST_F(jal, J, 0xff), INST_F(beq, I, 0xff), INST_F(bne, I, 0xff), INST_F(blez, I, 0b110111), INST_F(bgtz, I, 0b110111),
+		INST_F(addi, I, 0xff), INST_F(addiu, I, 0xff), INST_F(slti, I, 0xff), INST_F(sltiu, I, 0xff), INST_F(andi, I, 0xff), INST_F(ori, I, 0xff), INST_F(xori, I, 0xff), INST_F(lui, I, 0b101111),
+		INST_F(copn, J, 0x0), INST_F(copn, J, 0x0), INST_F(copn, J, 0x0), INST_F(copn, J, 0x0), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
-		INST(lb), INST(lh), INST(lwl), INST(lw), INST(lbu), INST(lhu), INST(lwr), INST(invalid),
-		INST(sb), INST(sh), INST(swl), INST(sw), INST(invalid), INST(invalid), INST(swr), INST(invalid),
+		INST_F(lb, I, 0xff), INST_F(lh, I, 0xff), INST_F(lwl, I, 0xff), INST_F(lw, I, 0xff), INST_F(lbu, I, 0xff), INST_F(lhu, I, 0xff), INST_F(lwr, I, 0xff), INST(invalid),
+		INST_F(sb, I, 0xff), INST_F(sh, I, 0xff), INST_F(swl, I, 0xff), INST_F(sw, I, 0xff), INST(invalid), INST(invalid), INST(swr), INST(invalid),
 		INST(lwcn), INST(lwcn), INST(lwcn), INST(lwcn), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(swcn), INST(swcn), INST(swcn), INST(swcn), INST(invalid), INST(invalid), INST(invalid), INST(invalid)
 
@@ -828,11 +884,11 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 			000001 | rs   | 00001| <--immediate16bit--> | bgez
 			000001 | rs   | 10000| <--immediate16bit--> | bltzal
 			000001 | rs   | 10001| <--immediate16bit--> | bgezal  */
-		INST(bltz), INST(bgez), INST(invalid), INST(invalid),
+		INST_F(bltz, I, 0b110111), INST_F(bgez, I, 0b110111), INST(invalid), INST(invalid),
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid),
 		INST(invalid), INST(invalid), INST(invalid), INST(invalid),
-		INST(bltzal), INST(bgezal), INST(invalid), INST(invalid)
+		INST_F(bltzal, I, 0b110111), INST_F(bgezal, I, 0b110111), INST(invalid), INST(invalid)
 	};
 
 	_specialInstructionMap =
@@ -845,12 +901,12 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 			05h=N/A   0Dh=BREAK   15h=N/A  1Dh=N/A   25h=OR   2Dh=N/A  35h=N/A  3Dh=N/A
 			06h=SRLV  0Eh=N/A     16h=N/A  1Eh=N/A   26h=XOR  2Eh=N/A  36h=N/A  3Eh=N/A
 			07h=SRAV  0Fh=N/A     17h=N/A  1Fh=N/A   27h=NOR  2Fh=N/A  37h=N/A  3Fh=N/A   */
-		INST(sll), INST(invalid), INST(srl), INST(sra), INST(sllv), INST(invalid), INST(srlv), INST(srav),
-		INST(jr), INST(jalr), INST(invalid), INST(invalid), INST(syscall), INST(break), INST(invalid), INST(invalid),
-		INST(mfhi), INST(mthi), INST(mflo), INST(mtlo), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
-		INST(mult), INST(multu), INST(div), INST(divu), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
-		INST(add), INST(addu), INST(sub), INST(subu), INST(and), INST(or ), INST(xor), INST(nor),
-		INST(invalid), INST(invalid), INST(slt), INST(sltu), INST(invalid)
+		INST_F(sll, R, 0b101111), INST(invalid), INST_F(srl, R, 0b101111), INST_F(sra, R, 0b101111), INST_F(sllv, R, 0b111101), INST(invalid), INST_F(srlv, R, 0b111101), INST_F(srav, R, 0b111101),
+		INST_F(jr, R, 0b110001), INST_F(jalr, R, 0b110101), INST(invalid), INST(invalid), INST_F(syscall, R, 0x0), INST_F(break, R, 0x0), INST(invalid), INST(invalid),
+		INST_F(mfhi, R, 0b100101), INST_F(mthi, R, 0b110001), INST_F(mflo, R, 0b100101), INST_F(mtlo, R, 0b110001), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
+		INST_F(mult, R, 0b111001), INST_F(multu, R, 0b111001), INST_F(div, R, 0b111001), INST_F(divu, R, 0b111001), INST(invalid), INST(invalid), INST(invalid), INST(invalid),
+		INST_F(add, R, 0b111101), INST_F(addu, R, 0b111101), INST_F(sub, R, 0b111101), INST_F(subu, R, 0b111101), INST_F(and, R, 0b111101), INST_F(or , R, 0b111101), INST_F(xor, R, 0b111101), INST_F(nor, R, 0b111101),
+		INST(invalid), INST(invalid), INST_F(slt, R, 0b111101), INST_F(sltu, R, 0b111101), INST(invalid)
 	};
 #undef INST
 }

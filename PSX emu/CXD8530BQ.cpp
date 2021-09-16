@@ -7,6 +7,7 @@ CXD8530BQ::CXD8530BQ(Playstation* playstation)
 	, _gte(this)
 	, _playstation(playstation)
 {
+	//Map all components to physical addresses. This functionality should probably be moved to a bus.
 #define COMP(name, comp) _memInterface.AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE)))
 	COMP(BIOS, _playstation->bios());
 	COMP(RAM, _playstation->dram());

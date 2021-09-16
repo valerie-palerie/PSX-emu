@@ -9,13 +9,11 @@ class CXD8530BQ;
 class CW33300 : public Processor
 {
 protected:
-	//Internal registers 
-	std::uint32_t _r_pc;
-	std::uint32_t _r_lo;
-	std::uint32_t _r_hi;
-
-	//return address register getter for convenience
-	std::uint32_t& r_ra() { return _registers_read[31]; }
+	//Internal registers separate from the 32 user available registers.
+	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
+	std::uint32_t _r_pc = 0xbadbad;
+	std::uint32_t _r_lo = 0xbadbad;
+	std::uint32_t _r_hi = 0xbadbad;
 
 	//See ExecuteInstruction()
 	std::uint32_t _delayJumpTarget = 0;

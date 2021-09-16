@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <utility>
 #include "Utils.h"
 #include "Memory.h"
 
@@ -32,14 +33,15 @@ public:
 	IMemory* component() const { return _component; }
 	const AddressRange& range() const { return _range; }
 
-	MemoryMappedComponent(const std::string& name, IMemory* component, AddressRange range)
-		: _name(name)
+	MemoryMappedComponent(std::string name, IMemory* component, AddressRange range)
+		: _name(std::move(name))
 		, _component(component)
 		, _range(range)
 	{
 	}
 };
 
+//The memory interface is here to map the addressable memory space into the devices that occupy it.
 class MemoryInterface : public IMemory
 {
 private:

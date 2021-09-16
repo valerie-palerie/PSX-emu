@@ -11,6 +11,7 @@ private:
 	CXD8530BQ* _cpu;
 
 protected:
+	//Two sets of registers, loading a value from memory has a delay and we emulate it by reading and writing on different sets of registers, then syncing them after the instruction has finished.
 	std::vector<std::uint32_t> _registers_read;
 	std::vector<std::uint32_t> _registers_write;
 
