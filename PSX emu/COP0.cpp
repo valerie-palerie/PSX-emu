@@ -112,25 +112,22 @@ ProcessorInstruction* COP0::DecodeInstruction(const Opcode& opcode)
 			return nullptr;
 		}
 	}
-	else
+
+	switch (opcode.rs)
 	{
-		switch (opcode.rs)
-		{
-		case 0b0000: //mfc
-			return &_instructionMap[0];
-		case 0b0010: //cfc
-			return &_instructionMap[1];
-		case 0b0100: //mtc
-			return &_instructionMap[2];
-		case 0b0110: //ctc
-			return &_instructionMap[3];
-		case 0b1000: //bcf/bct
-			return &_instructionMap[opcode.rt == 0 ? 4 : 5];
-		default:
-			return nullptr;
-		}
+	case 0b0000: //mfc
+		return &_instructionMap[0];
+	case 0b0010: //cfc
+		return &_instructionMap[1];
+	case 0b0100: //mtc
+		return &_instructionMap[2];
+	case 0b0110: //ctc
+		return &_instructionMap[3];
+	case 0b1000: //bcf/bct
+		return &_instructionMap[opcode.rt == 0 ? 4 : 5];
+	default:
+		return nullptr;
 	}
-	return nullptr;
 }
 
 COP0::COP0(CXD8530BQ* cpu) : Processor(cpu)

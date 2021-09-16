@@ -526,7 +526,7 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	_delayJumpTarget = ((_r_pc) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
+	_delayJumpTarget = ((_r_pc) & 0xf0000000) | (std::uint32_t(op.cop) << 2);
 	return 0;
 }
 
@@ -534,8 +534,7 @@ std::int8_t CW33300::op_jal(const Opcode& op)
 {
 	//There are conflicting sources as to whether the pc should point to the delay slot or one slot after. I'm picking the latter let's see how it goes.
 	SetRegister(31, _r_pc + 8);
-	_delayJumpTarget = ((_r_pc) & 0xF0000000) + (std::uint32_t(op.cop) << 2);
-	return 0;
+	return op_j(op);
 }
 
 std::int8_t CW33300::op_jr(const Opcode& op)

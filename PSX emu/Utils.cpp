@@ -58,7 +58,7 @@ void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, Pro
 
 			break;
 		case InstructionFormat::J:
-			std::cout << std::hex << "	" << instruction->name << " 0x" << opcode.cop << std::dec << " << 2 (" << (std::int32_t(opcode.cop << 2)) << ")";
+			std::cout << std::hex << "	" << instruction->name << " 0x" << opcode.cop << " (0x" << (opcode.cop << 2) << ")" << std::dec;
 			break;
 		}
 

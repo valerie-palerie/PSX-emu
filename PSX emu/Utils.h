@@ -3,6 +3,7 @@
 #include <utility>
 #include <functional>
 #include <string>
+#include <vector>
 
 class Processor;
 
@@ -112,7 +113,7 @@ public:
 
 		imm = std::uint16_t(binary & 0xffff);
 		imm_se = std::uint32_t(std::int16_t(binary & 0xffff));
-		cop = binary & 0x3FFFFFF;
+		cop = binary & 0x3ffffff;
 		opcode = binary;
 	}
 
