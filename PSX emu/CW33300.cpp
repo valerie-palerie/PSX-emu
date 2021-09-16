@@ -699,7 +699,7 @@ std::int8_t CW33300::op_invalid(const Opcode& op)
 }
 
 
-std::uint32_t CW33300::GetRegister(std::uint8_t index)
+std::uint32_t CW33300::GetRegister(std::uint8_t index) const
 {
 	return _registers_read[index];
 }
@@ -716,65 +716,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
 
 #if _DEBUG
-	//Print the details of the opcode we're processing.
-	std::cout << std::hex << "0x" << _r_pc << ": 0x" << opcode.opcode << std::dec << (_delayJumpTarget != 0 ? " (delay)" : "") << "\n[" << instructionRef->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n";
-	std::cout << "	op:" << std::uint16_t(opcode.op) << " rs : " << std::uint16_t(opcode.rs) << " rt : " << std::uint16_t(opcode.rt) << " rd : " << std::uint16_t(opcode.rd) << " shift : " << std::uint16_t(opcode.shift) << " func : " << std::uint16_t(opcode.func) << " imm : " << opcode.imm << " cop : " << opcode.cop << "\n";
-
-	if (instructionRef->structure.segmentMask != 0)
-	{
-		switch (instructionRef->structure.format)
-		{
-		case InstructionFormat::R:
-			std::cout << "	" << instructionRef->name;
-			for (std::uint8_t i = 4; i > 0; --i)
-			{
-				if ((0x1 << i) & instructionRef->structure.segmentMask)
-				{
-					if (i == 1 && !(opcode.func & 0b111100)) //stinky immediate shift instruction
-						std::cout << std::hex << " 0x" << std::uint16_t(opcode.GetSegment(i)) << std::dec;
-					else
-						std::cout << " $" << std::uint16_t(opcode.GetSegment(i));
-				}
-			}
-
-			std::cout << "\n	" << instructionRef->name;
-
-			for (std::uint8_t i = 4; i > 0; --i)
-			{
-				if ((0x1 << i) & instructionRef->structure.segmentMask)
-				{
-					if (i == 1 && !(opcode.func & 0b111100)) //stinky immediate shift instruction
-						std::cout << " " << std::uint16_t(opcode.GetSegment(i));
-					else
-						std::cout << std::hex << " 0x" << GetRegister(opcode.GetSegment(i)) << std::dec;
-				}
-			}
-			break;
-		case InstructionFormat::I:
-			std::cout << "	" << instructionRef->name;
-			for (std::uint8_t i = 4; i > 2; --i)
-			{
-				if ((0x1 << i) & instructionRef->structure.segmentMask)
-					std::cout << " $" << std::uint16_t(opcode.GetSegment(i));
-			}
-			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
-			std::cout << "\n	" << instructionRef->name;
-
-			for (std::uint8_t i = 4; i > 2; --i)
-			{
-				if ((0x1 << i) & instructionRef->structure.segmentMask)
-					std::cout << std::hex << " 0x" << GetRegister(opcode.GetSegment(i)) << std::dec;
-			}
-			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
-
-			break;
-		case InstructionFormat::J:
-			std::cout << std::hex << "	" << instructionRef->name << " 0x" << opcode.cop << std::dec << " << 2 (" << (std::int32_t(opcode.cop << 2)) << ")";
-			break;
-		}
-
-		std::cout << '\n';
-	}
+	Debug::LogInstruction(this, opcode, instructionRef, _r_pc, _delayJumpTarget != 0);
 #endif
 
 	//The processor will unconditionally execute the instruction immediately after a jump.
@@ -794,11 +736,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 		_r_pc += 4;
 
 #if _DEBUG
-	//Print any changed registers.
-	for (std::uint8_t i = 0; i < 32; ++i)
-		if (_registers_write[i] != _registers_read[i])
-			std::cout << "		R" << std::uint16_t(i) << ": 0x" << std::hex << _registers_read[i] << " -> 0x" << _registers_write[i] << "\n";
-	std::cout << "\n";
+	Debug::LogRegisterWrites(_registers_read, _registers_write);
 #endif
 
 	Processor::ExecuteInstruction(opcode);
@@ -830,11 +768,11 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 	//Branching instructions that are marked with 0x1 on bits 31-26 and are differentiated with bits 20-16
 	if (opcode.op == 0x01)
 	{
-		return &_branchInstructionMap[std::min(size_t(opcode.rt), _specialInstructionMap.size() - 1)];
+		return &_branchInstructionMap[std::min(size_t(opcode.rt), _branchInstructionMap.size() - 1)];
 	}
 
-	//All other instructions are mapped normally in bots 31-26
-	return &_instructionMap[std::min(size_t(opcode.op), _specialInstructionMap.size() - 1)];
+	//All other instructions are mapped normally in bits 31-26
+	return &_instructionMap[std::min(size_t(opcode.op), _instructionMap.size() - 1)];
 }
 
 void CW33300::ProcessNextInstruction()

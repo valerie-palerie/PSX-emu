@@ -151,6 +151,7 @@
     <ClCompile Include="Playstation.cpp" />
     <ClCompile Include="CW33300.cpp" />
     <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COP0.h" />

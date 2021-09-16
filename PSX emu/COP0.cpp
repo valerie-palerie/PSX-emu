@@ -60,14 +60,14 @@ std::int8_t COP0::op_invalid(const Opcode& op)
 	return 0;
 }
 
-std::uint32_t COP0::GetRegister(std::uint8_t index)
+std::uint32_t COP0::GetRegister(std::uint8_t index) const
 {
 	return _registers_read[index];
 }
 
 void COP0::SetRegister(std::uint8_t index, std::uint32_t value)
 {
-	_registers_read[index] = value;
+	_registers_write[index] = value;
 }
 
 void COP0::ExecuteInstruction(Opcode opcode)

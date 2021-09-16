@@ -2,7 +2,7 @@
 
 #include "Utils.h"
 
-std::uint32_t Processor::GetRegister(std::uint8_t index)
+std::uint32_t Processor::GetRegister(std::uint8_t index) const
 {
 	return _registers_read[index];
 }

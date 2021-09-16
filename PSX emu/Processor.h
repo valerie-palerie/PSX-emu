@@ -20,7 +20,7 @@ protected:
 public:
 	CXD8530BQ* cpu() const { return _cpu; }
 
-	virtual std::uint32_t GetRegister(std::uint8_t index);
+	virtual std::uint32_t GetRegister(std::uint8_t index) const;
 	virtual void SetRegister(std::uint8_t index, std::uint32_t value);
 
 	virtual void ExecuteInstruction(Opcode opcode);

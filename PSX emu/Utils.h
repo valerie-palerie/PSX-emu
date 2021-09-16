@@ -4,6 +4,8 @@
 #include <functional>
 #include <string>
 
+class Processor;
+
 namespace MemoryMap
 {
 	//Addresses of stuff. Taken from duckstation's source code for convenience.
@@ -79,7 +81,7 @@ public:
 	std::uint32_t opcode; //bits 31 - 0
 
 	//Helper function for debugging
-	std::uint8_t GetSegment(std::uint8_t index)
+	std::uint8_t GetSegment(std::uint8_t index) const
 	{
 		switch (index)
 		{
@@ -153,6 +155,13 @@ public:
 	{
 	}
 };
+
+namespace Debug
+{
+	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t pc, bool isDelaySlot);
+	void LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const std::vector<std::uint32_t>& writeRegs);
+
+}
 
 //Get/Set functions for the register pointed to by the opcode part.
 #define R_GET(name) auto (name) = GetRegister(op.name)

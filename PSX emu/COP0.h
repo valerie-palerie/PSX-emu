@@ -15,7 +15,7 @@ public:
 	INST(invalid);
 #undef INST
 	//****** Processor Implementation ******//
-	std::uint32_t GetRegister(std::uint8_t index) override;
+	std::uint32_t GetRegister(std::uint8_t index) const override;
 	void SetRegister(std::uint8_t index, std::uint32_t value) override;
 	void ExecuteInstruction(Opcode opcode) override;
 
