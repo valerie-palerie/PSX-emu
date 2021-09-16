@@ -14,6 +14,7 @@ public:
 	MemoryChip* dram() { return &_dram; }
 	CXD8530BQ* cpu() { return &_cpu; }
 
+	void Init();
 	void Tick(float deltaTime);
 
 	Playstation();

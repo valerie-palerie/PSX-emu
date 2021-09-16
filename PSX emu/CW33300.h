@@ -14,9 +14,9 @@ protected:
 	std::uint32_t _r_pc = 0xbadbad;
 	std::uint32_t _r_lo = 0xbadbad;
 	std::uint32_t _r_hi = 0xbadbad;
-
-	//See ExecuteInstruction()
-	std::uint32_t _delayJumpTarget = 0;
+	
+	std::uint32_t _nextInstruction;
+	std::uint32_t _debugPC;
 
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
@@ -49,6 +49,7 @@ public:
 #undef INST
 
 	//****** Processor Implementation ******//
+	virtual void Init() override;
 	std::uint32_t GetRegister(std::uint8_t index) const override;
 	void SetRegister(std::uint8_t index, std::uint32_t value) override;
 	void ExecuteInstruction(Opcode opcode) override;
@@ -57,6 +58,7 @@ public:
 	Processor* GetCoprocessor(std::uint8_t idx) const;
 	void ProcessNextInstruction();
 	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
+	void Jump(std::uint32_t address);
 
 	explicit CW33300(CXD8530BQ* cpu);
 };

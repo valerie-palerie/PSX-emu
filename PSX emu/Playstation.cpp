@@ -7,6 +7,11 @@
 #include "CW33300.h"
 #include "Utils.h"
 
+void Playstation::Init()
+{
+	_cpu.Init();
+}
+
 void Playstation::Tick(float deltaTime)
 {
 	_cpu.cw33300()->ProcessNextInstruction();

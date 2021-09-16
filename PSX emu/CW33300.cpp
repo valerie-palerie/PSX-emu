@@ -376,7 +376,7 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, std::int32_t(cpu()->memInterface()->Read8(op.imm_se + rs)));
+	R_SET(rt, std::int8_t(cpu()->memInterface()->Read8(op.imm_se + rs)));
 
 	return 0;
 }
@@ -526,30 +526,29 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	_delayJumpTarget = ((_r_pc) & 0xf0000000) | (std::uint32_t(op.cop) << 2);
+	Jump(((_r_pc - 8) & 0xf0000000) | (std::uint32_t(op.cop) << 2));
 	return 0;
 }
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
-	//There are conflicting sources as to whether the pc should point to the delay slot or one slot after. I'm picking the latter let's see how it goes.
-	SetRegister(31, _r_pc + 8);
+	SetRegister(31, _r_pc);
 	return op_j(op);
 }
 
 std::int8_t CW33300::op_jr(const Opcode& op)
 {
 	R_GET(rs);
-	_delayJumpTarget = rs;
+	Jump(rs);
 	return 0;
 }
 
 //Potentially weird, one source says i might have to swap rs with rd.
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-	R_SET(rd, _r_pc + 8);
+	R_SET(rd, _r_pc);
 	R_GET(rs);
-	_delayJumpTarget = rs;
+	Jump(rs);
 	return 0;
 }
 
@@ -559,7 +558,7 @@ std::int8_t CW33300::op_beq(const Opcode& op)
 	R_GET(rt);
 	if (rs == rt)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 	return 0;
 }
@@ -570,7 +569,7 @@ std::int8_t CW33300::op_bne(const Opcode& op)
 	R_GET(rt);
 	if (rs != rt)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 	return 0;
 }
@@ -580,7 +579,7 @@ std::int8_t CW33300::op_bltz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) < 0)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -591,7 +590,7 @@ std::int8_t CW33300::op_bgez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) >= 0)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -602,7 +601,7 @@ std::int8_t CW33300::op_bgtz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) > 0)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -613,7 +612,7 @@ std::int8_t CW33300::op_blez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) <= 0)
 	{
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -624,8 +623,8 @@ std::int8_t CW33300::op_bltzal(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) < 0)
 	{
-		SetRegister(31, _r_pc + 8);
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		SetRegister(31, _r_pc + 4);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -636,8 +635,8 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) >= 0)
 	{
-		SetRegister(31, _r_pc + 8);
-		_delayJumpTarget = _r_pc + (std::int32_t(op.imm_se) << 2);
+		SetRegister(31, _r_pc + 4);
+		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -697,6 +696,13 @@ std::int8_t CW33300::op_invalid(const Opcode& op)
 	return 0;
 }
 
+void CW33300::Init()
+{
+	_nextInstruction = cpu()->memInterface()->Read32(_r_pc);
+	_debugPC = _r_pc;
+	_r_pc += 4;
+}
+
 
 std::uint32_t CW33300::GetRegister(std::uint8_t index) const
 {
@@ -715,24 +721,10 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
 
 #if _DEBUG
-	Debug::LogInstruction(this, opcode, instructionRef, _r_pc, _delayJumpTarget != 0);
+	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _debugPC);
 #endif
 
-	//The processor will unconditionally execute the instruction immediately after a jump.
-	//Instead of jumping directly, we store the jump to a delay jump target and defer it until the next instruction.
-	//Cache the delay jump target in case the delay slot is also a jump, in which case the order of operations will be j->delay slot j->j target->delay slot j target.
-	//Maybe find out if that's how the PS1 works.
-	std::uint32_t currentDelayJumpTarget = _delayJumpTarget;
-	_delayJumpTarget = 0;
-
 	std::int8_t opResult = instructionRef->instruction(opcode);
-
-	//Other emulators advance the program counter register after fetching an instruction rather than after executing the instruction.
-	//For now i'm keeping it like this since it makes instruction code nicer, if there's problems move this above the instruction call.
-	if (currentDelayJumpTarget != 0)
-		_r_pc = currentDelayJumpTarget;
-	else
-		_r_pc += 4;
 
 #if _DEBUG
 	Debug::LogRegisterWrites(_registers_read, _registers_write);
@@ -774,10 +766,22 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 	return &_instructionMap[std::min(size_t(opcode.op), _instructionMap.size() - 1)];
 }
 
+void CW33300::Jump(std::uint32_t address)
+{
+	_r_pc = address - 4;
+}
+
 void CW33300::ProcessNextInstruction()
 {
-	Opcode opcode(cpu()->memInterface()->Read32(_r_pc));
+	//We want to simulate the PS1's pipelining by fetching an instruction ahead of time and executing it on the next step
+	Opcode opcode(_nextInstruction);
+	_nextInstruction = cpu()->memInterface()->Read32(_r_pc);
+	std::uint32_t fetchedInstructionPC = _r_pc;
+
 	ExecuteInstruction(opcode);
+
+	_r_pc += 4;
+	_debugPC = fetchedInstructionPC;
 }
 
 
@@ -789,6 +793,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_registers_read[0] = 0;
 	_registers_write[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
+	_nextInstruction = 0x0;
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
 #define INST_F(name, format, mask) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); }, InstructionStructure(InstructionFormat::##format, mask))

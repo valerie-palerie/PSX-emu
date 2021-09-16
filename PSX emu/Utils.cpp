@@ -3,11 +3,11 @@
 #include <bitset>
 #include "Processor.h"
 
-void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t pc, bool isDelaySlot)
-{	
+void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc)
+{
 	//Print the details of the opcode we're processing.
-	std::cout << std::hex << "0x" << pc << ": 0x" << opcode.opcode << std::dec << (isDelaySlot ? " (delay)" : "") << "\n[" << instruction->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << ")\n";
-	std::cout << "	op:" << std::uint16_t(opcode.op) << " rs : " << std::uint16_t(opcode.rs) << " rt : " << std::uint16_t(opcode.rt) << " rd : " << std::uint16_t(opcode.rd) << " shift : " << std::uint16_t(opcode.shift) << " func : " << std::uint16_t(opcode.func) << " imm : " << opcode.imm << " cop : " << opcode.cop << "\n";
+	std::cout << std::hex << "0x" << pc << ": 0x" << opcode.opcode << std::dec << "\n[" << instruction->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << std::hex << ") -> fetched(0x" << fetchedInstruction << std::dec << ")\n";
+	std::cout << "	op:" << std::uint16_t(opcode.op) << " rs:" << std::uint16_t(opcode.rs) << " rt:" << std::uint16_t(opcode.rt) << " rd:" << std::uint16_t(opcode.rd) << " shift:" << std::uint16_t(opcode.shift) << " func:" << std::uint16_t(opcode.func) << " imm:" << opcode.imm << " cop:" << opcode.cop << "\n";
 
 	if (instruction->structure.segmentMask != 0)
 	{

@@ -22,8 +22,9 @@ public:
 	GTE* gte() { return &_gte; }
 	
 	MemoryInterface* memInterface() { return &_memInterface; }
-
 	Playstation* playstation() { return _playstation; }
+
+	void Init();
 
 	CXD8530BQ(Playstation* playstation);
 };
