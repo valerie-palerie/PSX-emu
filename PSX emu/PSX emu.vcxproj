@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="COP0.cpp" />
     <ClCompile Include="CXD8530BQ.cpp" />
+    <ClCompile Include="ExpansionBoard.cpp" />
     <ClCompile Include="GTE.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory.cpp" />
@@ -156,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="COP0.h" />
     <ClInclude Include="CXD8530BQ.h" />
+    <ClInclude Include="ExpansionBoard.h" />
     <ClInclude Include="GTE.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryInterface.h" />

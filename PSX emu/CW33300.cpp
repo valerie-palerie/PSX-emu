@@ -53,7 +53,7 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	auto rts = std::int32_t(rt);
 	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
 	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if ((rss > 0 && rss > int_max + rts) || (rss < 0 && rss < int_min + rts))
+	if ((rts > 0 && rss > int_max + rts) || (rts < 0 && rss < int_min + rts))
 	{
 		//throw exception
 	}
@@ -83,7 +83,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 
 	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
 	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if ((rss > 0 && rss > int_max - imms) || (rss < 0 && rss < int_min - imms))
+	if (((imms > 0) && (rss > int_max - imms)) || ((imms < 0) && (rss < int_min - imms)))
 	{
 		//throw exception
 	}
@@ -376,7 +376,7 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, std::int8_t(cpu()->memInterface()->Read8(op.imm_se + rs)));
+	R_SET(rt, std::int8_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
 
 	return 0;
 }
@@ -390,7 +390,7 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->memInterface()->Read8(op.imm_se + rs));
+	R_SET(rt, cpu()->playstation()->memInterface()->Read8(op.imm_se + rs));
 
 	return 0;
 }
@@ -404,7 +404,7 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, std::int32_t(cpu()->memInterface()->Read16(op.imm_se + rs)));
+	R_SET(rt, std::int32_t(cpu()->playstation()->memInterface()->Read16(op.imm_se + rs)));
 
 	return 0;
 }
@@ -418,7 +418,7 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->memInterface()->Read16(op.imm_se + rs));
+	R_SET(rt, cpu()->playstation()->memInterface()->Read16(op.imm_se + rs));
 
 	return 0;
 }
@@ -432,7 +432,7 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->memInterface()->Read32(op.imm_se + rs));
+	R_SET(rt, cpu()->playstation()->memInterface()->Read32(op.imm_se + rs));
 
 	return 0;
 }
@@ -470,7 +470,7 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 	}
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
+	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
 	return 0;
 }
 
@@ -483,7 +483,7 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 	}
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
+	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
 	return 0;
 }
 
@@ -496,7 +496,7 @@ std::int8_t CW33300::op_sw(const Opcode& op)
 	}
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->memInterface()->Write32(op.imm_se + rs, rt);
+	cpu()->playstation()->memInterface()->Write32(op.imm_se + rs, rt);
 	return 0;
 }
 
@@ -543,7 +543,6 @@ std::int8_t CW33300::op_jr(const Opcode& op)
 	return 0;
 }
 
-//Potentially weird, one source says i might have to swap rs with rd.
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
 	R_SET(rd, _r_pc);
@@ -698,7 +697,7 @@ std::int8_t CW33300::op_invalid(const Opcode& op)
 
 void CW33300::Init()
 {
-	_nextInstruction = cpu()->memInterface()->Read32(_r_pc);
+	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
 	_debugPC = _r_pc;
 	_r_pc += 4;
 }
@@ -775,7 +774,7 @@ void CW33300::ProcessNextInstruction()
 {
 	//We want to simulate the PS1's pipelining by fetching an instruction ahead of time and executing it on the next step
 	Opcode opcode(_nextInstruction);
-	_nextInstruction = cpu()->memInterface()->Read32(_r_pc);
+	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
 	std::uint32_t fetchedInstructionPC = _r_pc;
 
 	ExecuteInstruction(opcode);

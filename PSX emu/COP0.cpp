@@ -10,6 +10,8 @@
 
 std::int8_t COP0::op_mfc(const Opcode& op)
 {
+	R_GET(rd);
+	C_SET(rt, rd);
 	return 0;
 }
 

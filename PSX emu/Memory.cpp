@@ -93,9 +93,9 @@ void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 	}
 }
 
-MemoryChip::MemoryChip(const std::uint32_t size, const MemoryEndianness endianness)
+MemoryChip::MemoryChip(const std::uint32_t size, std::uint8_t initValue, const MemoryEndianness endianness)
 	: _size(size)
 	, _endianness(endianness)
 {
-	_mem.resize(size, 0x3f);
+	_mem.resize(size, initValue);
 }

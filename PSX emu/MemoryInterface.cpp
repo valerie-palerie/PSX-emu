@@ -45,8 +45,11 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, std::uint32_t& out_o
 	//if((seg == MemorySegment::KSEG0 || seg == MemorySegment::KSEG1) && offset >= 0x20000000)
 	//	__debugbreak();
 
-	if(component == nullptr)// || component->component() == nullptr)
+	if (component == nullptr)// || component->component() == nullptr)
+	{
 		__debugbreak();
+		return nullptr;
+	}
 	return component->component();
 }
 

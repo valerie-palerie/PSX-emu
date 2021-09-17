@@ -14,9 +14,9 @@ protected:
 	std::uint32_t _r_pc = 0xbadbad;
 	std::uint32_t _r_lo = 0xbadbad;
 	std::uint32_t _r_hi = 0xbadbad;
-	
-	std::uint32_t _nextInstruction;
-	std::uint32_t _debugPC;
+
+	std::uint32_t _nextInstruction = 0xbadbad;
+	std::uint32_t _debugPC = 0xbadbad;
 
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
