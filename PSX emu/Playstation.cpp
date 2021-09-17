@@ -20,9 +20,9 @@ void Playstation::Tick(float deltaTime)
 Playstation::Playstation()
 	: _bios(MemoryMap::BIOS_SIZE)
 	, _dram(MemoryMap::RAM_2MB_SIZE)
-	, _interruptController(MemoryMap::INTERRUPT_CONTROLLER_SIZE)
+	, _interruptControlRegister(MemoryMap::INTERRUPT_CONTROLLER_SIZE)
+	, _cacheControlRegister(MemoryMap::CACHE_CONTROL_SIZE)
 	, _cpu(this)
-
 {
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
 
@@ -45,12 +45,12 @@ Playstation::Playstation()
 	COMP(EXP3, &_exp3);
 	COMP(PAD, nullptr);
 	COMP(SIO, nullptr);
-	COMP(INTERRUPT_CONTROLLER, &_interruptController);
+	COMP(INTERRUPT_CONTROLLER, &_interruptControlRegister);
 	COMP(DMA, nullptr);
 	COMP(TIMERS, nullptr);
 	COMP(CDROM, nullptr);
 	COMP(GPU, nullptr);
 	COMP(MDEC, nullptr);
 	COMP(SPU, nullptr);
-	COMP(CACHE_CONTROL, nullptr);
+	COMP(CACHE_CONTROL, &_cacheControlRegister);
 }

@@ -23,9 +23,10 @@ std::int8_t CW33300::op_add(const Opcode& op)
 	auto rts = std::int32_t(rt);
 	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
 	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if ((rss > 0 && rss > int_max - rts) || (rss < 0 && rss < int_min - rts))
+	if (((rss > 0) && (rss > int_max - rts)) || ((rss < 0) && (rss < int_min - rts)))
 	{
 		//throw exception
+		__debugbreak();
 	}
 	else
 	{
@@ -53,9 +54,10 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	auto rts = std::int32_t(rt);
 	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
 	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if ((rts > 0 && rss > int_max + rts) || (rts < 0 && rss < int_min + rts))
+	if (((rts > 0) && (rss > int_max + rts)) || ((rts < 0) && (rss < int_min + rts)))
 	{
 		//throw exception
+		__debugbreak();
 	}
 	else
 	{
@@ -86,6 +88,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	if (((imms > 0) && (rss > int_max - imms)) || ((imms < 0) && (rss < int_min - imms)))
 	{
 		//throw exception
+		__debugbreak();
 	}
 	else
 	{
@@ -129,9 +132,9 @@ std::int8_t CW33300::op_slti(const Opcode& op)
 {
 	R_GET(rs);
 
-	auto rs_signed = std::int32_t(rs);
+	auto rss = std::int32_t(rs);
 
-	R_SET(rt, (rs_signed < std::int16_t(op.imm_se) ? 1 : 0));
+	R_SET(rt, ((rss < std::int32_t(op.imm_se)) ? 1 : 0));
 
 	return 0;
 }
@@ -177,7 +180,7 @@ std::int8_t CW33300::op_nor(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	R_SET(rd, 0xFFFFFFFF ^ (rs | rt));
+	R_SET(rd, ~(rs | rt));
 	return 0;
 }
 
@@ -202,6 +205,31 @@ std::int8_t CW33300::op_xori(const Opcode& op)
 	R_GET(rs);
 
 	R_SET(rt, rs ^ op.imm);
+	return 0;
+}
+
+
+std::int8_t CW33300::op_sll(const Opcode& op)
+{
+	R_GET(rt);
+
+	R_SET(rd, rt << op.shift);
+	return 0;
+}
+
+std::int8_t CW33300::op_srl(const Opcode& op)
+{
+	R_GET(rt);
+
+	R_SET(rd, rt >> op.shift);
+	return 0;
+}
+
+std::int8_t CW33300::op_sra(const Opcode& op)
+{
+	R_GET(rt);
+
+	R_SET(rd, std::uint32_t(std::int32_t(rt) >> op.shift));
 	return 0;
 }
 
@@ -230,31 +258,7 @@ std::int8_t CW33300::op_srav(const Opcode& op)
 	R_GET(rt);
 	R_GET(rs);
 
-	R_SET(rd, std::int32_t(rt) >> (rs & 0x1F));
-	return 0;
-}
-
-std::int8_t CW33300::op_sll(const Opcode& op)
-{
-	R_GET(rt);
-
-	R_SET(rd, rt << op.shift);
-	return 0;
-}
-
-std::int8_t CW33300::op_srl(const Opcode& op)
-{
-	R_GET(rt);
-
-	R_SET(rd, rt >> op.shift);
-	return 0;
-}
-
-std::int8_t CW33300::op_sra(const Opcode& op)
-{
-	R_GET(rt);
-
-	R_SET(rd, std::int32_t(rt) >> op.shift);
+	R_SET(rd, std::uint32_t(std::int32_t(rt) >> (rs & 0x1F)));
 	return 0;
 }
 
@@ -270,10 +274,10 @@ std::int8_t CW33300::op_mult(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	std::int64_t result = std::int64_t(rs) * std::int64_t(rt);
+	std::uint64_t result = std::uint64_t(std::int64_t(rs) * std::int64_t(rt));
 
-	_r_lo = result & 0x7FFFFFFF;
-	_r_hi = result >> 32;
+	_r_lo = std::uint32_t(result & 0x7FFFFFFF);
+	_r_hi = std::uint32_t((result >> 32) & 0x7FFFFFFF);
 
 	return 0;
 }
@@ -285,8 +289,8 @@ std::int8_t CW33300::op_multu(const Opcode& op)
 
 	std::uint64_t result = std::uint64_t(rs) * std::uint64_t(rt);
 
-	_r_lo = result & 0x7FFFFFFF;
-	_r_hi = result >> 32;
+	_r_lo = std::uint32_t(result & 0x7FFFFFFF);
+	_r_hi = std::uint32_t((result >> 32) & 0x7FFFFFFF);
 
 	return 0;
 }
@@ -376,7 +380,7 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, std::int8_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
+	R_SET(rt, std::int32_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
 
 	return 0;
 }
@@ -532,7 +536,7 @@ std::int8_t CW33300::op_j(const Opcode& op)
 
 std::int8_t CW33300::op_jal(const Opcode& op)
 {
-	SetRegister(31, _r_pc);
+	SetRegister(31, _r_pc + 4);
 	return op_j(op);
 }
 

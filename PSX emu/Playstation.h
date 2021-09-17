@@ -9,7 +9,8 @@ class Playstation
 private:
 	MemoryChip _bios;
 	MemoryChip _dram;
-	MemoryChip _interruptController;
+	MemoryChip _interruptControlRegister;
+	MemoryChip _cacheControlRegister;
 	ExpansionBoard _exp1;
 	ExpansionBoard _exp2;
 	ExpansionBoard _exp3;
