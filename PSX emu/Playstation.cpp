@@ -35,8 +35,8 @@ Playstation::Playstation()
 	_bios.Write(0, std::move(buffer));
 
 	//Map all components to physical addresses. This functionality should probably be moved to a bus.
-#define COMP(name, comp) _memInterface.AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE)))
-	COMP(BIOS, &_bios);
+#define COMP(name, comp, ...) _memInterface.AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE), __VA_ARGS__))
+	COMP(BIOS, &_bios, MemoryAccessFlags::Read);
 	COMP(RAM, &_dram);
 	COMP(MEMCTRL, nullptr);
 	COMP(MEMCTRL2, nullptr);

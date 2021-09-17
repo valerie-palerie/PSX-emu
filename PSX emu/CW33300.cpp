@@ -131,7 +131,7 @@ std::int8_t CW33300::op_slti(const Opcode& op)
 
 	auto rs_signed = std::int32_t(rs);
 
-	R_SET(rt, (rs_signed < std::int16_t(op.imm) ? 1 : 0));
+	R_SET(rt, (rs_signed < std::int16_t(op.imm_se) ? 1 : 0));
 
 	return 0;
 }
@@ -140,7 +140,7 @@ std::int8_t CW33300::op_sltiu(const Opcode& op)
 {
 	R_GET(rs);
 
-	R_SET(rt, (rs < op.imm) ? 1 : 0);
+	R_SET(rt, (rs < op.imm_se) ? 1 : 0);
 
 	return 0;
 }
