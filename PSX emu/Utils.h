@@ -100,6 +100,17 @@ public:
 
 namespace Debug
 {
+	struct ProcessorDebugCondition
+	{
+	public:
+		virtual bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) = 0;
+		virtual ~ProcessorDebugCondition() = default;
+	};
+
+	struct ProcessorDebugCondition_ReachFirstOfInstruction
+	{
+		
+	};
 	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc);
 	void LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const std::vector<std::uint32_t>& writeRegs);
 
