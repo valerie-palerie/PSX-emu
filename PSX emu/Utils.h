@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 class Processor;
 
@@ -100,17 +101,42 @@ public:
 
 namespace Debug
 {
-	struct ProcessorDebugCondition
+	struct BaseProcessorDebugCondition
 	{
 	public:
 		virtual bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) = 0;
-		virtual ~ProcessorDebugCondition() = default;
+		virtual ~BaseProcessorDebugCondition() = default;
 	};
 
-	struct ProcessorDebugCondition_ReachFirstOfInstruction
+	struct ProcessorDebugCondition_ReachFirstOfInstruction : public BaseProcessorDebugCondition
 	{
-		
+	protected:
+		std::unordered_set<std::string> _encounteredInstructions;
+
+	public:
+		std::string instruction = ""; //if empty, track all instructions
+
+		virtual bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) override;
+
+		ProcessorDebugCondition_ReachFirstOfInstruction(std::string instruction = "")
+			: instruction(instruction)
+		{
+		}
 	};
+
+	struct ProcessorDebugCondition_ReachAddress : public BaseProcessorDebugCondition
+	{
+	public:
+		std::uint32_t address;
+
+		virtual bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) override { return pc == address; }
+
+		ProcessorDebugCondition_ReachAddress(std::uint32_t address)
+			: address(address)
+		{
+		}
+	};
+
 	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc);
 	void LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const std::vector<std::uint32_t>& writeRegs);
 

@@ -21,6 +21,10 @@ protected:
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
 
+#if _DEBUG
+	std::vector<std::unique_ptr<Debug::BaseProcessorDebugCondition>> _debugConditions;
+#endif
+
 public:
 	//****** Instruction definitions ******//
 #define INST(name) std::int8_t op_##name(const Opcode& op)

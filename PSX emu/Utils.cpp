@@ -73,3 +73,16 @@ void Debug::LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const 
 			std::cout << "		R" << std::uint16_t(i) << ": 0x" << std::hex << readRegs[i] << " -> 0x" << writeRegs[i] << "\n";
 	std::cout << "\n";
 }
+
+bool Debug::ProcessorDebugCondition_ReachFirstOfInstruction::EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
+{
+	if (instruction.length() == 0 || instruction == currentInstruction->name)
+	{
+		if (_encounteredInstructions.find(currentInstruction->name) == _encounteredInstructions.end())
+		{
+			_encounteredInstructions.insert(currentInstruction->name);
+			return true;
+		}
+	}
+	return false;
+}

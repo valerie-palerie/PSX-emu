@@ -725,6 +725,15 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 
 #if _DEBUG
 	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _debugPC);
+
+	for (const auto& condition : _debugConditions)
+	{
+		if (condition->EvaluateCondition(this, opcode, instructionRef, _debugPC))
+		{
+			__debugbreak();
+			break;
+		}
+	}
 #endif
 
 	std::int8_t opResult = instructionRef->instruction(opcode);
@@ -797,6 +806,11 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_registers_write[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
 	_nextInstruction = 0x0;
+
+#if _DEBUG
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>(""));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00444));
+#endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
 #define INST_F(name, format, mask) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); }, InstructionStructure(InstructionFormat::##format, mask))
