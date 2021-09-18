@@ -152,7 +152,7 @@
     <ClCompile Include="Playstation.cpp" />
     <ClCompile Include="CW33300.cpp" />
     <ClCompile Include="Processor.cpp" />
-    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="DebugUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COP0.h" />
@@ -164,7 +164,7 @@
     <ClInclude Include="Playstation.h" />
     <ClInclude Include="CW33300.h" />
     <ClInclude Include="Processor.h" />
-    <ClInclude Include="Utils.h" />
+    <ClInclude Include="DebugUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

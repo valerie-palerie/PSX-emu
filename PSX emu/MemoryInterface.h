@@ -2,52 +2,32 @@
 #include <cstdint>
 #include <string>
 #include <utility>
-#include "Utils.h"
+#include "DebugUtils.h"
 #include "Memory.h"
+
+class Playstation;
 
 namespace MemoryMap
 {
-	//Addresses of stuff. Taken from duckstation's source code for convenience.
-	//https://github.com/stenzek/duckstation/blob/master/src/core/bus.h
 	enum MemoryMap : std::uint32_t
 	{
 		RAM_BASE = 0x00000000,
 		RAM_SIZE = 0x200000,
-		RAM_2MB_SIZE = 0x200000,
-		RAM_8MB_SIZE = 0x800000,
-		RAM_MIRROR_END = 0x800000,
 		EXP1_BASE = 0x1f000000,
 		EXP1_SIZE = 0x800000,
-		MEMCTRL_BASE = 0x1f801000,
-		MEMCTRL_SIZE = 0x40,
-		PAD_BASE = 0x1f801040,
-		PAD_SIZE = 0x10,
-		SIO_BASE = 0x1f801050,
-		SIO_SIZE = 0x10,
-		MEMCTRL2_BASE = 0x1f801060,
-		MEMCTRL2_SIZE = 0x10,
-		INTERRUPT_CONTROLLER_BASE = 0x1f801070,
-		INTERRUPT_CONTROLLER_SIZE = 0x10,
-		DMA_BASE = 0x1f801080,
-		DMA_SIZE = 0x80,
-		TIMERS_BASE = 0x1f801100,
-		TIMERS_SIZE = 0x40,
-		CDROM_BASE = 0x1f801800,
-		CDROM_SIZE = 0x10,
-		GPU_BASE = 0x1f801810,
-		GPU_SIZE = 0x10,
-		MDEC_BASE = 0x1f801820,
-		MDEC_SIZE = 0x10,
-		SPU_BASE = 0x1f801C00,
-		SPU_SIZE = 0x400,
+		SCRATCHPAD_BASE = 0x1f800000,
+		SCRATCHPAD_SIZE = 0x400,
+		IO_BASE = 0x1f801000,
+		IO_SIZE = 0x2000,
 		EXP2_BASE = 0x1f802000,
 		EXP2_SIZE = 0x2000,
 		EXP3_BASE = 0x1fa00000,
-		EXP3_SIZE = 0x1,
+		EXP3_SIZE = 0x200000,
 		BIOS_BASE = 0x1fc00000,
 		BIOS_SIZE = 0x80000,
-		CACHE_CONTROL_BASE = 0xfffe0130,
-		CACHE_CONTROL_SIZE = 4,
+		
+		CONTROL_REGS_BASE = 0xfffe0000,
+		CONTROL_REGS_SIZE = 0x200,
 
 		KUSEG_BASE = 0x00000000,
 		KSEG0_BASE = 0x80000000,
@@ -133,5 +113,7 @@ public:
 	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
 
 	void AddComponent(MemoryMappedComponent component);
+
+	void MapAddresses(Playstation* playstation);
 };
 

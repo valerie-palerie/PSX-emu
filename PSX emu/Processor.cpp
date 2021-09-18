@@ -1,6 +1,6 @@
 #include "Processor.h"
 
-#include "Utils.h"
+#include "DebugUtils.h"
 
 std::uint32_t Processor::GetRegister(std::uint8_t index) const
 {

@@ -1,5 +1,9 @@
 #include "MemoryInterface.h"
 
+#include <iostream>
+
+#include "Playstation.h"
+
 bool AddressRange::Contains(std::uint32_t address) const
 {
 	return (address >= start && address < end);
@@ -33,7 +37,6 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 	const MemoryMappedComponent* component = nullptr;
 	for (const MemoryMappedComponent& comp : _components)
 	{
-		//TODO: Add a check here if multiple components map to same address
 		if (comp.range().MapAddress(address, out_offset))
 		{
 			component = &comp;
@@ -41,13 +44,37 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 		}
 	}
 
-	//I think accessing past KSEG0/KSEG1 + 0x20000000 (512MB) is meant to throw an exception? (https://psx-spx.consoledev.net/memorymap/)
-	//if((seg == MemorySegment::KSEG0 || seg == MemorySegment::KSEG1) && offset >= 0x20000000)
+	//I think accessing past KUSEG + 0x20000000 (512MB) is meant to throw an exception? (https://psx-spx.consoledev.net/memorymap/)
+	//if(seg == MemorySegment::KUSEG && offset >= 0x20000000)
 	//	__debugbreak();
+
+#if DEBUG_LOG_ENABLED
+	if (component == nullptr || component->name() != "BIOS")
+	{
+		std::cout << std::hex << "		Mem " << (accessFlags == MemoryAccessFlags::Read ? "Read: 0x" : "Write: 0x") << address << std::dec;
+		switch (seg)
+		{
+		case MemorySegment::KUSEG:
+			std::cout << " (KUSEG)";
+			break;
+		case MemorySegment::KSEG0:
+			std::cout << " (KSEG0)";
+			break;
+		case MemorySegment::KSEG1:
+			std::cout << " (KSEG1)";
+			break;
+		case MemorySegment::KSEG2:
+			std::cout << " (KSEG2)";
+			break;
+		}
+		
+		std::cout << " [" << (component == nullptr ? "invalid" : component->name()) << "]\n";
+	}
+#endif
 
 	if (component == nullptr)// || component->component() == nullptr)
 	{
-		__debugbreak();
+		//__debugbreak();
 		return nullptr;
 	}
 
@@ -134,5 +161,31 @@ void MemoryInterface::Write(std::uint32_t address, std::vector<std::uint8_t> dat
 
 void MemoryInterface::AddComponent(MemoryMappedComponent component)
 {
-	_components.push_back(component);
+	_components.emplace_back(std::move(component));
+}
+
+void MemoryInterface::MapAddresses(Playstation* playstation)
+{
+	/*	TODO: Handle memory mirrors (https://psx-spx.consoledev.net/memorymap/)
+	 *	2MB RAM can be mirrored to the first 8MB (strangely, enabled by default)
+	 *	512K BIOS ROM can be mirrored to the last 4MB(disabled by default)
+	 *	Expansion hardware(if any) may be mirrored within expansion region
+	 *	The seven DMA Control Registers at 1F8010x8h are mirrored to 1F8010xCh
+	 */
+
+	 //Map all components to physical addresses.
+#define COMP(name, comp, ...) AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE), __VA_ARGS__))
+#define COMP_MIRROR(name, comp, offset, ...) AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE + offset, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE + offset), __VA_ARGS__))
+
+	COMP(RAM, playstation->dram(), MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE, MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 2, MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 3, MemoryAccessFlags::ReadWrite);
+	COMP(EXP1, playstation->exp1(), MemoryAccessFlags::ReadWrite);
+	COMP(SCRATCHPAD, playstation->scratchPad(), MemoryAccessFlags::ReadWrite);
+	COMP(IO, playstation->io(), MemoryAccessFlags::ReadWrite);
+	COMP(EXP2, playstation->exp2(), MemoryAccessFlags::ReadWrite);
+	COMP(EXP3, playstation->exp3(), MemoryAccessFlags::ReadWrite);
+	COMP(BIOS, playstation->bios(), MemoryAccessFlags::Read);
+	COMP(CONTROL_REGS, playstation->controlRegs(), MemoryAccessFlags::ReadWrite);
 }

@@ -1,8 +1,9 @@
 #pragma once
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include "Processor.h"
-#include "Utils.h"
+#include "DebugUtils.h"
 
 class CXD8530BQ;
 

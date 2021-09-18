@@ -5,7 +5,7 @@
 #include <cstdint>
 #include "CXD8530BQ.h"
 #include "CW33300.h"
-#include "Utils.h"
+#include "DebugUtils.h"
 
 void Playstation::Init()
 {
@@ -18,10 +18,11 @@ void Playstation::Tick(float deltaTime)
 }
 
 Playstation::Playstation()
-	: _bios(MemoryMap::BIOS_SIZE)
-	, _dram(MemoryMap::RAM_2MB_SIZE)
-	, _interruptControlRegister(MemoryMap::INTERRUPT_CONTROLLER_SIZE)
-	, _cacheControlRegister(MemoryMap::CACHE_CONTROL_SIZE)
+	: _dram(MemoryMap::RAM_SIZE)
+	, _scratchPad(MemoryMap::SCRATCHPAD_SIZE)
+	, _io(MemoryMap::IO_SIZE)
+	, _controlRegs(MemoryMap::CONTROL_REGS_SIZE)
+	, _bios(MemoryMap::BIOS_SIZE)
 	, _cpu(this)
 {
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
@@ -34,23 +35,5 @@ Playstation::Playstation()
 
 	_bios.Write(0, std::move(buffer));
 
-	//Map all components to physical addresses. This functionality should probably be moved to a bus.
-#define COMP(name, comp, ...) _memInterface.AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE), __VA_ARGS__))
-	COMP(BIOS, &_bios, MemoryAccessFlags::Read);
-	COMP(RAM, &_dram);
-	COMP(MEMCTRL, nullptr);
-	COMP(MEMCTRL2, nullptr);
-	COMP(EXP1, &_exp1);
-	COMP(EXP2, &_exp2);
-	COMP(EXP3, &_exp3);
-	COMP(PAD, nullptr);
-	COMP(SIO, nullptr);
-	COMP(INTERRUPT_CONTROLLER, &_interruptControlRegister);
-	COMP(DMA, nullptr);
-	COMP(TIMERS, nullptr);
-	COMP(CDROM, nullptr);
-	COMP(GPU, nullptr);
-	COMP(MDEC, nullptr);
-	COMP(SPU, nullptr);
-	COMP(CACHE_CONTROL, &_cacheControlRegister);
+	_memInterface.MapAddresses(this);
 }

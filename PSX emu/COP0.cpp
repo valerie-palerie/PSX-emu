@@ -1,6 +1,6 @@
 #include "COP0.h"
 #include "CXD8530BQ.h"
-#include "Utils.h"
+#include "DebugUtils.h"
 
 #include <iostream>
 #include <bitset>
@@ -76,7 +76,7 @@ void COP0::ExecuteInstruction(Opcode opcode)
 {
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
 
-#if _DEBUG
+#if DEBUG_LOG_ENABLED
 	std::cout << "	[" << instructionRef->name << "]\n";
 #endif
 

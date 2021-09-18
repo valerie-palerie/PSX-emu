@@ -27,7 +27,6 @@ class MemoryChip : public IMemory
 {
 private:
 	const std::uint32_t _size;
-	const MemoryEndianness _endianness;
 	std::vector<std::uint8_t> _mem;
 
 public:
@@ -41,7 +40,6 @@ public:
 	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
 
 	std::uint32_t size() const { return _size; }
-	MemoryEndianness endianness() const { return _endianness; }
 
-	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0x3f, const MemoryEndianness endianness = MemoryEndianness::LittleEndian);
+	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0x3f);
 };

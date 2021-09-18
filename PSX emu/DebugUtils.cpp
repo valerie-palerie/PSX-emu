@@ -1,7 +1,49 @@
-#include "Utils.h"
+#include "DebugUtils.h"
 #include <iostream>
 #include <bitset>
 #include "Processor.h"
+
+bool Debug::BaseProcessorDebugCondition::EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
+{
+	if (_allowedTriggerAmount == 0)
+		return false;
+
+	bool cond = EvaluateCondition_Internal(processor, currentOpcode, currentInstruction, pc);
+	if (cond && _allowedTriggerAmount > 0)
+		--_allowedTriggerAmount;
+
+	return cond;
+}
+
+bool Debug::ProcessorDebugCondition_ReachAddress::EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
+{
+	return pc == _address;
+}
+
+Debug::ProcessorDebugCondition_ReachAddress::ProcessorDebugCondition_ReachAddress(std::uint32_t address, int allowedTriggerAmount)
+	: BaseProcessorDebugCondition(allowedTriggerAmount)
+	, _address(address)
+{
+}
+
+bool Debug::ProcessorDebugCondition_ReachFirstOfInstruction::EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
+{
+	if (_instruction.length() == 0 || _instruction == currentInstruction->name)
+	{
+		if (_encounteredInstructions.find(currentInstruction->name) == _encounteredInstructions.end())
+		{
+			_encounteredInstructions.insert(currentInstruction->name);
+			return true;
+		}
+	}
+	return false;
+}
+
+Debug::ProcessorDebugCondition_ReachFirstOfInstruction::ProcessorDebugCondition_ReachFirstOfInstruction(std::string instruction, int allowedTriggerAmount)
+	: BaseProcessorDebugCondition(allowedTriggerAmount)
+	, _instruction(std::move(instruction))
+{
+}
 
 void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc)
 {
@@ -72,17 +114,4 @@ void Debug::LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const 
 		if (writeRegs[i] != readRegs[i])
 			std::cout << "		R" << std::uint16_t(i) << ": 0x" << std::hex << readRegs[i] << " -> 0x" << writeRegs[i] << "\n";
 	std::cout << "\n";
-}
-
-bool Debug::ProcessorDebugCondition_ReachFirstOfInstruction::EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
-{
-	if (instruction.length() == 0 || instruction == currentInstruction->name)
-	{
-		if (_encounteredInstructions.find(currentInstruction->name) == _encounteredInstructions.end())
-		{
-			_encounteredInstructions.insert(currentInstruction->name);
-			return true;
-		}
-	}
-	return false;
 }

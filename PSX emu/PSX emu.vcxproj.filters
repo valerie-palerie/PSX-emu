@@ -42,7 +42,7 @@
     <ClCompile Include="MemoryInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils.cpp">
+    <ClCompile Include="DebugUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExpansionBoard.cpp">
@@ -56,7 +56,7 @@
     <ClInclude Include="Playstation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
+    <ClInclude Include="DebugUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CXD8530BQ.h">

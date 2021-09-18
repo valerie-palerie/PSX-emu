@@ -1,5 +1,5 @@
 #include "GTE.h"
-#include "Utils.h"
+#include "DebugUtils.h"
 
 void GTE::ExecuteInstruction(Opcode opcode)
 {
