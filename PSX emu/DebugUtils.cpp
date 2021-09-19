@@ -48,7 +48,7 @@ Debug::ProcessorDebugCondition_ReachFirstOfInstruction::ProcessorDebugCondition_
 void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc)
 {
 	//Print the details of the opcode we're processing.
-	std::cout << std::hex << "0x" << pc << ": 0x" << opcode.opcode << std::dec << "\n[" << instruction->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << std::hex << ") -> fetched(0x" << fetchedInstruction << std::dec << ")\n";
+	std::cout << std::hex << "0x" << pc << ": 0x" << opcode.bits << std::dec << "\n[" << instruction->name << "] (" << std::bitset<6>(opcode.op) << ")(" << std::bitset<26>(opcode.cop) << std::hex << ") -> fetched(0x" << fetchedInstruction << std::dec << ")\n";
 	std::cout << "	op:" << std::uint16_t(opcode.op) << " rs:" << std::uint16_t(opcode.rs) << " rt:" << std::uint16_t(opcode.rt) << " rd:" << std::uint16_t(opcode.rd) << " shift:" << std::uint16_t(opcode.shift) << " func:" << std::uint16_t(opcode.func) << " imm:" << opcode.imm << " cop:" << opcode.cop << "\n";
 
 	if (instruction->structure.segmentMask != 0)
@@ -123,4 +123,17 @@ void Debug::LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const 
 		if (writeRegs[i] != readRegs[i])
 			std::cout << "		R" << std::uint16_t(i) << ": 0x" << std::hex << readRegs[i] << " -> 0x" << writeRegs[i] << "\n";
 	std::cout << "\n";
+}
+
+bool Debug::MemoryDebugCondition_MemoryAccess::EvaluateCondition(std::uint32_t address, MemoryAccessFlags accessFlags)
+{
+	if(_allowedTriggerAmount == 0)
+		return false;
+
+	if(_addressRange.Contains(address) && (std::uint8_t(accessFlags) & std::uint8_t(_accessFlags)))
+	{
+		
+	}
+
+	return false;
 }

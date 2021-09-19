@@ -49,7 +49,7 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 	//	__debugbreak();
 
 #if DEBUG_LOG_ENABLED
-	if (component == nullptr || component->name() != "BIOS")
+	if (component == nullptr)
 	{
 		std::cout << std::hex << "		Mem " << (accessFlags == MemoryAccessFlags::Read ? "Read: 0x" : "Write: 0x") << address << std::dec;
 		switch (seg)

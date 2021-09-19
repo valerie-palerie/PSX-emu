@@ -6,6 +6,8 @@
 #include <vector>
 #include <unordered_set>
 
+#include "MemoryInterface.h"
+
 struct ProcessorInstruction;
 struct Opcode;
 class Processor;
@@ -47,6 +49,25 @@ namespace Debug
 	public:
 
 		ProcessorDebugCondition_ReachAddress(std::uint32_t address, int allowedTriggerAmount = 1);
+	};
+
+	struct MemoryDebugCondition_MemoryAccess
+	{
+	protected:
+		int _allowedTriggerAmount;
+		AddressRange _addressRange;
+		MemoryAccessFlags _accessFlags;
+
+	public:
+		bool EvaluateCondition(std::uint32_t address, MemoryAccessFlags accessFlags);
+
+		MemoryDebugCondition_MemoryAccess(AddressRange addressRange, MemoryAccessFlags accessFlags, int allowedTriggerAmount)
+		: _allowedTriggerAmount(allowedTriggerAmount)
+		, _addressRange(addressRange)
+		, _accessFlags(accessFlags)
+		{}
+
+		virtual ~MemoryDebugCondition_MemoryAccess() = default;
 	};
 
 	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t fetchedInstruction, std::uint32_t pc);

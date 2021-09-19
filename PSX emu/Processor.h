@@ -16,10 +16,10 @@ public:
 	std::uint8_t func; //bits 5-0
 
 	std::uint16_t imm; //bits 15-0
-	std::uint16_t imm_ze; //bits 15-0 zero extended
+	std::uint32_t imm_ze; //bits 15-0 zero extended
 	std::uint32_t imm_se; //bits 15-0 sign-extended
 	std::uint32_t cop; //bits 25 - 0
-	std::uint32_t opcode; //bits 31 - 0
+	std::uint32_t bits; //bits 31 - 0
 
 	//Helper function for debugging
 	std::uint8_t GetSegment(std::uint8_t index) const
@@ -52,10 +52,10 @@ public:
 		func = ((binary) & 0b111111);
 
 		imm = binary & 0xffff;
-		imm_se = std::uint32_t(std::int16_t(binary & 0xffff));
-		imm_ze = std::uint16_t(binary & 0xffff);
+		imm_se = std::uint32_t(std::int16_t(imm));
+		imm_ze = std::uint32_t(imm);
 		cop = binary & 0x3ffffff;
-		opcode = binary;
+		bits = binary;
 	}
 
 	Opcode(const Opcode& opcode) = default;

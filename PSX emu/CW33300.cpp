@@ -807,15 +807,13 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_nextInstruction = 0x0;
 
 #if _DEBUG
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("lbu", 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jalr", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x20, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc003cc, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00450, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00420, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0xb0, -1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0xed8, 1));
 #endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
