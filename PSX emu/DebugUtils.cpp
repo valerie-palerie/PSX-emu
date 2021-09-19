@@ -82,13 +82,21 @@ void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, Pro
 			}
 			break;
 		case InstructionFormat::I:
+		{
 			std::cout << "	" << instruction->name;
+			std::int32_t immValue = opcode.imm_se;
+			bool isJump = false;
+			if (instruction->name == "beq" || instruction->name == "bne" || instruction->name == "bltz" || instruction->name == "bgez" || instruction->name == "bgtz" || instruction->name == "blez" || instruction->name == "bltzal" || instruction->name == "bgezal")
+			{
+				immValue = immValue << 2;
+				isJump = true;
+			}
 			for (std::uint8_t i = 4; i > 2; --i)
 			{
 				if ((0x1 << i) & instruction->structure.segmentMask)
 					std::cout << " $" << std::uint16_t(opcode.GetSegment(i));
 			}
-			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
+			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << immValue << ")";
 			std::cout << "\n	" << instruction->name;
 
 			for (std::uint8_t i = 4; i > 2; --i)
@@ -96,9 +104,10 @@ void Debug::LogInstruction(const Processor* processor, const Opcode& opcode, Pro
 				if ((0x1 << i) & instruction->structure.segmentMask)
 					std::cout << std::hex << " 0x" << processor->GetRegister(opcode.GetSegment(i)) << std::dec;
 			}
-			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << " (" << std::int16_t(opcode.imm) << ")";
+			std::cout << std::hex << " $imm 0x" << opcode.imm << std::dec << (isJump ? std::hex : std::dec) << (isJump ? " (0x" : " (") << (isJump ? (pc + 4 + immValue) : immValue) << ")";
 
 			break;
+		}
 		case InstructionFormat::J:
 			std::cout << std::hex << "	" << instruction->name << " 0x" << opcode.cop << " (0x" << (opcode.cop << 2) << ")" << std::dec;
 			break;

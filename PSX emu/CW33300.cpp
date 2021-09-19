@@ -518,7 +518,7 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	Jump(((_r_pc - 8) & 0xf0000000) | (std::uint32_t(op.cop) << 2));
+	Jump((_r_pc & 0xf0000000) | (std::uint32_t(op.cop) << 2));
 	return 0;
 }
 
@@ -537,7 +537,7 @@ std::int8_t CW33300::op_jr(const Opcode& op)
 
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-	R_SET(rd, _r_pc + 4);
+	R_SET(rd, _r_pc);
 	R_GET(rs);
 	Jump(rs);
 	return 0;
@@ -549,7 +549,7 @@ std::int8_t CW33300::op_beq(const Opcode& op)
 	R_GET(rt);
 	if (rs == rt)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 	return 0;
 }
@@ -560,7 +560,7 @@ std::int8_t CW33300::op_bne(const Opcode& op)
 	R_GET(rt);
 	if (rs != rt)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 	return 0;
 }
@@ -570,7 +570,7 @@ std::int8_t CW33300::op_bltz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) < 0)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -581,7 +581,7 @@ std::int8_t CW33300::op_bgez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) >= 0)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -592,7 +592,7 @@ std::int8_t CW33300::op_bgtz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) > 0)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -603,7 +603,7 @@ std::int8_t CW33300::op_blez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) <= 0)
 	{
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -615,7 +615,7 @@ std::int8_t CW33300::op_bltzal(const Opcode& op)
 	if (std::int32_t(rs) < 0)
 	{
 		SetRegister(31, _r_pc + 4);
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -627,7 +627,7 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 	if (std::int32_t(rs) >= 0)
 	{
 		SetRegister(31, _r_pc + 4);
-		Jump(_r_pc - 4 + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
 	return 0;
@@ -807,12 +807,13 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_nextInstruction = 0x0;
 
 #if _DEBUG
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("lbu", 1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jalr", 1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00430, -1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("lbu", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jalr", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x20, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc003cc, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00450, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00420, 1));
 #endif
