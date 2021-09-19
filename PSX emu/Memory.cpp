@@ -1,4 +1,5 @@
 #include "Memory.h"
+#include <fstream>
 
 std::uint8_t MemoryChip::Read8(std::uint32_t address)
 {
@@ -76,10 +77,25 @@ void MemoryChip::Write32(std::uint32_t address, std::uint32_t data)
 
 void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
-	for (std::uint32_t i = 0; i < data.size(); ++i)
+	if (size_t(address + data.size()) > _mem.size())
 	{
-		Write8(address + i, data[i]);
+		//throw some kinda exception
+		__debugbreak();
+		return;
 	}
+
+	std::memcpy(&_mem[address], &data[0], sizeof(std::uint8_t) * data.size());
+}
+
+void MemoryChip::DumpToFile(const std::string& filename)
+{
+	std::ofstream file(filename);
+	for (size_t i = 0; i < _mem.size(); ++i)
+	{
+		file << std::hex << "0x" << i << ": 0x" << std::uint32_t(_mem[i]) << "\n";
+	}
+
+	file.close();
 }
 
 MemoryChip::MemoryChip(const std::uint32_t size, std::uint8_t initValue)

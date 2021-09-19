@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include <string>
 
 enum class MemoryEndianness
 {
@@ -41,5 +42,6 @@ public:
 
 	std::uint32_t size() const { return _size; }
 
-	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0x3f);
+	void DumpToFile(const std::string& filename);
+	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0xba);
 };

@@ -147,6 +147,7 @@
     <ClCompile Include="ExpansionBoard.cpp" />
     <ClCompile Include="GTE.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MathUtils.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryInterface.cpp" />
     <ClCompile Include="Playstation.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="CXD8530BQ.h" />
     <ClInclude Include="ExpansionBoard.h" />
     <ClInclude Include="GTE.h" />
+    <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryInterface.h" />
     <ClInclude Include="Playstation.h" />

@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "DebugUtils.h"
+#include "MathUtils.h"
 #include "CXD8530BQ.h"
 #include "Playstation.h"
 #include "Memory.h"
@@ -18,19 +19,15 @@ std::int8_t CW33300::op_add(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-
-	auto rss = std::int32_t(rs);
-	auto rts = std::int32_t(rt);
-	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
-	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if (((rss > 0) && (rss > int_max - rts)) || ((rss < 0) && (rss < int_min - rts)))
+	std::uint32_t result = rs + rt;
+	if (Math::DetectOverflowAdd(rs, rt, result))
 	{
 		//throw exception
 		__debugbreak();
 	}
 	else
 	{
-		R_SET(rd, rss + rts);
+		R_SET(rd, result);
 	}
 
 	return 0;
@@ -49,19 +46,15 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-
-	auto rss = std::int32_t(rs);
-	auto rts = std::int32_t(rt);
-	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
-	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if (((rts > 0) && (rss > int_max + rts)) || ((rts < 0) && (rss < int_min + rts)))
+	std::uint32_t result = rs - rt;
+	if (Math::DetectOverflowSubtract(rs, rt, result))
 	{
 		//throw exception
 		__debugbreak();
 	}
 	else
 	{
-		R_SET(rd, rss - rts);
+		R_SET(rd, result);
 	}
 
 	return 0;
@@ -80,19 +73,15 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 {
 	R_GET(rs);
 
-	auto rss = std::int32_t(rs);
-	auto imms = std::int32_t(op.imm_se);
-
-	constexpr auto int_max = std::numeric_limits<std::int32_t>::max();
-	constexpr auto int_min = std::numeric_limits<std::int32_t>::min();
-	if (((imms > 0) && (rss > int_max - imms)) || ((imms < 0) && (rss < int_min - imms)))
+	std::uint32_t result = rs + op.imm_se;
+	if (Math::DetectOverflowAdd(rs, op.imm_se, result))
 	{
 		//throw exception
 		__debugbreak();
 	}
 	else
 	{
-		R_SET(rt, rss + imms);
+		R_SET(rt, result);
 	}
 
 	return 0;
@@ -110,10 +99,7 @@ std::int8_t CW33300::op_slt(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	auto rs_signed = std::int32_t(rs);
-	auto rt_signed = std::int32_t(rt);
-
-	R_SET(rd, (rs_signed < rt_signed) ? 1 : 0);
+	R_SET(rd, (std::int32_t(rs) < std::int32_t(rt)) ? 1 : 0);
 
 	return 0;
 }
@@ -132,9 +118,7 @@ std::int8_t CW33300::op_slti(const Opcode& op)
 {
 	R_GET(rs);
 
-	auto rss = std::int32_t(rs);
-
-	R_SET(rt, ((rss < std::int32_t(op.imm_se)) ? 1 : 0));
+	R_SET(rt, (std::int32_t(rs) < std::int32_t(op.imm_se)) ? 1 : 0);
 
 	return 0;
 }
@@ -188,7 +172,7 @@ std::int8_t CW33300::op_andi(const Opcode& op)
 {
 	R_GET(rs);
 
-	R_SET(rt, rs & op.imm);
+	R_SET(rt, rs & op.imm_ze);
 	return 0;
 }
 
@@ -196,7 +180,7 @@ std::int8_t CW33300::op_ori(const Opcode& op)
 {
 	R_GET(rs);
 
-	R_SET(rt, rs | op.imm);
+	R_SET(rt, rs | op.imm_ze);
 	return 0;
 }
 
@@ -204,7 +188,7 @@ std::int8_t CW33300::op_xori(const Opcode& op)
 {
 	R_GET(rs);
 
-	R_SET(rt, rs ^ op.imm);
+	R_SET(rt, rs ^ op.imm_ze);
 	return 0;
 }
 
@@ -237,7 +221,7 @@ std::int8_t CW33300::op_sllv(const Opcode& op)
 	R_GET(rt);
 	R_GET(rs);
 
-	R_SET(rd, rt << (rs & 0x1F));
+	R_SET(rd, rt << (rs & 0x1f));
 
 	return 0;
 }
@@ -247,7 +231,7 @@ std::int8_t CW33300::op_srlv(const Opcode& op)
 	R_GET(rt);
 	R_GET(rs);
 
-	R_SET(rd, rt >> (rs & 0x1F));
+	R_SET(rd, rt >> (rs & 0x1f));
 
 	return 0;
 }
@@ -263,7 +247,7 @@ std::int8_t CW33300::op_srav(const Opcode& op)
 
 std::int8_t CW33300::op_lui(const Opcode& op)
 {
-	R_SET(rt, op.imm << 16);
+	R_SET(rt, op.imm_ze << 16);
 
 	return 0;
 }
@@ -273,10 +257,10 @@ std::int8_t CW33300::op_mult(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	std::uint64_t result = std::uint64_t(std::int64_t(rs) * std::int64_t(rt));
+	std::uint64_t result = std::uint64_t(std::int64_t(std::int32_t(rs)) * std::int64_t(std::int32_t(rt)));
 
-	_r_lo = std::uint32_t(result & 0x7FFFFFFF);
-	_r_hi = std::uint32_t((result >> 32) & 0x7FFFFFFF);
+	_r_lo = std::uint32_t(result);
+	_r_hi = std::uint32_t(result >> 32);
 
 	return 0;
 }
@@ -288,8 +272,8 @@ std::int8_t CW33300::op_multu(const Opcode& op)
 
 	std::uint64_t result = std::uint64_t(rs) * std::uint64_t(rt);
 
-	_r_lo = std::uint32_t(result & 0x7FFFFFFF);
-	_r_hi = std::uint32_t((result >> 32) & 0x7FFFFFFF);
+	_r_lo = std::uint32_t(result);
+	_r_hi = std::uint32_t(result >> 32);
 
 	return 0;
 }
@@ -305,7 +289,7 @@ std::int8_t CW33300::op_div(const Opcode& op)
 	if (rts == 0)
 	{
 		_r_lo = (rss >= 0) ? 0xffffffff : 1;
-		_r_hi = rss;
+		_r_hi = rs;
 	}
 	else if (rs == 0x80000000 && rts == -1)
 	{
@@ -379,7 +363,7 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	//}
 
 	R_GET(rs);
-	R_SET(rt, std::int32_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
+	R_SET(rt, std::int8_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
 
 	return 0;
 }
@@ -407,7 +391,7 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 	//}
 
 	R_GET(rs);
-	R_SET(rt, std::int32_t(cpu()->playstation()->memInterface()->Read16(op.imm_se + rs)));
+	R_SET(rt, std::int16_t(cpu()->playstation()->memInterface()->Read16(op.imm_se + rs)));
 
 	return 0;
 }
@@ -474,7 +458,7 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
+	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt));
 	return 0;
 }
 
@@ -488,7 +472,7 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
+	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt));
 	return 0;
 }
 
@@ -553,7 +537,7 @@ std::int8_t CW33300::op_jr(const Opcode& op)
 
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-	R_SET(rd, _r_pc);
+	R_SET(rd, _r_pc + 4);
 	R_GET(rs);
 	Jump(rs);
 	return 0;
@@ -729,15 +713,18 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 
 #if DEBUG_LOG_ENABLED
 	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _debugPC);
+	bool didDebugBreak = false;
 #endif
 
 #if _DEBUG
-	bool didDebugBreak = false;
 	for (const auto& condition : _debugConditions)
 	{
 		if (condition->EvaluateCondition(this, opcode, instructionRef, _debugPC))
 		{
+#if DEBUG_LOG_ENABLED
 			didDebugBreak = true;
+#endif
+			//cpu()->playstation()->dram()->DumpToFile("ramdump.txt");
 			__debugbreak();
 			break;
 		}
@@ -748,11 +735,10 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 
 #if DEBUG_LOG_ENABLED
 	Debug::LogRegisterWrites(_registers_read, _registers_write);
-#endif
-
-#if _DEBUG
 	if (didDebugBreak)
+	{
 		std::cout << "------------ COND BREAK ------------\n\n";
+	}
 #endif
 
 	Processor::ExecuteInstruction(opcode);
@@ -821,16 +807,14 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_nextInstruction = 0x0;
 
 #if _DEBUG
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jal", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("andi", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("sb", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jr", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("lb", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("beq", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("and", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("lbu", 1));
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("jalr", 1));
 	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00430, -1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc0044c, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00450, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0x1fc00420, 1));
 #endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
