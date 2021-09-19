@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_set>
 
-#include "MemoryInterface.h"
+#include "MemoryTypes.h"
 
 struct ProcessorInstruction;
 struct Opcode;

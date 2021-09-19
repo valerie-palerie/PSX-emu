@@ -163,6 +163,7 @@
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryInterface.h" />
+    <ClInclude Include="MemoryTypes.h" />
     <ClInclude Include="Playstation.h" />
     <ClInclude Include="CW33300.h" />
     <ClInclude Include="Processor.h" />

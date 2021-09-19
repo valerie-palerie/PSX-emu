@@ -132,7 +132,10 @@ bool Debug::MemoryDebugCondition_MemoryAccess::EvaluateCondition(std::uint32_t a
 
 	if(_addressRange.Contains(address) && (std::uint8_t(accessFlags) & std::uint8_t(_accessFlags)))
 	{
-		
+		if (_allowedTriggerAmount > 0)
+			--_allowedTriggerAmount;
+
+		return true;
 	}
 
 	return false;

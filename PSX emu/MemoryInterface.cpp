@@ -20,8 +20,8 @@ bool AddressRange::MapAddress(std::uint32_t address, std::uint32_t& out_offset) 
 
 IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags accessFlags, std::uint32_t& out_offset)
 {
-	//The PS1 mirrors its addressable memory in 3 separate places
-	//But KSEG2 maps to some hardware registers, handle it later
+	//The PS1 mirrors its addressable memory in 2 separate places
+	//KSEG2 maps to some hardware registers, handle it later
 	MemorySegment seg = GetMemSegmentFromAddress(address);
 	switch (seg)
 	{
@@ -49,7 +49,7 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 	//	__debugbreak();
 
 #if DEBUG_LOG_ENABLED
-	if (component == nullptr)
+	if (component != nullptr)
 	{
 		std::cout << std::hex << "		Mem " << (accessFlags == MemoryAccessFlags::Read ? "Read: 0x" : "Write: 0x") << address << std::dec;
 		switch (seg)
@@ -67,14 +67,25 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 			std::cout << " (KSEG2)";
 			break;
 		}
-		
+
 		std::cout << " [" << (component == nullptr ? "invalid" : component->name()) << "]\n";
+	}
+#endif
+
+#if _DEBUG
+	for (auto& cond : _debugConditions)
+	{
+		if (cond->EvaluateCondition(address, accessFlags))
+		{
+			//__debugbreak();
+			break;
+		}
 	}
 #endif
 
 	if (component == nullptr)// || component->component() == nullptr)
 	{
-		//__debugbreak();
+		__debugbreak();
 		return nullptr;
 	}
 
@@ -166,11 +177,16 @@ void MemoryInterface::AddComponent(MemoryMappedComponent component)
 
 void MemoryInterface::MapAddresses(Playstation* playstation)
 {
+#if _DEBUG
+	_debugConditions.push_back(std::make_unique<Debug::MemoryDebugCondition_MemoryAccess>(AddressRange(0x0, 0x1000), MemoryAccessFlags::Write, -1));
+#endif
+
+
 	/*	TODO: Handle memory mirrors (https://psx-spx.consoledev.net/memorymap/)
-	 *	2MB RAM can be mirrored to the first 8MB (strangely, enabled by default)
-	 *	512K BIOS ROM can be mirrored to the last 4MB(disabled by default)
-	 *	Expansion hardware(if any) may be mirrored within expansion region
-	 *	The seven DMA Control Registers at 1F8010x8h are mirrored to 1F8010xCh
+	 *	2MB RAM can be mirrored to the first 8MB (strangely, enabled by default)		DONE
+	 *	512K BIOS ROM can be mirrored to the last 4MB(disabled by default)				TODO
+	 *	Expansion hardware(if any) may be mirrored within expansion region				TODO
+	 *	The seven DMA Control Registers at 1F8010x8h are mirrored to 1F8010xCh			TODO
 	 */
 
 	 //Map all components to physical addresses.
