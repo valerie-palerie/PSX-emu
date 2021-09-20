@@ -652,6 +652,8 @@ std::int8_t CW33300::op_copn(const Opcode& op)
 	Processor* coprocessor = GetCoprocessor(op.op & 0b011);
 	if (coprocessor != nullptr)
 		coprocessor->ExecuteInstruction(op);
+	else
+		__debugbreak();
 
 	return 0;
 }
@@ -807,6 +809,8 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_nextInstruction = 0x0;
 
 #if _DEBUG
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	/*
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("lui", 0x3c080013, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("ori", 0x3508243f, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("sw", 0xac281010, 1));
@@ -831,6 +835,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("and", 0x00412024, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("add", 0x01094020, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("bgtz", 0x1ca00003, 1));
+	*/
 	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("", 0x0, 1));
 	
 	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("", -1));

@@ -1,9 +1,7 @@
 #include "COP0.h"
 #include "CXD8530BQ.h"
 #include "DebugUtils.h"
-
 #include <iostream>
-#include <bitset>
 
 #define C_GET(name) auto (c_##name) = cpu()->cw33300()->GetRegister(op.name)
 #define C_SET(name, val) cpu()->cw33300()->SetRegister(op.name, val)
@@ -17,6 +15,7 @@ std::int8_t COP0::op_mfc(const Opcode& op)
 
 std::int8_t COP0::op_cfc(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
@@ -29,36 +28,43 @@ std::int8_t COP0::op_mtc(const Opcode& op)
 
 std::int8_t COP0::op_ctc(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_lwc(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_swc(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_bcf(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_bct(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_rfe(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
 std::int8_t COP0::op_invalid(const Opcode& op)
 {
+	__debugbreak();
 	return 0;
 }
 
