@@ -77,7 +77,7 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 	{
 		if (cond->EvaluateCondition(address, accessFlags))
 		{
-			//__debugbreak();
+			__debugbreak();
 			break;
 		}
 	}
@@ -178,7 +178,7 @@ void MemoryInterface::AddComponent(MemoryMappedComponent component)
 void MemoryInterface::MapAddresses(Playstation* playstation)
 {
 #if _DEBUG
-	_debugConditions.push_back(std::make_unique<Debug::MemoryDebugCondition_MemoryAccess>(AddressRange(0x0, 0x1000), MemoryAccessFlags::Write, -1));
+	//_debugConditions.push_back(std::make_unique<Debug::MemoryDebugCondition_MemoryAccess>(AddressRange(0x0, 0x1000), MemoryAccessFlags::Write, -1));
 #endif
 
 
@@ -194,9 +194,9 @@ void MemoryInterface::MapAddresses(Playstation* playstation)
 #define COMP_MIRROR(name, comp, offset, ...) AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE + offset, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE + offset), __VA_ARGS__))
 
 	COMP(RAM, playstation->dram(), MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE, MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 2, MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 3, MemoryAccessFlags::ReadWrite);
+	//COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE, MemoryAccessFlags::ReadWrite);
+	//COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 2, MemoryAccessFlags::ReadWrite);
+	//COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 3, MemoryAccessFlags::ReadWrite);
 	COMP(EXP1, playstation->exp1(), MemoryAccessFlags::ReadWrite);
 	COMP(SCRATCHPAD, playstation->scratchPad(), MemoryAccessFlags::ReadWrite);
 	COMP(IO, playstation->io(), MemoryAccessFlags::ReadWrite);

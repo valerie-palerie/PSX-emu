@@ -140,3 +140,10 @@ bool Debug::MemoryDebugCondition_MemoryAccess::EvaluateCondition(std::uint32_t a
 
 	return false;
 }
+
+bool Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature::EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc)
+{
+	if (ProcessorDebugCondition_ReachFirstOfInstruction::EvaluateCondition_Internal(processor, currentOpcode, currentInstruction, pc))
+		return _signature == currentOpcode.bits;
+	return false;
+}
