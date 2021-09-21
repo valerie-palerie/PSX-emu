@@ -460,7 +460,7 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt));
+	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
 	return 0;
 }
 
@@ -474,7 +474,7 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt));
+	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
 	return 0;
 }
 
@@ -520,7 +520,7 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 
 std::int8_t CW33300::op_j(const Opcode& op)
 {
-	Jump((_r_pc & 0xf0000000) | (std::uint32_t(op.cop) << 2));
+	Jump((_r_pc & 0xf0000000) | (op.cop << 2));
 	return 0;
 }
 
@@ -551,7 +551,7 @@ std::int8_t CW33300::op_beq(const Opcode& op)
 	R_GET(rt);
 	if (rs == rt)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 	return 0;
 }
@@ -562,7 +562,7 @@ std::int8_t CW33300::op_bne(const Opcode& op)
 	R_GET(rt);
 	if (rs != rt)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 	return 0;
 }
@@ -572,7 +572,7 @@ std::int8_t CW33300::op_bltz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) < 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
@@ -583,7 +583,7 @@ std::int8_t CW33300::op_bgez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) >= 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
@@ -594,7 +594,7 @@ std::int8_t CW33300::op_bgtz(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) > 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
@@ -605,7 +605,7 @@ std::int8_t CW33300::op_blez(const Opcode& op)
 	R_GET(rs);
 	if (std::int32_t(rs) <= 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
@@ -617,7 +617,7 @@ std::int8_t CW33300::op_bltzal(const Opcode& op)
 	SetRegister(31, _r_pc + 4);
 	if (std::int32_t(rs) < 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
@@ -629,7 +629,7 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 	SetRegister(31, _r_pc + 4);
 	if (std::int32_t(rs) >= 0)
 	{
-		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
+		Jump(_r_pc + (op.imm_se << 2));
 	}
 
 	return 0;
