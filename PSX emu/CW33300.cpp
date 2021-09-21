@@ -614,9 +614,9 @@ std::int8_t CW33300::op_blez(const Opcode& op)
 std::int8_t CW33300::op_bltzal(const Opcode& op)
 {
 	R_GET(rs);
+	SetRegister(31, _r_pc + 4);
 	if (std::int32_t(rs) < 0)
 	{
-		SetRegister(31, _r_pc + 4);
 		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
@@ -626,9 +626,9 @@ std::int8_t CW33300::op_bltzal(const Opcode& op)
 std::int8_t CW33300::op_bgezal(const Opcode& op)
 {
 	R_GET(rs);
+	SetRegister(31, _r_pc + 4);
 	if (std::int32_t(rs) >= 0)
 	{
-		SetRegister(31, _r_pc + 4);
 		Jump(_r_pc + (std::int32_t(op.imm_se) << 2));
 	}
 
@@ -812,6 +812,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 
 #if _DEBUG
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("", 0x8d090000, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
 	/*
