@@ -363,7 +363,8 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	//}
 
 	R_GET(rs);
-	R_SET(rt, std::int8_t(cpu()->playstation()->memInterface()->Read8(op.imm_se + rs)));
+	std::uint8_t val = cpu()->playstation()->memInterface()->Read8(op.imm_se + rs);
+	R_SET(rt, std::int32_t(std::int8_t(val)));
 
 	return 0;
 }
@@ -391,7 +392,8 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 	//}
 
 	R_GET(rs);
-	R_SET(rt, std::int16_t(cpu()->playstation()->memInterface()->Read16(op.imm_se + rs)));
+	std::uint16_t val = cpu()->playstation()->memInterface()->Read16(op.imm_se + rs);
+	R_SET(rt, std::int32_t(std::int16_t(val)));
 
 	return 0;
 }
@@ -537,7 +539,7 @@ std::int8_t CW33300::op_jr(const Opcode& op)
 
 std::int8_t CW33300::op_jalr(const Opcode& op)
 {
-	R_SET(rd, _r_pc);
+	R_SET(rd, _r_pc + 4);
 	R_GET(rs);
 	Jump(rs);
 	return 0;
@@ -810,6 +812,8 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 
 #if _DEBUG
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
 	/*
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("lui", 0x3c080013, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("ori", 0x3508243f, 1));
