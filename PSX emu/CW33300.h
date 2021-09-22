@@ -70,7 +70,7 @@ public:
 	void ProcessNextInstruction();
 	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
 	void Jump(std::uint32_t address);
-	void RaiseException(const Opcode& opcode, ExceptionType exceptionType);
+	void RaiseException(ExceptionType exceptionType);
 
 	explicit CW33300(CXD8530BQ* cpu);
 };

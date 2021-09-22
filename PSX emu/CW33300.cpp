@@ -22,7 +22,7 @@ std::int8_t CW33300::op_add(const Opcode& op)
 	std::uint32_t result = rs + rt;
 	if (Math::DetectOverflowAdd(rs, rt, result))
 	{
-		RaiseException(op, ExceptionType::Overflow);
+		RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -48,7 +48,7 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	std::uint32_t result = rs - rt;
 	if (Math::DetectOverflowSubtract(rs, rt, result))
 	{
-		RaiseException(op, ExceptionType::Overflow);
+		RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -74,7 +74,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	std::uint32_t result = rs + op.imm_se;
 	if (Math::DetectOverflowAdd(rs, op.imm_se, result))
 	{
-		RaiseException(op, ExceptionType::Overflow);
+		RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -638,14 +638,13 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 
 std::int8_t CW33300::op_syscall(const Opcode& op)
 {
-	RaiseException(op, ExceptionType::Syscall);
+	RaiseException(ExceptionType::Syscall);
 	return 0;
 }
 
 std::int8_t CW33300::op_break(const Opcode& op)
 {
-	//-UNIMPLEMENTED
-	__debugbreak();
+	RaiseException(ExceptionType::BP);
 	return 0;
 }
 
@@ -655,7 +654,7 @@ std::int8_t CW33300::op_copn(const Opcode& op)
 	if (coprocessor != nullptr)
 		coprocessor->ExecuteInstruction(op);
 	else
-		__debugbreak();
+		RaiseException(ExceptionType::CopU);
 
 	return 0;
 }
@@ -685,7 +684,7 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 
 std::int8_t CW33300::op_invalid(const Opcode& op)
 {
-	RaiseException(op, ExceptionType::RI);
+	RaiseException(ExceptionType::RI);
 	return 0;
 }
 
@@ -787,7 +786,7 @@ void CW33300::Jump(std::uint32_t address)
 	_r_npc = address;
 }
 
-void CW33300::RaiseException(const Opcode& opcode, ExceptionType exceptionType)
+void CW33300::RaiseException(ExceptionType exceptionType)
 {
 	COP0* cop0 = cpu()->cop0();
 	bool isBranchDelay = isExecutingDelaySlot();
@@ -797,11 +796,15 @@ void CW33300::RaiseException(const Opcode& opcode, ExceptionType exceptionType)
 
 	std::uint32_t causeReg = cop0->GetRegister(13);
 	causeReg = Math::SetBits(causeReg, 6, 2, std::uint32_t(exceptionType));
-	causeReg = Math::SetBit(causeReg, 31, isBranchDelay);
+	causeReg = Math::ToggleBit(causeReg, 31, isBranchDelay);
 	cop0->SetRegister(13, causeReg);
 
+	std::uint32_t cop0sr = cop0->GetRegister(12);
+	cop0sr = Math::SetBits(cop0sr, 5, 0, cop0sr << 2);
+	cop0->SetRegister(12, cop0sr);
+
 	std::uint32_t handler =
-		Math::IsBitSet(cop0->GetRegister(12), 22)
+		Math::IsBitSet(cop0sr, 22)
 		? 0xbfc00180
 		: 0x80000080;
 

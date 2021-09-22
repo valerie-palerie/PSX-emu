@@ -8,7 +8,7 @@ namespace Math
 	bool DetectOverflowSubtract(std::uint32_t lhs, std::uint32_t rhs, std::uint32_t result);
 
 	template<typename T>
-	T SetBit(T val, std::uint8_t bitIndex, bool set)
+	T ToggleBit(T val, std::uint8_t bitIndex, bool set)
 	{
 		if (set)
 		{

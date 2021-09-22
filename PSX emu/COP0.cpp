@@ -3,6 +3,8 @@
 #include "DebugUtils.h"
 #include <iostream>
 
+#include "MathUtils.h"
+
 #define C_GET(name) auto (c_##name) = cpu()->cw33300()->GetRegister(op.name)
 #define C_SET(name, val) cpu()->cw33300()->SetRegister(op.name, val)
 
@@ -58,7 +60,9 @@ std::int8_t COP0::op_bct(const Opcode& op)
 
 std::int8_t COP0::op_rfe(const Opcode& op)
 {
-	__debugbreak();
+	std::uint32_t sr = GetRegister(12);
+	Math::SetBits(sr, 3, 0, sr >> 2);
+	SetRegister(12, sr);
 	return 0;
 }
 
