@@ -356,11 +356,11 @@ std::int8_t CW33300::op_mtlo(const Opcode& op)
 
 std::int8_t CW33300::op_lb(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
 
 	R_GET(rs);
 	std::uint8_t val = cpu()->playstation()->memInterface()->Read8(op.imm_se + rs);
@@ -371,11 +371,11 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 
 std::int8_t CW33300::op_lbu(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
 
 	R_GET(rs);
 	R_SET(rt, cpu()->playstation()->memInterface()->Read8(op.imm_se + rs));
@@ -385,11 +385,11 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 
 std::int8_t CW33300::op_lh(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
 
 	R_GET(rs);
 	std::uint16_t val = cpu()->playstation()->memInterface()->Read16(op.imm_se + rs);
@@ -400,11 +400,11 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 
 std::int8_t CW33300::op_lhu(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
 
 	R_GET(rs);
 	R_SET(rt, cpu()->playstation()->memInterface()->Read16(op.imm_se + rs));
@@ -414,11 +414,11 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 
 std::int8_t CW33300::op_lw(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
 
 	R_GET(rs);
 	R_SET(rt, cpu()->playstation()->memInterface()->Read32(op.imm_se + rs));
@@ -428,35 +428,38 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 
 std::int8_t CW33300::op_lwl(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
 	//-UNIMPLEMENTED
 	__debugbreak();
+
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
+
 	return 0;
 }
 
 std::int8_t CW33300::op_lwr(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache read
-	//	return 0;
-	//}
 	//-UNIMPLEMENTED
 	__debugbreak();
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache read
+		return 0;
+	}
+
 	return 0;
 }
 
 std::int8_t CW33300::op_sb(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache write
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache write
+		return 0;
+	}
 
 	R_GET(rs);
 	R_GET(rt);
@@ -466,11 +469,11 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 
 std::int8_t CW33300::op_sh(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache write
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache write
+		return 0;
+	}
 
 	R_GET(rs);
 	R_GET(rt);
@@ -480,11 +483,11 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 
 std::int8_t CW33300::op_sw(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache write
-	//	return 0;
-	//}
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache write
+		return 0;
+	}
 
 	R_GET(rs);
 	R_GET(rt);
@@ -494,27 +497,28 @@ std::int8_t CW33300::op_sw(const Opcode& op)
 
 std::int8_t CW33300::op_swr(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache write
-	//	return 0;
-	//}
-
 	//-UNIMPLEMENTED
 	__debugbreak();
+
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache write
+		return 0;
+	}
+
 	return 0;
 }
 
 std::int8_t CW33300::op_swl(const Opcode& op)
 {
-	//if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
-	//{
-	//	//cache write
-	//	return 0;
-	//}
-
 	//-UNIMPLEMENTED
 	__debugbreak();
+
+	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
+	{
+		//cache write
+		return 0;
+	}
 	return 0;
 }
 
@@ -811,10 +815,6 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_nextInstruction = 0x0;
 
 #if _DEBUG
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("add", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("", 0x8d090000, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("bgtz", 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("blez", 1));
 	/*
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("lui", 0x3c080013, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("ori", 0x3508243f, 1));
@@ -838,14 +838,26 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("beq", 0x11e0000c, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("copn", 0x40026000, 1));//won't trigger
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("and", 0x00412024, 1));
+	
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("add", 0x01094020, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("bgtz", 0x1ca00003, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("blez", 0x18a00005, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("lbu", 0x90ae0000, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("jalr", 0x0100f809, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("slti", 0x28810010, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("subu", 0x01c47023, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("sra", 0x00042603, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("div", 0x0061001a, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mflo", 0x00001812, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("srl", 0x00057082, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("sltiu", 0x2c410045, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("divu", 0x0064001b, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mfhi", 0x0000c810, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("slt", 0x0338082a, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("syscall", 0x0000000c, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mtlo", 0x00400013, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mthi", 0x00400011, 1));
 	*/
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("", 0x0, 1));
-	
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachFirstOfInstruction>("", -1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0xb0, -1));
-	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_ReachAddress>(0xed8, 1));
 #endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })

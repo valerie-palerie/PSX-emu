@@ -11,7 +11,7 @@
 struct ProcessorInstruction;
 struct Opcode;
 class Processor;
-#define ENABLE_DEBUG_LOG 0
+#define ENABLE_DEBUG_LOG 1
 #define DEBUG_LOG_ENABLED (ENABLE_DEBUG_LOG && _DEBUG)
 
 namespace Debug

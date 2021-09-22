@@ -120,6 +120,9 @@ std::uint8_t MemoryInterface::Read8(std::uint32_t address)
 
 std::uint16_t MemoryInterface::Read16(std::uint32_t address)
 {
+	if (address % 2 != 0)
+		__debugbreak();
+
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
 	if (target != nullptr)
@@ -130,6 +133,9 @@ std::uint16_t MemoryInterface::Read16(std::uint32_t address)
 
 std::uint32_t MemoryInterface::Read32(std::uint32_t address)
 {
+	if (address % 4 != 0)
+		__debugbreak();
+
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
 	if (target != nullptr)
@@ -148,6 +154,9 @@ void MemoryInterface::Write8(std::uint32_t address, std::uint8_t data)
 
 void MemoryInterface::Write16(std::uint32_t address, std::uint16_t data)
 {
+	if (address % 2 != 0)
+		__debugbreak();
+
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Write, offset);
 	if (target != nullptr)
@@ -156,6 +165,9 @@ void MemoryInterface::Write16(std::uint32_t address, std::uint16_t data)
 
 void MemoryInterface::Write32(std::uint32_t address, std::uint32_t data)
 {
+	if (address % 4 != 0)
+		__debugbreak();
+
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Write, offset);
 	if (target != nullptr)
