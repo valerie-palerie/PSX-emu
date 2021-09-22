@@ -13,10 +13,10 @@ protected:
 	//Internal registers separate from the 32 user available registers.
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
 	std::uint32_t _r_pc = 0xbadbad;
+	std::uint32_t _r_npc = 0xbadbad; //Not a real hardware register, helper for jumps.
 	std::uint32_t _r_lo = 0xbadbad;
 	std::uint32_t _r_hi = 0xbadbad;
 
-	std::uint32_t _nextInstruction = 0xbadbad; //Opcode for next instruction
 	std::uint32_t _currentInstructionAddress = 0xbadbad; //Address of currently executing instruction
 
 	std::uint32_t _delaySlotAddress = 0xbadbad; //Address of upcoming delay slot

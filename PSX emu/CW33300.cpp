@@ -691,7 +691,6 @@ std::int8_t CW33300::op_invalid(const Opcode& op)
 
 void CW33300::Init()
 {
-	MoveExecutionTo(MemoryMap::BIOS_BASE);
 }
 
 
@@ -712,7 +711,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
 
 #if DEBUG_LOG_ENABLED
-	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _currentInstructionAddress);
+	Debug::LogInstruction(this, opcode, instructionRef, _currentInstructionAddress);
 	bool didDebugBreak = false;
 #endif
 
@@ -732,9 +731,6 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 #endif
 
 	std::int8_t opResult = instructionRef->instruction(opcode);
-
-	if (_currentInstructionAddress == _delaySlotAddress)
-		_delaySlotAddress = 0x0;
 
 #if DEBUG_LOG_ENABLED
 	Debug::LogRegisterWrites(_registers_read, _registers_write);
@@ -763,12 +759,8 @@ Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
 void CW33300::MoveExecutionTo(std::uint32_t address)
 {
 	_r_pc = address;
-	_currentInstructionAddress = address;
-	_delaySlotAddress = 0x0;
-	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
-	_r_pc += 4;
+	_r_npc = address + 4;
 }
-
 
 ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 {
@@ -792,7 +784,7 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 void CW33300::Jump(std::uint32_t address)
 {
 	_delaySlotAddress = _r_pc;
-	_r_pc = address - 4;
+	_r_npc = address;
 }
 
 void CW33300::RaiseException(const Opcode& opcode, ExceptionType exceptionType)
@@ -814,23 +806,19 @@ void CW33300::RaiseException(const Opcode& opcode, ExceptionType exceptionType)
 		: 0x80000080;
 
 	MoveExecutionTo(handler);
-	_r_pc -= 4;
 }
 
 void CW33300::ProcessNextInstruction()
 {
-	//We want to simulate the PS1's pipelining by fetching an instruction ahead of time and executing it on the next step
-	Opcode opcode(_nextInstruction);
-	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
-	std::uint32_t fetchedInstructionPC = _r_pc;
+	_currentInstructionAddress = _r_pc;
+	Opcode opcode(cpu()->playstation()->memInterface()->Read32(_currentInstructionAddress));
+	_r_pc = _r_npc;
+	_r_npc += 4;
 
 	ExecuteInstruction(opcode);
 
 	if (isExecutingDelaySlot())
 		_delaySlotAddress = 0x0;
-
-	_r_pc += 4;
-	_currentInstructionAddress = fetchedInstructionPC;
 }
 
 
@@ -842,7 +830,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_registers_read[0] = 0;
 	_registers_write[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
-	_nextInstruction = 0x0;
+	_r_npc = MemoryMap::BIOS_BASE + 4;
 
 #if _DEBUG
 	/*
