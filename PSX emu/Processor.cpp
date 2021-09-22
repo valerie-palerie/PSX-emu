@@ -14,7 +14,7 @@ void Processor::SetRegister(std::uint8_t index, std::uint32_t value)
 
 void Processor::ExecuteInstruction(Opcode opcode)
 {
-	_registers_read = _registers_write;
+	SyncRegisters();
 }
 
 Processor::Processor(CXD8530BQ* cpu) :

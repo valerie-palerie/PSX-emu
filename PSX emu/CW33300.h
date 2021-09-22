@@ -16,8 +16,10 @@ protected:
 	std::uint32_t _r_lo = 0xbadbad;
 	std::uint32_t _r_hi = 0xbadbad;
 
-	std::uint32_t _nextInstruction = 0xbadbad;
-	std::uint32_t _debugPC = 0xbadbad;
+	std::uint32_t _nextInstruction = 0xbadbad; //Opcode for next instruction
+	std::uint32_t _currentInstructionAddress = 0xbadbad; //Address of currently executing instruction
+
+	std::uint32_t _delaySlotAddress = 0xbadbad; //Address of upcoming delay slot
 
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
@@ -25,6 +27,8 @@ protected:
 #if _DEBUG
 	std::vector<std::unique_ptr<Debug::BaseProcessorDebugCondition>> _debugConditions;
 #endif
+
+	bool isExecutingDelaySlot() const { return _delaySlotAddress > 0x0 && _currentInstructionAddress == _delaySlotAddress; }
 
 public:
 	//****** Instruction definitions ******//
@@ -34,7 +38,7 @@ public:
 	//---ALU Comparison
 	INST(slt); INST(sltu); INST(slti); INST(sltiu);
 	//---ALU Logical
-	INST(and); INST(or ); INST(xor); INST(nor); INST(andi); INST(ori); INST(xori);
+	INST(and); INST(or); INST(xor); INST(nor); INST(andi); INST(ori); INST(xori);
 	//---ALU Shifting
 	INST(sllv); INST(srlv); INST(srav); INST(sll); INST(srl); INST(sra); INST(lui);
 	//---ALU Multiply/div
@@ -61,9 +65,12 @@ public:
 
 	//****** CW333300 ******//
 	Processor* GetCoprocessor(std::uint8_t idx) const;
+
+	void MoveExecutionTo(std::uint32_t address);
 	void ProcessNextInstruction();
 	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
 	void Jump(std::uint32_t address);
+	void RaiseException(const Opcode& opcode, ExceptionType exceptionType);
 
 	explicit CW33300(CXD8530BQ* cpu);
 };

@@ -22,8 +22,7 @@ std::int8_t CW33300::op_add(const Opcode& op)
 	std::uint32_t result = rs + rt;
 	if (Math::DetectOverflowAdd(rs, rt, result))
 	{
-		//throw exception
-		__debugbreak();
+		RaiseException(op, ExceptionType::Overflow);
 	}
 	else
 	{
@@ -49,8 +48,7 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	std::uint32_t result = rs - rt;
 	if (Math::DetectOverflowSubtract(rs, rt, result))
 	{
-		//throw exception
-		__debugbreak();
+		RaiseException(op, ExceptionType::Overflow);
 	}
 	else
 	{
@@ -76,8 +74,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	std::uint32_t result = rs + op.imm_se;
 	if (Math::DetectOverflowAdd(rs, op.imm_se, result))
 	{
-		//throw exception
-		__debugbreak();
+		RaiseException(op, ExceptionType::Overflow);
 	}
 	else
 	{
@@ -641,8 +638,7 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 
 std::int8_t CW33300::op_syscall(const Opcode& op)
 {
-	//-UNIMPLEMENTED
-	__debugbreak();
+	RaiseException(op, ExceptionType::Syscall);
 	return 0;
 }
 
@@ -689,17 +685,13 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 
 std::int8_t CW33300::op_invalid(const Opcode& op)
 {
-	//invalid instruction, i think we're meant to raise an exception on the coprocessor.
-	//-UNIMPLEMENTED
-	__debugbreak();
+	RaiseException(op, ExceptionType::RI);
 	return 0;
 }
 
 void CW33300::Init()
 {
-	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
-	_debugPC = _r_pc;
-	_r_pc += 4;
+	MoveExecutionTo(MemoryMap::BIOS_BASE);
 }
 
 
@@ -720,14 +712,14 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
 
 #if DEBUG_LOG_ENABLED
-	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _debugPC);
+	Debug::LogInstruction(this, opcode, instructionRef, _nextInstruction, _currentInstructionAddress);
 	bool didDebugBreak = false;
 #endif
 
 #if _DEBUG
 	for (const auto& condition : _debugConditions)
 	{
-		if (condition->EvaluateCondition(this, opcode, instructionRef, _debugPC))
+		if (condition->EvaluateCondition(this, opcode, instructionRef, _currentInstructionAddress))
 		{
 #if DEBUG_LOG_ENABLED
 			didDebugBreak = true;
@@ -740,6 +732,9 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 #endif
 
 	std::int8_t opResult = instructionRef->instruction(opcode);
+
+	if (_currentInstructionAddress == _delaySlotAddress)
+		_delaySlotAddress = 0x0;
 
 #if DEBUG_LOG_ENABLED
 	Debug::LogRegisterWrites(_registers_read, _registers_write);
@@ -765,6 +760,15 @@ Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
 	}
 }
 
+void CW33300::MoveExecutionTo(std::uint32_t address)
+{
+	_r_pc = address;
+	_currentInstructionAddress = address;
+	_delaySlotAddress = 0x0;
+	_nextInstruction = cpu()->playstation()->memInterface()->Read32(_r_pc);
+	_r_pc += 4;
+}
+
 
 ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 {
@@ -787,7 +791,30 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 
 void CW33300::Jump(std::uint32_t address)
 {
+	_delaySlotAddress = _r_pc;
 	_r_pc = address - 4;
+}
+
+void CW33300::RaiseException(const Opcode& opcode, ExceptionType exceptionType)
+{
+	COP0* cop0 = cpu()->cop0();
+	bool isBranchDelay = isExecutingDelaySlot();
+
+	//If we're executing a branch delay slot, we have to return to the branch instruction before it
+	cop0->SetRegister(14, isBranchDelay ? (_currentInstructionAddress - 4) : _currentInstructionAddress);
+
+	std::uint32_t causeReg = cop0->GetRegister(13);
+	causeReg = Math::SetBits(causeReg, 6, 2, std::uint32_t(exceptionType));
+	causeReg = Math::SetBit(causeReg, 31, isBranchDelay);
+	cop0->SetRegister(13, causeReg);
+
+	std::uint32_t handler =
+		Math::IsBitSet(cop0->GetRegister(12), 22)
+		? 0xbfc00180
+		: 0x80000080;
+
+	MoveExecutionTo(handler);
+	_r_pc -= 4;
 }
 
 void CW33300::ProcessNextInstruction()
@@ -799,8 +826,11 @@ void CW33300::ProcessNextInstruction()
 
 	ExecuteInstruction(opcode);
 
+	if (isExecutingDelaySlot())
+		_delaySlotAddress = 0x0;
+
 	_r_pc += 4;
-	_debugPC = fetchedInstructionPC;
+	_currentInstructionAddress = fetchedInstructionPC;
 }
 
 
@@ -838,7 +868,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("beq", 0x11e0000c, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("copn", 0x40026000, 1));//won't trigger
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("and", 0x00412024, 1));
-	
+
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("add", 0x01094020, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("bgtz", 0x1ca00003, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("blez", 0x18a00005, 1));
