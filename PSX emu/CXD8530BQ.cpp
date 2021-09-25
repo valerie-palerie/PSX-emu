@@ -23,7 +23,7 @@ void CXD8530BQ::ExecuteInstruction(Opcode opcode)
 	_cw33300.ExecuteInstruction(opcode);
 }
 
-void CXD8530BQ::RaiseException(ExceptionType exceptionType)
+void CXD8530BQ::RaiseException(ExceptionType exceptionType, std::uint32_t data)
 {
 	bool isBranchDelay = _cw33300.isExecutingDelaySlot();
 
@@ -40,9 +40,22 @@ void CXD8530BQ::RaiseException(ExceptionType exceptionType)
 	_cop0.SetRegister(12, cop0sr);
 
 	std::uint32_t handler =
-		Math::IsBitSet(cop0sr, 22)
+		Math::GetBit(cop0sr, 22)
 		? 0xbfc00180
 		: 0x80000080;
+
+	switch (exceptionType)
+	{
+	case ExceptionType::Syscall:
+		break;
+	case ExceptionType::AdEL:
+	case ExceptionType::AdES:
+		_cop0.SetRegister(8, data);
+		/* Switch Fallthrough */
+	default:
+		__debugbreak();
+		break;
+	}
 
 	_cw33300.MoveExecutionTo(handler);
 }

@@ -25,7 +25,7 @@ public:
 	void Clock();
 
 	void ExecuteInstruction(Opcode opcode);
-	void RaiseException(ExceptionType exceptionType);
+	void RaiseException(ExceptionType exceptionType, std::uint32_t data = 0x0);
 
 	CXD8530BQ(Playstation* playstation);
 };

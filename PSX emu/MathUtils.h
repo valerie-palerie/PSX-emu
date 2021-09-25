@@ -51,7 +51,7 @@ namespace Math
 	}
 
 	template<typename T>
-	bool IsBitSet(T val, std::uint8_t bitIndex)
+	bool GetBit(T val, std::uint8_t bitIndex)
 	{
 		return val & (1 << bitIndex);
 	}

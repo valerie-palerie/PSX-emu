@@ -62,13 +62,19 @@ template<typename T>
 inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
 {
 	if (address % sizeof(T) != 0)
+	{
+		_playstation->cpu()->RaiseException(ExceptionType::AdEL, address);
 		return false;
+	}
 
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
 
 	if (target == nullptr)
+	{
+		_playstation->cpu()->RaiseException(ExceptionType::AdEL, address);
 		return false;
+	}
 
 	target->Read(offset, &outData, sizeof(T));
 	return true;
@@ -78,13 +84,19 @@ template<typename T>
 inline bool MemoryInterface::Write(std::uint32_t address, T data)
 {
 	if (address % sizeof(T) != 0)
+	{
+		_playstation->cpu()->RaiseException(ExceptionType::AdES, address);
 		return false;
+	}
 
 	std::uint32_t offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
 
 	if (target == nullptr)
+	{
+		_playstation->cpu()->RaiseException(ExceptionType::AdES, address);
 		return false;
+	}
 
 	target->Write(offset, &data, sizeof(T));
 	return true;
