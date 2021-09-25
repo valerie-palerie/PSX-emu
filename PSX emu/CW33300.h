@@ -9,6 +9,8 @@ class CXD8530BQ;
 
 class CW33300 : public Processor
 {
+	friend class CXD8530BQ;
+
 protected:
 	//Internal registers separate from the 32 user available registers.
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
@@ -59,7 +61,6 @@ public:
 
 	//****** Processor Implementation ******//
 	virtual void Init() override;
-	std::uint32_t GetRegister(std::uint8_t index) const override;
 	void SetRegister(std::uint8_t index, std::uint32_t value) override;
 	void ExecuteInstruction(Opcode opcode) override;
 
@@ -70,7 +71,6 @@ public:
 	void ProcessNextInstruction();
 	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
 	void Jump(std::uint32_t address);
-	void RaiseException(ExceptionType exceptionType);
 
 	explicit CW33300(CXD8530BQ* cpu);
 };

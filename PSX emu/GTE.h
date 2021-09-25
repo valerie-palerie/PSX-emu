@@ -3,6 +3,8 @@
 
 class GTE : public Processor
 {
+	friend class CXD8530BQ;
+
 public:
 	//****** Processor Implementation ******//
 	void ExecuteInstruction(Opcode opcode) override;

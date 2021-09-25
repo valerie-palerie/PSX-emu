@@ -11,15 +11,14 @@ enum class MemoryEndianness
 
 class IMemory
 {
-public:
-	virtual std::uint8_t Read8(std::uint32_t address) = 0;
-	virtual std::uint16_t Read16(std::uint32_t address) = 0;
-	virtual std::uint32_t Read32(std::uint32_t address) = 0;
+protected:
+	friend class MemoryInterface;
+	virtual bool Read(std::uint32_t address, void* out_data, size_t size) const = 0;
+	virtual bool Write(std::uint32_t address, const void* data, size_t size) = 0;
 
-	virtual void Write8(std::uint32_t address, std::uint8_t data) = 0;
-	virtual void Write16(std::uint32_t address, std::uint16_t data) = 0;
-	virtual void Write32(std::uint32_t address, std::uint32_t data) = 0;
-	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) = 0;
+public:
+	virtual bool Read(std::uint32_t address, std::vector<std::uint8_t>& out_data) const = 0;
+	virtual bool Write(std::uint32_t address, std::vector<std::uint8_t> data) = 0;
 
 	virtual ~IMemory() = default;
 };
@@ -30,15 +29,13 @@ private:
 	const std::uint32_t _size;
 	std::vector<std::uint8_t> _mem;
 
-public:
-	virtual std::uint8_t Read8(std::uint32_t address) override;
-	virtual std::uint16_t Read16(std::uint32_t address) override;
-	virtual std::uint32_t Read32(std::uint32_t address) override;
+protected:
+	virtual bool Read(std::uint32_t address, void* out_data, size_t size) const;
+	virtual bool Write(std::uint32_t address, const void* data, size_t size);
 
-	virtual void Write8(std::uint32_t address, std::uint8_t data) override;
-	virtual void Write16(std::uint32_t address, std::uint16_t data) override;
-	virtual void Write32(std::uint32_t address, std::uint32_t data) override;
-	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
+public:
+	virtual bool Read(std::uint32_t address, std::vector<std::uint8_t>& out_data) const override;
+	virtual bool Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
 
 	std::uint32_t size() const { return _size; }
 

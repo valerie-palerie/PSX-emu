@@ -22,7 +22,7 @@ std::int8_t CW33300::op_add(const Opcode& op)
 	std::uint32_t result = rs + rt;
 	if (Math::DetectOverflowAdd(rs, rt, result))
 	{
-		RaiseException(ExceptionType::Overflow);
+		cpu()->RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -48,7 +48,7 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	std::uint32_t result = rs - rt;
 	if (Math::DetectOverflowSubtract(rs, rt, result))
 	{
-		RaiseException(ExceptionType::Overflow);
+		cpu()->RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -74,7 +74,7 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	std::uint32_t result = rs + op.imm_se;
 	if (Math::DetectOverflowAdd(rs, op.imm_se, result))
 	{
-		RaiseException(ExceptionType::Overflow);
+		cpu()->RaiseException(ExceptionType::Overflow);
 	}
 	else
 	{
@@ -360,7 +360,14 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 	}
 
 	R_GET(rs);
-	std::uint8_t val = cpu()->playstation()->memInterface()->Read8(op.imm_se + rs);
+
+	std::uint8_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint8_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
 	R_SET(rt, std::int32_t(std::int8_t(val)));
 
 	return 0;
@@ -375,7 +382,15 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->playstation()->memInterface()->Read8(op.imm_se + rs));
+
+	std::uint8_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint8_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
+	R_SET(rt, val);
 
 	return 0;
 }
@@ -389,7 +404,14 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 	}
 
 	R_GET(rs);
-	std::uint16_t val = cpu()->playstation()->memInterface()->Read16(op.imm_se + rs);
+
+	std::uint16_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint16_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
 	R_SET(rt, std::int32_t(std::int16_t(val)));
 
 	return 0;
@@ -404,7 +426,15 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->playstation()->memInterface()->Read16(op.imm_se + rs));
+
+	std::uint16_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint16_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
+	R_SET(rt, val);
 
 	return 0;
 }
@@ -418,7 +448,15 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 	}
 
 	R_GET(rs);
-	R_SET(rt, cpu()->playstation()->memInterface()->Read32(op.imm_se + rs));
+
+	std::uint32_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint32_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
+	R_SET(rt, val);
 
 	return 0;
 }
@@ -460,7 +498,13 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write8(op.imm_se + rs, std::uint8_t(rt & 0xff));
+
+	if (!cpu()->playstation()->memInterface()->Write<std::uint8_t>(op.imm_se + rs, std::uint8_t(rt & 0xff)))
+	{
+		__debugbreak();
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -474,7 +518,13 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write16(op.imm_se + rs, std::uint16_t(rt & 0xffff));
+
+	if (!cpu()->playstation()->memInterface()->Write<std::uint16_t>(op.imm_se + rs, std::uint16_t(rt & 0xffff)))
+	{
+		__debugbreak();
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -488,7 +538,13 @@ std::int8_t CW33300::op_sw(const Opcode& op)
 
 	R_GET(rs);
 	R_GET(rt);
-	cpu()->playstation()->memInterface()->Write32(op.imm_se + rs, rt);
+
+	if (!cpu()->playstation()->memInterface()->Write<std::uint32_t>(op.imm_se + rs, rt))
+	{
+		__debugbreak();
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -638,13 +694,13 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 
 std::int8_t CW33300::op_syscall(const Opcode& op)
 {
-	RaiseException(ExceptionType::Syscall);
+	cpu()->RaiseException(ExceptionType::Syscall);
 	return 0;
 }
 
 std::int8_t CW33300::op_break(const Opcode& op)
 {
-	RaiseException(ExceptionType::BP);
+	cpu()->RaiseException(ExceptionType::BP);
 	return 0;
 }
 
@@ -654,37 +710,57 @@ std::int8_t CW33300::op_copn(const Opcode& op)
 	if (coprocessor != nullptr)
 		coprocessor->ExecuteInstruction(op);
 	else
-		RaiseException(ExceptionType::CopU);
+		cpu()->RaiseException(ExceptionType::CopU);
 
 	return 0;
 }
 
-//LWCn and SWCn might need to be implemented on the coprocessor, i'll get back to this when i know more.
 std::int8_t CW33300::op_lwcn(const Opcode& op)
 {
-	//-UNIMPLEMENTED
-	__debugbreak();
-	//Processor* coprocessor = GetCoprocessor(op.op & 0b011);
-	//if (coprocessor != nullptr)
-	//	coprocessor->ExecuteInstruction(op);
+	//lwc is only implemented on cop2
+	if ((op.op & 0b11) != 2)
+	{
+		cpu()->RaiseException(ExceptionType::CopU);
+		return 0;
+	}
 
+	R_GET(rs);
+
+	std::uint32_t val;
+	if (!cpu()->playstation()->memInterface()->Read<std::uint32_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
+
+	cpu()->gte()->SetRegister(op.rt, val);
 	return 0;
-}
+	}
 
 std::int8_t CW33300::op_swcn(const Opcode& op)
 {
-	//-UNIMPLEMENTED
-	__debugbreak();
-	//Processor* coprocessor = GetCoprocessor(op.op & 0b011);
-	//if (coprocessor != nullptr)
-	//	coprocessor->ExecuteInstruction(op);
+	//swc is only implemented on cop2
+	if ((op.op & 0b11) != 2)
+	{
+		cpu()->RaiseException(ExceptionType::CopU);
+		return 0;
+	}
+
+	R_GET(rs);
+
+	std::uint32_t val = cpu()->gte()->GetRegister(op.rt);
+	if (!cpu()->playstation()->memInterface()->Write<std::uint32_t>(op.imm_se + rs, val))
+	{
+		__debugbreak();
+		return 0;
+	}
 
 	return 0;
-}
+	}
 
 std::int8_t CW33300::op_invalid(const Opcode& op)
 {
-	RaiseException(ExceptionType::RI);
+	cpu()->RaiseException(ExceptionType::RI);
 	return 0;
 }
 
@@ -692,15 +768,12 @@ void CW33300::Init()
 {
 }
 
-
-std::uint32_t CW33300::GetRegister(std::uint8_t index) const
-{
-	return _registers_read[index];
-}
-
 void CW33300::SetRegister(std::uint8_t index, std::uint32_t value)
 {
-	_registers_write[index] = value;
+	if (index != 0)
+	{
+		Processor::SetRegister(index, value);
+	}
 	_registers_write[0] = 0;
 }
 
@@ -738,8 +811,6 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 		std::cout << "------------ COND BREAK ------------\n\n";
 	}
 #endif
-
-	Processor::ExecuteInstruction(opcode);
 }
 
 Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
@@ -786,42 +857,21 @@ void CW33300::Jump(std::uint32_t address)
 	_r_npc = address;
 }
 
-void CW33300::RaiseException(ExceptionType exceptionType)
-{
-	COP0* cop0 = cpu()->cop0();
-	bool isBranchDelay = isExecutingDelaySlot();
-
-	//If we're executing a branch delay slot, we have to return to the branch instruction before it
-	cop0->SetRegister(14, isBranchDelay ? (_currentInstructionAddress - 4) : _currentInstructionAddress);
-
-	std::uint32_t causeReg = cop0->GetRegister(13);
-	causeReg = Math::SetBits(causeReg, 6, 2, std::uint32_t(exceptionType));
-	causeReg = Math::ToggleBit(causeReg, 31, isBranchDelay);
-	cop0->SetRegister(13, causeReg);
-
-	std::uint32_t cop0sr = cop0->GetRegister(12);
-	cop0sr = Math::SetBits(cop0sr, 5, 0, cop0sr << 2);
-	cop0->SetRegister(12, cop0sr);
-
-	std::uint32_t handler =
-		Math::IsBitSet(cop0sr, 22)
-		? 0xbfc00180
-		: 0x80000080;
-
-	MoveExecutionTo(handler);
-}
-
 void CW33300::ProcessNextInstruction()
 {
 	_currentInstructionAddress = _r_pc;
-	Opcode opcode(cpu()->playstation()->memInterface()->Read32(_currentInstructionAddress));
-	_r_pc = _r_npc;
-	_r_npc += 4;
+	std::uint32_t val;
+	if (cpu()->playstation()->memInterface()->Read<std::uint32_t>(_currentInstructionAddress, val))
+	{
+		Opcode opcode(val);
+		_r_pc = _r_npc;
+		_r_npc += 4;
 
-	ExecuteInstruction(opcode);
+		ExecuteInstruction(opcode);
 
-	if (isExecutingDelaySlot())
-		_delaySlotAddress = 0x0;
+		if (isExecutingDelaySlot())
+			_delaySlotAddress = 0x0;
+	}
 }
 
 
@@ -857,7 +907,7 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("jr", 0x03e00008, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("lb", 0x81efe288, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("beq", 0x11e0000c, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("copn", 0x40026000, 1));//won't trigger
+	//_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("copn", 0x40026000, 1));//won't trigger
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("and", 0x00412024, 1));
 
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("add", 0x01094020, 1));
@@ -873,12 +923,12 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("srl", 0x00057082, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("sltiu", 0x2c410045, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("divu", 0x0064001b, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mfhi", 0x0000c810, 1));
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mfhi", 0x0000c810, 1));*/
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("slt", 0x0338082a, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("syscall", 0x0000000c, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mtlo", 0x00400013, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mthi", 0x00400011, 1));
-	*/
+	
 #endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })

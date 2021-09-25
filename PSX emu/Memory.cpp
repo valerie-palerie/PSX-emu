@@ -1,90 +1,48 @@
 #include "Memory.h"
 #include <fstream>
 
-std::uint8_t MemoryChip::Read8(std::uint32_t address)
+bool MemoryChip::Read(std::uint32_t address, void* out_data, size_t size) const
 {
-	if (address >= _mem.size())
+	if (address + size > _mem.size())
+		return false;
+
+	std::memcpy(out_data, &_mem[address], size);
+	return true;
+}
+
+bool MemoryChip::Write(std::uint32_t address, const void* data, size_t size)
+{
+	if (address + size > _mem.size())
+		return false;
+
+	std::memcpy(&_mem[address], data, size);
+	return true;
+}
+
+bool MemoryChip::Read(std::uint32_t address, std::vector<std::uint8_t>& out_data) const
+{
+	if (size_t(address + out_data.size()) > _mem.size())
 	{
 		//throw some kinda exception
 		__debugbreak();
-		return 0;
+		return false;
 	}
 
-	return _mem[address];
+	std::memcpy(&out_data[0], &_mem[address], sizeof(std::uint8_t) * out_data.size());
+	return true;
 }
 
-std::uint16_t MemoryChip::Read16(std::uint32_t address)
-{
-	if (size_t(address) + 1 >= _mem.size())
-	{
-		//throw some kinda exception
-		__debugbreak();
-		return 0;
-	}
-
-	std::uint16_t val;
-	std::memcpy(&val, &_mem[address], sizeof(std::uint16_t));
-	return val;
-}
-
-std::uint32_t MemoryChip::Read32(std::uint32_t address)
-{
-	if (size_t(address) + 3 >= _mem.size())
-	{
-		//throw some kinda exception
-		__debugbreak();
-		return 0;
-	}
-
-	std::uint32_t val;
-	std::memcpy(&val, &_mem[address], sizeof(std::uint32_t));
-	return val;
-}
-
-void MemoryChip::Write8(std::uint32_t address, std::uint8_t data)
-{
-	if (size_t(address) >= _mem.size())
-	{
-		//throw some kinda exception
-		__debugbreak();
-		return;
-	}
-
-	_mem[size_t(address)] = data;
-}
-
-void MemoryChip::Write16(std::uint32_t address, std::uint16_t data)
-{
-	if (size_t(address + 1) >= _mem.size())
-	{
-		//throw some kinda exception
-		__debugbreak();
-		return;
-	}
-	std::memcpy(&_mem[address], &data, sizeof(std::uint16_t));
-}
-
-void MemoryChip::Write32(std::uint32_t address, std::uint32_t data)
-{
-	if (size_t(address + 3) >= _mem.size())
-	{
-		//throw some kinda exception
-		__debugbreak();
-		return;
-	}
-	std::memcpy(&_mem[address], &data, sizeof(std::uint32_t));
-}
-
-void MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
+bool MemoryChip::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
 	if (size_t(address + data.size()) > _mem.size())
 	{
 		//throw some kinda exception
 		__debugbreak();
-		return;
+		return false;
 	}
 
 	std::memcpy(&_mem[address], &data[0], sizeof(std::uint8_t) * data.size());
+	return true;
 }
 
 void MemoryChip::DumpToFile(const std::string& filename)

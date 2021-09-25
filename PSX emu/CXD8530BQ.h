@@ -22,6 +22,11 @@ public:
 
 	void Init();
 
+	void Clock();
+
+	void ExecuteInstruction(Opcode opcode);
+	void RaiseException(ExceptionType exceptionType);
+
 	CXD8530BQ(Playstation* playstation);
 };
 

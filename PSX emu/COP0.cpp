@@ -72,16 +72,6 @@ std::int8_t COP0::op_invalid(const Opcode& op)
 	return 0;
 }
 
-std::uint32_t COP0::GetRegister(std::uint8_t index) const
-{
-	return _registers_read[index];
-}
-
-void COP0::SetRegister(std::uint8_t index, std::uint32_t value)
-{
-	_registers_write[index] = value;
-}
-
 void COP0::ExecuteInstruction(Opcode opcode)
 {
 	ProcessorInstruction* instructionRef = DecodeInstruction(opcode);
@@ -91,7 +81,6 @@ void COP0::ExecuteInstruction(Opcode opcode)
 #endif
 
 	std::int8_t opResult = instructionRef->instruction(opcode);
-	Processor::ExecuteInstruction(opcode);
 }
 
 ProcessorInstruction* COP0::DecodeInstruction(const Opcode& opcode)
@@ -144,8 +133,8 @@ ProcessorInstruction* COP0::DecodeInstruction(const Opcode& opcode)
 
 COP0::COP0(CXD8530BQ* cpu) : Processor(cpu)
 {
-	_registers_read.resize(64, 0xbadbad);
-	_registers_write.resize(64, 0xbadbad);
+	_registers_read.resize(32, 0xbadbad);
+	_registers_write.resize(32, 0xbadbad);
 
 	/*	  31..26 |25..21|20..16|15..11|10..6 |  5..0  |
 		   6bit  | 5bit | 5bit | 5bit | 5bit |  6bit  |

@@ -1,32 +1,25 @@
 #include "ExpansionBoard.h"
 
-std::uint8_t ExpansionBoard::Read8(std::uint32_t address)
+bool ExpansionBoard::Read(std::uint32_t address, void* out_data, size_t size) const
 {
-	return 0xff;
+	std::uint32_t val = 0xffffffff;
+	std::memcpy(out_data, &val, size);
+	return true;
 }
 
-std::uint16_t ExpansionBoard::Read16(std::uint32_t address)
+bool ExpansionBoard::Write(std::uint32_t address, const void* data, size_t size)
 {
-	return 0xffff;
+	return true;
 }
 
-std::uint32_t ExpansionBoard::Read32(std::uint32_t address)
+bool ExpansionBoard::Read(std::uint32_t address, std::vector<std::uint8_t>& out_data) const
 {
-	return 0xffffffff;
+	for (std::uint8_t& val : out_data)
+		val = 0xff;
+	return true;
 }
 
-void ExpansionBoard::Write8(std::uint32_t address, std::uint8_t data)
+bool ExpansionBoard::Write(std::uint32_t address, std::vector<std::uint8_t> data)
 {
-}
-
-void ExpansionBoard::Write16(std::uint32_t address, std::uint16_t data)
-{
-}
-
-void ExpansionBoard::Write32(std::uint32_t address, std::uint32_t data)
-{
-}
-
-void ExpansionBoard::Write(std::uint32_t address, std::vector<std::uint8_t> data)
-{
+	return true;
 }

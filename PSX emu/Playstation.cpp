@@ -14,7 +14,7 @@ void Playstation::Init()
 
 void Playstation::Tick(float deltaTime)
 {
-	_cpu.cw33300()->ProcessNextInstruction();
+	_cpu.Clock();
 }
 
 Playstation::Playstation()
@@ -26,11 +26,9 @@ Playstation::Playstation()
 	, _cpu(this)
 {
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
-
 	std::vector<std::uint8_t> buffer(
 		(std::istreambuf_iterator<std::uint8_t>(input)),
 		(std::istreambuf_iterator<std::uint8_t>()));
-
 	input.close();
 
 	_bios.Write(0, std::move(buffer));

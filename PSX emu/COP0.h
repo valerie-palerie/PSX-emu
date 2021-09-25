@@ -5,6 +5,7 @@
 
 class COP0 : public Processor
 {
+	friend class CXD8530BQ;
 
 public:
 	//****** Instruction definitions ******//
@@ -15,8 +16,6 @@ public:
 	INST(invalid);
 #undef INST
 	//****** Processor Implementation ******//
-	std::uint32_t GetRegister(std::uint8_t index) const override;
-	void SetRegister(std::uint8_t index, std::uint32_t value) override;
 	void ExecuteInstruction(Opcode opcode) override;
 
 	//****** COP0 ******//

@@ -33,9 +33,10 @@ public:
 };
 
 //The memory interface is here to map the addressable memory space into the devices that occupy it.
-class MemoryInterface : public IMemory
+class MemoryInterface
 {
 private:
+	Playstation* _playstation;
 	std::vector<MemoryMappedComponent> _components;
 
 #if _DEBUG
@@ -47,18 +48,44 @@ private:
 public:
 	MemorySegment GetMemSegmentFromAddress(std::uint32_t address);
 
-	// Inherited via IMemory
-	virtual std::uint8_t Read8(std::uint32_t address) override;
-	virtual std::uint16_t Read16(std::uint32_t address) override;
-	virtual std::uint32_t Read32(std::uint32_t address) override;
-
-	virtual void Write8(std::uint32_t address, std::uint8_t data) override;
-	virtual void Write16(std::uint32_t address, std::uint16_t data) override;
-	virtual void Write32(std::uint32_t address, std::uint32_t data) override;
-	virtual void Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
+	template<typename T>
+	bool Read(std::uint32_t address, T& out_data);
+	template<typename T>
+	bool Write(std::uint32_t address, T data);
 
 	void AddComponent(MemoryMappedComponent component);
 
 	void MapAddresses(Playstation* playstation);
 };
 
+template<typename T>
+inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
+{
+	if (address % sizeof(T) != 0)
+		return false;
+
+	std::uint32_t offset = 0;
+	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
+
+	if (target == nullptr)
+		return false;
+
+	target->Read(offset, &outData, sizeof(T));
+	return true;
+}
+
+template<typename T>
+inline bool MemoryInterface::Write(std::uint32_t address, T data)
+{
+	if (address % sizeof(T) != 0)
+		return false;
+
+	std::uint32_t offset = 0;
+	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
+
+	if (target == nullptr)
+		return false;
+
+	target->Write(offset, &data, sizeof(T));
+	return true;
+}
