@@ -144,7 +144,9 @@
   <ItemGroup>
     <ClCompile Include="COP0.cpp" />
     <ClCompile Include="CXD8530BQ.cpp" />
+    <ClCompile Include="DMA.cpp" />
     <ClCompile Include="ExpansionBoard.cpp" />
+    <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GTE.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MathUtils.cpp" />
@@ -158,7 +160,9 @@
   <ItemGroup>
     <ClInclude Include="COP0.h" />
     <ClInclude Include="CXD8530BQ.h" />
+    <ClInclude Include="DMA.h" />
     <ClInclude Include="ExpansionBoard.h" />
+    <ClInclude Include="GPU.h" />
     <ClInclude Include="GTE.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Memory.h" />
