@@ -11,11 +11,25 @@ void CXD8530BQ::Init()
 
 void CXD8530BQ::Clock()
 {
+#if DEBUG_LOG_ENABLED
+	std::cout << "\n\n			----CLOCK----\n";
+#endif
+
 	_cw33300.ProcessNextInstruction();
 
-	_cw33300.SyncRegisters();
-	_cop0.SyncRegisters();
-	_gte.SyncRegisters();
+	ProcessDelayStores();
+}
+
+void CXD8530BQ::ProcessDelayStores()
+{
+	for (size_t i = 0; i < _delayMemStores.size(); ++i)
+	{
+		if (_delayMemStores[i]->Tick())
+		{
+			_delayMemStores.erase(_delayMemStores.begin() + i);
+			--i;
+		}
+	}
 }
 
 void CXD8530BQ::ExecuteInstruction(Opcode opcode)
@@ -51,7 +65,8 @@ void CXD8530BQ::RaiseException(ExceptionType exceptionType, std::uint32_t data)
 	case ExceptionType::AdEL:
 	case ExceptionType::AdES:
 		_cop0.SetRegister(8, data);
-		/* Switch Fallthrough */
+		__debugbreak();
+		break;
 	default:
 		__debugbreak();
 		break;

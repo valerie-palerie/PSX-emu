@@ -3,9 +3,10 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <iostream>
 #include "DebugUtils.h"
-#include "MemoryTypes.h"
 #include "Memory.h"
+#include "ProcessorTypes.h"
 
 class Playstation;
 
@@ -55,6 +56,8 @@ public:
 
 	void AddComponent(MemoryMappedComponent component);
 
+	void NotifyException(ExceptionType type, std::uint32_t address);
+
 	void MapAddresses(Playstation* playstation);
 };
 
@@ -63,7 +66,7 @@ inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
 {
 	if (address % sizeof(T) != 0)
 	{
-		_playstation->cpu()->RaiseException(ExceptionType::AdEL, address);
+		NotifyException(ExceptionType::AdEL, address);
 		return false;
 	}
 
@@ -72,7 +75,7 @@ inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
 
 	if (target == nullptr)
 	{
-		_playstation->cpu()->RaiseException(ExceptionType::AdEL, address);
+		NotifyException(ExceptionType::AdEL, address);
 		return false;
 	}
 
@@ -85,16 +88,16 @@ inline bool MemoryInterface::Write(std::uint32_t address, T data)
 {
 	if (address % sizeof(T) != 0)
 	{
-		_playstation->cpu()->RaiseException(ExceptionType::AdES, address);
+		NotifyException(ExceptionType::AdES, address);
 		return false;
 	}
 
 	std::uint32_t offset = 0;
-	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
+	IMemory* target = MapAddress(address, MemoryAccessFlags::Write, offset);
 
 	if (target == nullptr)
 	{
-		_playstation->cpu()->RaiseException(ExceptionType::AdES, address);
+		NotifyException(ExceptionType::AdES, address);
 		return false;
 	}
 

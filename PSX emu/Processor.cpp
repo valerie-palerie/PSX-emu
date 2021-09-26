@@ -1,25 +1,20 @@
 #include "Processor.h"
-
+#include "CXD8530BQ.h"
 #include "DebugUtils.h"
-
-void Processor::SyncRegisters() 
-{ 
-	if (_needsRegisterSync)
-	{
-		_needsRegisterSync = false;
-		_registers_read = _registers_write;
-	}
-}
 
 std::uint32_t Processor::GetRegister(std::uint8_t index) const
 {
-	return _registers_read[index];
+	return _registers[index];
 }
 
-void Processor::SetRegister(std::uint8_t index, std::uint32_t value)
+void Processor::SetRegister(std::uint8_t index, std::uint32_t value, std::uint8_t delay)
 {
-	_needsRegisterSync = true;
-	_registers_write[index] = value;
+	_cpu->QueueDelayMemStore<DelayedMemStore_ProcessorReg>(this, index, value, delay);
+}
+
+void Processor::SetRegisterImmediate(std::uint8_t index, std::uint32_t value)
+{
+	_registers[index] = value;
 }
 
 Processor::Processor(CXD8530BQ* cpu) :

@@ -7,5 +7,5 @@ void GTE::ExecuteInstruction(Opcode opcode)
 
 GTE::GTE(CXD8530BQ* cpu): Processor(cpu)
 {
-	_registers_read.resize(64, 0xbadbad);
+	_registers.resize(64, 0xbadbad);
 }

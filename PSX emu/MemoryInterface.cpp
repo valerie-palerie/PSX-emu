@@ -113,6 +113,11 @@ void MemoryInterface::AddComponent(MemoryMappedComponent component)
 	_components.emplace_back(std::move(component));
 }
 
+void MemoryInterface::NotifyException(ExceptionType type, std::uint32_t address)
+{
+	_playstation->cpu()->RaiseException(type, address);
+}
+
 void MemoryInterface::MapAddresses(Playstation* playstation)
 {
 #if _DEBUG

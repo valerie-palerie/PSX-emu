@@ -133,8 +133,7 @@ ProcessorInstruction* COP0::DecodeInstruction(const Opcode& opcode)
 
 COP0::COP0(CXD8530BQ* cpu) : Processor(cpu)
 {
-	_registers_read.resize(64, 0xbadbad);
-	_registers_write.resize(64, 0xbadbad);
+	_registers.resize(64, 0xbadbad);
 
 	/*	  31..26 |25..21|20..16|15..11|10..6 |  5..0  |
 		   6bit  | 5bit | 5bit | 5bit | 5bit |  6bit  |

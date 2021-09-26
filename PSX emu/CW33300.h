@@ -61,7 +61,7 @@ public:
 
 	//****** Processor Implementation ******//
 	virtual void Init() override;
-	void SetRegister(std::uint8_t index, std::uint32_t value) override;
+	void SetRegisterImmediate(std::uint8_t index, std::uint32_t value) override;
 	void ExecuteInstruction(Opcode opcode) override;
 
 	//****** CW333300 ******//

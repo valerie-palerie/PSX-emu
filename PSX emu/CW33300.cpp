@@ -368,7 +368,7 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 		return 0;
 	}
 
-	R_SET(rt, std::int32_t(std::int8_t(val)));
+	R_SET_DELAY(rt, std::int32_t(std::int8_t(val)), 1);
 
 	return 0;
 }
@@ -390,7 +390,7 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 		return 0;
 	}
 
-	R_SET(rt, val);
+	R_SET_DELAY(rt, val, 1);
 
 	return 0;
 }
@@ -412,7 +412,7 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 		return 0;
 	}
 
-	R_SET(rt, std::int32_t(std::int16_t(val)));
+	R_SET_DELAY(rt, std::int32_t(std::int16_t(val)), 1);
 
 	return 0;
 }
@@ -434,7 +434,7 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 		return 0;
 	}
 
-	R_SET(rt, val);
+	R_SET_DELAY(rt, val, 1);
 
 	return 0;
 }
@@ -456,7 +456,7 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 		return 0;
 	}
 
-	R_SET(rt, val);
+	R_SET_DELAY(rt, val, 1);
 
 	return 0;
 }
@@ -733,9 +733,9 @@ std::int8_t CW33300::op_lwcn(const Opcode& op)
 		return 0;
 	}
 
-	cpu()->gte()->SetRegister(op.rt, val);
+	cpu()->gte()->SetRegister(op.rt, val, 2);
 	return 0;
-	}
+}
 
 std::int8_t CW33300::op_swcn(const Opcode& op)
 {
@@ -756,7 +756,7 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 	}
 
 	return 0;
-	}
+}
 
 std::int8_t CW33300::op_invalid(const Opcode& op)
 {
@@ -768,13 +768,17 @@ void CW33300::Init()
 {
 }
 
-void CW33300::SetRegister(std::uint8_t index, std::uint32_t value)
+void CW33300::SetRegisterImmediate(std::uint8_t index, std::uint32_t value)
 {
 	if (index != 0)
 	{
-		Processor::SetRegister(index, value);
+#if DEBUG_LOG_ENABLED
+		std::cout << "		R" << std::uint16_t(index) << ": 0x" << std::hex << _registers[index] << " -> 0x" << value << "\n";
+#endif
+		Processor::SetRegisterImmediate(index, value);
+
 	}
-	_registers_write[0] = 0;
+	_registers[0] = 0;
 }
 
 
@@ -805,7 +809,6 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	std::int8_t opResult = instructionRef->instruction(opcode);
 
 #if DEBUG_LOG_ENABLED
-	Debug::LogRegisterWrites(_registers_read, _registers_write);
 	if (didDebugBreak)
 	{
 		std::cout << "------------ COND BREAK ------------\n\n";
@@ -878,10 +881,8 @@ void CW33300::ProcessNextInstruction()
 CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 {
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
-	_registers_read.resize(32, 0xbadbad);
-	_registers_write.resize(32, 0xbadbad);
-	_registers_read[0] = 0;
-	_registers_write[0] = 0;
+	_registers.resize(32, 0xbadbad);
+	_registers[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
 	_r_npc = MemoryMap::BIOS_BASE + 4;
 
@@ -923,12 +924,12 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("srl", 0x00057082, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("sltiu", 0x2c410045, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("divu", 0x0064001b, 1));
-	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mfhi", 0x0000c810, 1));*/
+	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mfhi", 0x0000c810, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("slt", 0x0338082a, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("syscall", 0x0000000c, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mtlo", 0x00400013, 1));
 	_debugConditions.push_back(std::make_unique<Debug::ProcessorDebugCondition_FirstOfInstructionMatchesSignature>("mthi", 0x00400011, 1));
-	
+	*/
 #endif
 
 #define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
