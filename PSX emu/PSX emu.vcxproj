@@ -142,10 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CDROMController.cpp" />
     <ClCompile Include="COP0.cpp" />
     <ClCompile Include="CXD8530BQ.cpp" />
     <ClCompile Include="DelayedMemStore.cpp" />
-    <ClCompile Include="DMA.cpp" />
+    <ClCompile Include="DMAController.cpp" />
     <ClCompile Include="ExpansionBoard.cpp" />
     <ClCompile Include="GPU.cpp" />
     <ClCompile Include="GTE.cpp" />
@@ -155,14 +156,17 @@
     <ClCompile Include="MemoryInterface.cpp" />
     <ClCompile Include="Playstation.cpp" />
     <ClCompile Include="CW33300.cpp" />
+    <ClCompile Include="PlaystationComponent.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="DebugUtils.cpp" />
+    <ClCompile Include="SPU.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CDROMController.h" />
     <ClInclude Include="COP0.h" />
     <ClInclude Include="CXD8530BQ.h" />
     <ClInclude Include="DelayedMemStore.h" />
-    <ClInclude Include="DMA.h" />
+    <ClInclude Include="DMAController.h" />
     <ClInclude Include="ExpansionBoard.h" />
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GTE.h" />
@@ -172,9 +176,11 @@
     <ClInclude Include="MemoryTypes.h" />
     <ClInclude Include="Playstation.h" />
     <ClInclude Include="CW33300.h" />
+    <ClInclude Include="PlaystationComponent.h" />
     <ClInclude Include="Processor.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="ProcessorTypes.h" />
+    <ClInclude Include="SPU.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

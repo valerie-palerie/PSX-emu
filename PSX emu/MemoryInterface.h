@@ -1,4 +1,5 @@
 #pragma once
+#include "PlaystationComponent.h"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -34,10 +35,9 @@ public:
 };
 
 //The memory interface is here to map the addressable memory space into the devices that occupy it.
-class MemoryInterface
+class MemoryInterface : public PlaystationComponent
 {
 private:
-	Playstation* _playstation;
 	std::vector<MemoryMappedComponent> _components;
 
 #if _DEBUG
@@ -47,6 +47,9 @@ private:
 	IMemory* MapAddress(std::uint32_t address, MemoryAccessFlags accessFlags, std::uint32_t& out_offset);
 
 public:
+	virtual void Init();
+	virtual void Tick(double deltaT) override {};
+
 	MemorySegment GetMemSegmentFromAddress(std::uint32_t address);
 
 	template<typename T>
@@ -58,7 +61,9 @@ public:
 
 	void NotifyException(ExceptionType type, std::uint32_t address);
 
-	void MapAddresses(Playstation* playstation);
+	MemoryInterface(Playstation* playstation)
+		:PlaystationComponent(playstation)
+	{ }
 };
 
 template<typename T>

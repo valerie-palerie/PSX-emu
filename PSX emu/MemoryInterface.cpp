@@ -118,7 +118,7 @@ void MemoryInterface::NotifyException(ExceptionType type, std::uint32_t address)
 	_playstation->cpu()->RaiseException(type, address);
 }
 
-void MemoryInterface::MapAddresses(Playstation* playstation)
+void MemoryInterface::Init()
 {
 #if _DEBUG
 	//_debugConditions.push_back(std::make_unique<Debug::MemoryDebugCondition_MemoryAccess>(AddressRange(0x0, 0x1000), MemoryAccessFlags::Write, -1));
@@ -136,15 +136,24 @@ void MemoryInterface::MapAddresses(Playstation* playstation)
 #define COMP(name, comp, ...) AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE), __VA_ARGS__))
 #define COMP_MIRROR(name, comp, offset, ...) AddComponent(MemoryMappedComponent(#name, comp, AddressRange(MemoryMap::##name##_BASE + offset, MemoryMap::##name##_BASE + MemoryMap::##name##_SIZE + offset), __VA_ARGS__))
 
-	COMP(RAM, playstation->dram(), MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE, MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 2, MemoryAccessFlags::ReadWrite);
-	COMP_MIRROR(RAM, playstation->dram(), MemoryMap::RAM_SIZE * 3, MemoryAccessFlags::ReadWrite);
-	COMP(EXP1, playstation->exp1(), MemoryAccessFlags::ReadWrite);
-	COMP(SCRATCHPAD, playstation->scratchPad(), MemoryAccessFlags::ReadWrite);
-	COMP(IO, playstation->io(), MemoryAccessFlags::ReadWrite);
-	COMP(EXP2, playstation->exp2(), MemoryAccessFlags::ReadWrite);
-	COMP(EXP3, playstation->exp3(), MemoryAccessFlags::ReadWrite);
-	COMP(BIOS, playstation->bios(), MemoryAccessFlags::Read);
-	COMP(CONTROL_REGS, playstation->controlRegs(), MemoryAccessFlags::ReadWrite);
+	COMP(RAM, _playstation->dram(), MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, _playstation->dram(), MemoryMap::RAM_SIZE, MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, _playstation->dram(), MemoryMap::RAM_SIZE * 2, MemoryAccessFlags::ReadWrite);
+	COMP_MIRROR(RAM, _playstation->dram(), MemoryMap::RAM_SIZE * 3, MemoryAccessFlags::ReadWrite);
+	COMP(EXP1, _playstation->exp1(), MemoryAccessFlags::ReadWrite);
+	COMP(SCRATCHPAD, _playstation->scratchPad(), MemoryAccessFlags::ReadWrite);
+	COMP(MEMCTRL, _playstation->memCtrl(), MemoryAccessFlags::ReadWrite);
+	COMP(SIO, _playstation->sio(), MemoryAccessFlags::ReadWrite);
+	COMP(MEMCTRL2, _playstation->memCtrl2(), MemoryAccessFlags::ReadWrite);
+	COMP(INTERRUPT_CONTROLLER, _playstation->interruptCtrl(), MemoryAccessFlags::ReadWrite);
+	COMP(DMA, _playstation->dma(), MemoryAccessFlags::ReadWrite);
+	COMP(TIMERS, _playstation->timers(), MemoryAccessFlags::ReadWrite);
+	COMP(CDROM, _playstation->cdrom(), MemoryAccessFlags::ReadWrite);
+	COMP(GPU, _playstation->gpu(), MemoryAccessFlags::ReadWrite);
+	COMP(MDEC, _playstation->mdec(), MemoryAccessFlags::ReadWrite);
+	COMP(SPU, _playstation->spu(), MemoryAccessFlags::ReadWrite);
+	COMP(EXP2, _playstation->exp2(), MemoryAccessFlags::ReadWrite);
+	COMP(EXP3, _playstation->exp3(), MemoryAccessFlags::ReadWrite);
+	COMP(BIOS, _playstation->bios(), MemoryAccessFlags::Read);
+	COMP(CACHE_CONTROL, _playstation->cacheCtrl(), MemoryAccessFlags::ReadWrite);
 }

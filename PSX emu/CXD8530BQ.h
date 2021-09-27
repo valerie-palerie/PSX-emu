@@ -1,4 +1,5 @@
 #pragma once
+#include "PlaystationComponent.h"
 #include "CW33300.h"
 #include "COP0.h"
 #include "GTE.h"
@@ -6,14 +7,12 @@
 
 class Playstation;
 
-class CXD8530BQ
+class CXD8530BQ : public PlaystationComponent
 {
 private:
 	CW33300 _cw33300;
 	COP0 _cop0;
 	GTE _gte;
-
-	Playstation* _playstation;
 
 	std::vector<std::unique_ptr<BaseDelayedMemStore>> _delayMemStores;
 
@@ -24,7 +23,8 @@ public:
 
 	Playstation* playstation() { return _playstation; }
 
-	void Init();
+	virtual void Init() override;
+	virtual void Tick(double deltaT) override;
 
 	void Clock();
 	void ProcessDelayStores();

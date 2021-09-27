@@ -26,7 +26,6 @@ public:
 class MemoryChip : public IMemory
 {
 private:
-	const std::uint32_t _size;
 	std::vector<std::uint8_t> _mem;
 
 protected:
@@ -37,8 +36,10 @@ public:
 	virtual bool Read(std::uint32_t address, std::vector<std::uint8_t>& out_data) const override;
 	virtual bool Write(std::uint32_t address, std::vector<std::uint8_t> data) override;
 
-	std::uint32_t size() const { return _size; }
+	std::uint32_t size() const { return _mem.size(); }
 
 	void DumpToFile(const std::string& filename);
 	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0xba);
 };
+
+using HardwareRegs = MemoryChip;

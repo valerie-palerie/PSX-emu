@@ -97,17 +97,17 @@ public:
 
 enum class ExceptionType
 {
-	INT = 0x00, //Interrupt
-	TLB_Mod = 0x01, //Unused
-	TLB_Load = 0x02, //Unused
-	TLB_Store = 0x03, //Unused
-	AdEL = 0x04,	//Address error, Data load or Instruction fetch (Read outside of KUSEG in user mode or misaligned address)
-	AdES = 0x05,	//Address error, Data store (Store outside of KUSEG in user mode or misaligned address)
-	IBE = 0x06, //Bus error on Instruction fetch
-	DBE = 0x07, //Bus error on Data load / store
-	Syscall = 0x08, //Syscall instruction
-	BP = 0x09,	//Breakpoint (break instruction)
-	RI = 0x0A,	//Reserved instruction
-	CopU = 0x0B,	//Coprocessor unusable
+	INT = 0x00,			//Interrupt
+	TLB_Mod = 0x01,		//Unused
+	TLB_Load = 0x02,	//Unused
+	TLB_Store = 0x03,	//Unused
+	AdEL = 0x04,		//Address error, Data load or Instruction fetch (Read outside of KUSEG in user mode or misaligned address)
+	AdES = 0x05,		//Address error, Data store (Store outside of KUSEG in user mode or misaligned address)
+	IBE = 0x06,			//Bus error on Instruction fetch
+	DBE = 0x07,			//Bus error on Data load / store
+	Syscall = 0x08,		//Syscall instruction
+	BP = 0x09,			//Breakpoint (break instruction)
+	RI = 0x0A,			//Reserved instruction
+	CopU = 0x0B,		//Coprocessor unusable
 	Overflow = 0x0C,	//Arithmetic overflow
 };

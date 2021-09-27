@@ -6,25 +6,48 @@
 #include "CXD8530BQ.h"
 #include "CW33300.h"
 #include "DebugUtils.h"
+#include "PlaystationComponent.h"
 
 void Playstation::Init()
 {
-	_cpu.Init();
+	for(PlaystationComponent* comp : _components)
+		comp->Init();
 }
 
-void Playstation::Tick(float deltaTime)
+void Playstation::Tick(double deltaT)
 {
-	_cpu.Clock();
+	for (PlaystationComponent* comp : _components)
+		comp->Tick(deltaT);
 }
 
 Playstation::Playstation()
 	: _dram(MemoryMap::RAM_SIZE)
+	, _exp1()//(MemoryMap::EXP1_SIZE)
 	, _scratchPad(MemoryMap::SCRATCHPAD_SIZE)
-	, _io(MemoryMap::IO_SIZE)
-	, _controlRegs(MemoryMap::CONTROL_REGS_SIZE)
+	, _memCtrl(MemoryMap::MEMCTRL_SIZE)
+	, _sio(MemoryMap::SIO_SIZE)
+	, _memCtrl2(MemoryMap::MEMCTRL2_SIZE)
+	, _timers(MemoryMap::TIMERS_SIZE)
+	, _mdec(MemoryMap::MDEC_SIZE)
+	, _interruptCtrl(MemoryMap::INTERRUPT_CONTROLLER_SIZE)
+	, _exp2()//(MemoryMap::EXP2_SIZE)
+	, _exp3()//(MemoryMap::EXP3_SIZE)
 	, _bios(MemoryMap::BIOS_SIZE)
+	, _cacheCtrl(MemoryMap::CACHE_CONTROL_SIZE)
 	, _cpu(this)
+	, _gpu(this)
+	, _spu(this)
+	, _dma(this)
+	, _cdrom(this)
+	, _memInterface(this)
 {
+	_components.push_back(&_cpu);
+	_components.push_back(&_gpu);
+	_components.push_back(&_spu);
+	_components.push_back(&_dma);
+	_components.push_back(&_cdrom);
+	_components.push_back(&_memInterface);
+
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
 	std::vector<std::uint8_t> buffer(
 		(std::istreambuf_iterator<std::uint8_t>(input)),
@@ -32,6 +55,4 @@ Playstation::Playstation()
 	input.close();
 
 	_bios.Write(0, std::move(buffer));
-
-	_memInterface.MapAddresses(this);
 }

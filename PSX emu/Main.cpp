@@ -1,13 +1,17 @@
 #include <iostream>
+#include <chrono>
 #include "Playstation.h"
 
 int main()
 {
 	Playstation psx;
 	psx.Init();
+	auto refTime = std::chrono::steady_clock::now();
 	do
 	{
-		//Ticking and stuff is to be implemented later to make sure the hardware runs at the correct speed.
-		psx.Tick(0.0);
+		auto currentTime = std::chrono::steady_clock::now();
+		double deltaT = std::chrono::duration<double>(currentTime - refTime).count();
+		refTime = currentTime;
+		psx.Tick(deltaT);
 	} while (1);
 }

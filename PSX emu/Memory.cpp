@@ -57,7 +57,6 @@ void MemoryChip::DumpToFile(const std::string& filename)
 }
 
 MemoryChip::MemoryChip(const std::uint32_t size, std::uint8_t initValue)
-	: _size(size)
 {
 	_mem.resize(size, initValue);
 }

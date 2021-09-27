@@ -9,6 +9,11 @@ void CXD8530BQ::Init()
 	_gte.Init();
 }
 
+void CXD8530BQ::Tick(double deltaT)
+{
+	Clock();
+}
+
 void CXD8530BQ::Clock()
 {
 #if DEBUG_LOG_ENABLED
@@ -76,10 +81,10 @@ void CXD8530BQ::RaiseException(ExceptionType exceptionType, std::uint32_t data)
 }
 
 CXD8530BQ::CXD8530BQ(Playstation* playstation)
-	: _cw33300(this)
+	: PlaystationComponent(playstation)
+	, _cw33300(this)
 	, _cop0(this)
 	, _gte(this)
-	, _playstation(playstation)
 {
 
 }
