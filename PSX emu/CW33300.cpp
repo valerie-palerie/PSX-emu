@@ -881,7 +881,7 @@ void CW33300::ProcessNextInstruction()
 CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 {
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
-	_registers.resize(32, 0xbadbad);
+	_registers.resize(32, 0x0);
 	_registers[0] = 0;
 	_r_pc = MemoryMap::BIOS_BASE;
 	_r_npc = MemoryMap::BIOS_BASE + 4;

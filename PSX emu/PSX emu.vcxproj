@@ -152,6 +152,7 @@
     <ClCompile Include="GTE.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MathUtils.cpp" />
+    <ClCompile Include="MDEC.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryInterface.cpp" />
     <ClCompile Include="Playstation.cpp" />
@@ -159,7 +160,9 @@
     <ClCompile Include="PlaystationComponent.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="DebugUtils.cpp" />
+    <ClCompile Include="SIO.cpp" />
     <ClCompile Include="SPU.cpp" />
+    <ClCompile Include="Timers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CDROMController.h" />
@@ -171,6 +174,7 @@
     <ClInclude Include="GPU.h" />
     <ClInclude Include="GTE.h" />
     <ClInclude Include="MathUtils.h" />
+    <ClInclude Include="MDEC.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryInterface.h" />
     <ClInclude Include="MemoryTypes.h" />
@@ -180,7 +184,9 @@
     <ClInclude Include="Processor.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="ProcessorTypes.h" />
+    <ClInclude Include="SIO.h" />
     <ClInclude Include="SPU.h" />
+    <ClInclude Include="Timers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

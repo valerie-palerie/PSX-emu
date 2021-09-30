@@ -69,6 +69,15 @@
     <ClCompile Include="CDROMController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MDEC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CW33300.h">
@@ -126,6 +135,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CDROMController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MDEC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,6 +7,8 @@
 #include "GPU.h"
 #include "SPU.h"
 #include "CDROMController.h"
+#include "MDEC.h"
+#include "SIO.h"
 
 
 class Playstation
@@ -16,10 +18,8 @@ private:
 	ExpansionBoard _exp1;
 	MemoryChip _scratchPad;
 	HardwareRegs _memCtrl;
-	MemoryChip _sio;			//Unimplemented controller
 	HardwareRegs _memCtrl2;
-	HardwareRegs _timers;		//maybe a controller???
-	MemoryChip _mdec;			//unimplemented controller
+	HardwareRegs _timers;
 	HardwareRegs _interruptCtrl;
 	ExpansionBoard _exp2;
 	ExpansionBoard _exp3;
@@ -30,6 +30,8 @@ private:
 	GPU _gpu;
 	SPU _spu;
 	DMAController _dma;
+	SIO _sio;
+	MDEC _mdec;
 	CDROMController _cdrom;
 	MemoryInterface _memInterface;
 
@@ -40,10 +42,10 @@ public:
 	ExpansionBoard* exp1() { return &_exp1; }
 	MemoryChip* scratchPad() { return &_scratchPad; }
 	HardwareRegs* memCtrl() { return &_memCtrl; }
-	MemoryChip* sio() { return &_sio; }
+	SIO* sio() { return &_sio; }
 	HardwareRegs* memCtrl2() { return &_memCtrl2; }
 	HardwareRegs* timers() { return &_timers; }
-	MemoryChip* mdec() { return &_mdec; }
+	MDEC* mdec() { return &_mdec; }
 	HardwareRegs* interruptCtrl() { return &_interruptCtrl; }
 	ExpansionBoard* exp2() { return &_exp2; }
 	ExpansionBoard* exp3() { return &_exp3; }

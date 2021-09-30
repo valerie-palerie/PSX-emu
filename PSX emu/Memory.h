@@ -39,7 +39,7 @@ public:
 	std::uint32_t size() const { return _mem.size(); }
 
 	void DumpToFile(const std::string& filename);
-	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0xba);
+	MemoryChip(const std::uint32_t size, std::uint8_t initValue = 0x0);
 };
 
 using HardwareRegs = MemoryChip;

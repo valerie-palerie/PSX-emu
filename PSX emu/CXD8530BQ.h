@@ -28,6 +28,7 @@ public:
 
 	void Clock();
 	void ProcessDelayStores();
+	void CheckPendingInterrupts();
 
 	void ExecuteInstruction(Opcode opcode);
 	void RaiseException(ExceptionType exceptionType, std::uint32_t data = 0x0);

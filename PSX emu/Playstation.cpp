@@ -21,14 +21,12 @@ void Playstation::Tick(double deltaT)
 }
 
 Playstation::Playstation()
-	: _dram(MemoryMap::RAM_SIZE)
+	: _dram(MemoryMap::RAM_SIZE, 0xba)
 	, _exp1()//(MemoryMap::EXP1_SIZE)
 	, _scratchPad(MemoryMap::SCRATCHPAD_SIZE)
 	, _memCtrl(MemoryMap::MEMCTRL_SIZE)
-	, _sio(MemoryMap::SIO_SIZE)
 	, _memCtrl2(MemoryMap::MEMCTRL2_SIZE)
 	, _timers(MemoryMap::TIMERS_SIZE)
-	, _mdec(MemoryMap::MDEC_SIZE)
 	, _interruptCtrl(MemoryMap::INTERRUPT_CONTROLLER_SIZE)
 	, _exp2()//(MemoryMap::EXP2_SIZE)
 	, _exp3()//(MemoryMap::EXP3_SIZE)
@@ -38,6 +36,8 @@ Playstation::Playstation()
 	, _gpu(this)
 	, _spu(this)
 	, _dma(this)
+	, _sio(this)
+	, _mdec(this)
 	, _cdrom(this)
 	, _memInterface(this)
 {
@@ -45,6 +45,8 @@ Playstation::Playstation()
 	_components.push_back(&_gpu);
 	_components.push_back(&_spu);
 	_components.push_back(&_dma);
+	_components.push_back(&_sio);
+	_components.push_back(&_mdec);
 	_components.push_back(&_cdrom);
 	_components.push_back(&_memInterface);
 
