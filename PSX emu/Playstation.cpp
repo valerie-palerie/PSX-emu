@@ -32,23 +32,23 @@ Playstation::Playstation()
 	, _exp3()//(MemoryMap::EXP3_SIZE)
 	, _bios(MemoryMap::BIOS_SIZE)
 	, _cacheCtrl(MemoryMap::CACHE_CONTROL_SIZE)
-	, _cpu(this)
 	, _gpu(this)
 	, _spu(this)
-	, _dma(this)
 	, _sio(this)
 	, _mdec(this)
 	, _cdrom(this)
 	, _memInterface(this)
+	, _dma(this)
+	, _cpu(this)
 {
-	_components.push_back(&_cpu);
 	_components.push_back(&_gpu);
 	_components.push_back(&_spu);
-	_components.push_back(&_dma);
 	_components.push_back(&_sio);
 	_components.push_back(&_mdec);
 	_components.push_back(&_cdrom);
 	_components.push_back(&_memInterface);
+	_components.push_back(&_dma);
+	_components.push_back(&_cpu);
 
 	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
 	std::vector<std::uint8_t> buffer(

@@ -22,6 +22,8 @@ public:
 	virtual void Init() override;
 	virtual void Tick(double deltaT) override;
 
+	void HandleIRQ();
+
 	DMAController(Playstation* playstation);
 };
 

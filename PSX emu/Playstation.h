@@ -26,14 +26,14 @@ private:
 	MemoryChip _bios;
 	HardwareRegs _cacheCtrl;
 
-	CXD8530BQ _cpu;
 	GPU _gpu;
 	SPU _spu;
-	DMAController _dma;
 	SIO _sio;
 	MDEC _mdec;
 	CDROMController _cdrom;
 	MemoryInterface _memInterface;
+	DMAController _dma;
+	CXD8530BQ _cpu;
 
 	std::vector<PlaystationComponent*> _components;
 
@@ -52,12 +52,12 @@ public:
 	MemoryChip* bios() { return &_bios; }
 	HardwareRegs* cacheCtrl() { return &_cacheCtrl; }
 
-	CXD8530BQ* cpu() { return &_cpu; }
 	GPU* gpu() { return &_gpu; }
 	SPU* spu() { return &_spu; }
-	DMAController* dma() { return &_dma; }
 	CDROMController* cdrom() { return &_cdrom; }
 	MemoryInterface* memInterface() { return &_memInterface; }
+	DMAController* dma() { return &_dma; }
+	CXD8530BQ* cpu() { return &_cpu; }
 
 	void Init();
 	void Tick(double deltaT);
