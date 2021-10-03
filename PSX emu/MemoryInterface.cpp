@@ -4,12 +4,12 @@
 
 #include "Playstation.h"
 
-bool AddressRange::Contains(std::uint32_t address) const
+bool AddressRange::Contains(uint32 address) const
 {
 	return (address >= start && address < end);
 }
 
-bool AddressRange::MapAddress(std::uint32_t address, std::uint32_t& out_offset) const
+bool AddressRange::MapAddress(uint32 address, uint32& out_offset) const
 {
 	if (!Contains(address))
 		return false;
@@ -18,7 +18,7 @@ bool AddressRange::MapAddress(std::uint32_t address, std::uint32_t& out_offset) 
 	return true;
 }
 
-IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags accessFlags, std::uint32_t& out_offset)
+IMemory* MemoryInterface::MapAddress(uint32 address, MemoryAccessFlags accessFlags, uint32& out_offset)
 {
 	//The PS1 mirrors its addressable memory in 2 separate places
 	//KSEG2 maps to some hardware registers, handle it later
@@ -89,14 +89,14 @@ IMemory* MemoryInterface::MapAddress(std::uint32_t address, MemoryAccessFlags ac
 		return nullptr;
 	}
 
-	if (static_cast<std::uint8_t>(component->accessFlags) & static_cast<std::uint8_t>(accessFlags))
+	if (static_cast<uint8>(component->accessFlags) & static_cast<uint8>(accessFlags))
 		return component->component();
 
 	__debugbreak();
 	return nullptr;
 }
 
-MemorySegment MemoryInterface::GetMemSegmentFromAddress(std::uint32_t address)
+MemorySegment MemoryInterface::GetMemSegmentFromAddress(uint32 address)
 {
 	if (address >= MemoryMap::KSEG2_BASE)
 		return MemorySegment::KSEG2;
@@ -113,7 +113,7 @@ void MemoryInterface::AddComponent(MemoryMappedComponent component)
 	_components.emplace_back(std::move(component));
 }
 
-void MemoryInterface::NotifyException(ExceptionType type, std::uint32_t address)
+void MemoryInterface::NotifyException(ExceptionType type, uint32 address)
 {
 	_playstation->cpu()->RaiseException(type, address);
 }

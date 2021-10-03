@@ -2,17 +2,17 @@
 #include "CXD8530BQ.h"
 #include "DebugUtils.h"
 
-std::uint32_t Processor::GetRegister(std::uint8_t index) const
+uint32 Processor::GetRegister(uint8 index) const
 {
 	return _registers[index];
 }
 
-void Processor::SetRegister(std::uint8_t index, std::uint32_t value, std::uint8_t delay)
+void Processor::SetRegister(uint8 index, uint32 value, uint8 delay)
 {
 	_cpu->QueueDelayMemStore<DelayedMemStore_ProcessorReg>(this, index, value, delay);
 }
 
-void Processor::SetRegisterImmediate(std::uint8_t index, std::uint32_t value)
+void Processor::SetRegisterImmediate(uint8 index, uint32 value)
 {
 	_registers[index] = value;
 }

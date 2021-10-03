@@ -44,22 +44,22 @@ private:
 	std::vector<std::unique_ptr<Debug::MemoryDebugCondition_MemoryAccess>> _debugConditions;
 #endif
 
-	IMemory* MapAddress(std::uint32_t address, MemoryAccessFlags accessFlags, std::uint32_t& out_offset);
+	IMemory* MapAddress(uint32 address, MemoryAccessFlags accessFlags, uint32& out_offset);
 
 public:
 	virtual void Init();
 	virtual void Tick(double deltaT) override {};
 
-	MemorySegment GetMemSegmentFromAddress(std::uint32_t address);
+	MemorySegment GetMemSegmentFromAddress(uint32 address);
 
 	template<typename T>
-	bool Read(std::uint32_t address, T& out_data);
+	bool Read(uint32 address, T& out_data);
 	template<typename T>
-	bool Write(std::uint32_t address, T data);
+	bool Write(uint32 address, T data);
 
 	void AddComponent(MemoryMappedComponent component);
 
-	void NotifyException(ExceptionType type, std::uint32_t address);
+	void NotifyException(ExceptionType type, uint32 address);
 
 	MemoryInterface(Playstation* playstation)
 		:PlaystationComponent(playstation)
@@ -67,7 +67,7 @@ public:
 };
 
 template<typename T>
-inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
+inline bool MemoryInterface::Read(uint32 address, T& outData)
 {
 	if (address % sizeof(T) != 0)
 	{
@@ -75,7 +75,7 @@ inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
 		return false;
 	}
 
-	std::uint32_t offset = 0;
+	uint32 offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Read, offset);
 
 	if (target == nullptr)
@@ -89,7 +89,7 @@ inline bool MemoryInterface::Read(std::uint32_t address, T& outData)
 }
 
 template<typename T>
-inline bool MemoryInterface::Write(std::uint32_t address, T data)
+inline bool MemoryInterface::Write(uint32 address, T data)
 {
 	if (address % sizeof(T) != 0)
 	{
@@ -97,7 +97,7 @@ inline bool MemoryInterface::Write(std::uint32_t address, T data)
 		return false;
 	}
 
-	std::uint32_t offset = 0;
+	uint32 offset = 0;
 	IMemory* target = MapAddress(address, MemoryAccessFlags::Write, offset);
 
 	if (target == nullptr)

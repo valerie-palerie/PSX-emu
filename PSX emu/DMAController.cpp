@@ -5,26 +5,56 @@
 
 void DMAController::Init()
 {
-	std::uint32_t dmaRegValue = 0x07654321;
-	Write(0x70, &dmaRegValue, sizeof(std::uint32_t));
+	uint32 dmaRegValue = 0x07654321;
+	Write(0x70, &dmaRegValue, sizeof(uint32));
 }
 
 void DMAController::Tick(double deltaT)
 {
-	/*
-	for (size_t i = 0; i < 7; ++i)
+	HandleIRQ();
+	HandleTransfers();
+}
+
+void DMAController::HandleIRQ()
+{
+	uint32 interruptRegister;
+	Read(DMA_INTERRUPT, &interruptRegister, sizeof(uint32));
+
+	bool b31 = Math::GetBit(interruptRegister, 31);
+	bool b15 = Math::GetBit(interruptRegister, 15);
+	bool b23 = Math::GetBit(interruptRegister, 23);
+
+	bool triggerIRQ
+		= b15
+		|| (b23 && (Math::GetBits(interruptRegister, 16, 22) & Math::GetBits(interruptRegister, 24, 30)));
+
+	if (!b31 && triggerIRQ)
 	{
-		std::uint32_t channelBase = (0x10 * i);
+		uint32 irqStatus;
+		_playstation->memInterface()->Read(MemoryMap::INTERRUPT_CONTROLLER_BASE, irqStatus);
+		_playstation->memInterface()->Write<uint32>(MemoryMap::INTERRUPT_CONTROLLER_BASE, Math::ToggleBit(irqStatus, 3, true));
+	}
 
-		std::uint32_t baseAddress;
-		std::uint32_t blockControl;
-		std::uint32_t channelControl;
-		Read(channelBase, &baseAddress, sizeof(std::uint32_t));
-		Read(channelBase + 0x4, &blockControl, sizeof(std::uint32_t));
-		Read(channelBase + 0x8, &channelControl, sizeof(std::uint32_t));
+	interruptRegister = Math::ToggleBit(interruptRegister, 31, triggerIRQ);
+	Write(0x74, &interruptRegister, sizeof(uint32));
+}
 
-		std::uint32_t blockSize;
-		std::uint32_t blockAmount;
+void DMAController::HandleTransfers()
+{
+	/*
+	for (uint channel : GetSortedActiveChannels())
+	{
+		uint32 channelBase = (0x10 * channel);
+
+		uint32 baseAddress;
+		uint32 blockControl;
+		uint32 channelControl;
+		Read(channelBase, &baseAddress, sizeof(uint32));
+		Read(channelBase + BLOCK_CONTROL_OFFSET, &blockControl, sizeof(uint32));
+		Read(channelBase + CHANNEL_CONTROL_OFFSET, &channelControl, sizeof(uint32));
+
+		uint32 blockSize = 0;
+		uint32 blockAmount = 0;
 		switch (Math::GetBits(channelControl, 9, 10))
 		{
 		case 0:
@@ -51,32 +81,34 @@ void DMAController::Tick(double deltaT)
 			blockSize = 0x10000;
 	}
 	*/
-	HandleIRQ();
 }
 
-void DMAController::HandleIRQ()
+std::vector<uint> DMAController::GetSortedActiveChannels() const
 {
-	//IF b15=1 OR (b23=1 AND (b16-22 AND b24-30)>0) THEN b31=1 ELSE b31=0
-	std::uint32_t interruptRegister;
-	Read(0x74, &interruptRegister, sizeof(std::uint32_t));
+	uint32 dmaControl;
+	Read(DMA_CONTROL, &dmaControl, sizeof(uint32));
 
-	bool b31 = Math::GetBit(interruptRegister, 31);
-	bool b15= Math::GetBit(interruptRegister, 15);
-	bool b23 = Math::GetBit(interruptRegister, 23);
-
-	bool triggerIRQ 
-		= b15 
-		|| (b23 && (Math::GetBits(interruptRegister, 16, 22) & Math::GetBits(interruptRegister, 24, 30)));
-
-	if (!b31 && triggerIRQ)
+	std::vector <std::pair<uint, uint>> channelPriorities;
+	for (uint32 i = 0; i <= 6; ++i)
 	{
-		std::uint32_t irqStatus;
-		_playstation->memInterface()->Read(MemoryMap::INTERRUPT_CONTROLLER_BASE, irqStatus);
-		_playstation->memInterface()->Write<std::uint32_t>(MemoryMap::INTERRUPT_CONTROLLER_BASE, Math::ToggleBit(irqStatus, 3, true));
+		bool channelEnabled = Math::GetBit(dmaControl, 3 + 4 * i);
+		if (channelEnabled)
+		{
+			channelPriorities.emplace_back(i, Math::GetBits(dmaControl, i * 4, i * 4 + 2));
+		}
 	}
+	std::sort(channelPriorities.begin(), channelPriorities.end(),
+		[](const std::pair<uint, uint>& a, const std::pair<uint, uint>& b) -> bool
+		{
+			return (a.second < b.second) || (a.first > b.first);
+		});
 
-	interruptRegister = Math::ToggleBit(interruptRegister, 31, triggerIRQ);
-	Write(0x74, &interruptRegister, sizeof(std::uint32_t));
+	std::vector<uint> outVector;
+	outVector.reserve(channelPriorities.size());
+	for (auto& pair : channelPriorities)
+		outVector.push_back(pair.first);
+
+	return outVector;
 }
 
 DMAController::DMAController(Playstation* playstation)

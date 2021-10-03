@@ -15,11 +15,11 @@
 //Get/Set functions for the register pointed to by the opcode part.
 #define CR_GET(cop, name) auto (c##cop##_##name) = GetCoprocessor(cop)->GetRegister(op.name)
 #define CR_SET(cop, name, val) GetCoprocessor(cop)->SetRegister(op.name, val)
-std::int8_t CW33300::op_add(const Opcode& op)
+int8 CW33300::op_add(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-	std::uint32_t result = rs + rt;
+	uint32 result = rs + rt;
 	if (Math::DetectOverflowAdd(rs, rt, result))
 	{
 		cpu()->RaiseException(ExceptionType::Overflow);
@@ -32,7 +32,7 @@ std::int8_t CW33300::op_add(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_addu(const Opcode& op)
+int8 CW33300::op_addu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -41,11 +41,11 @@ std::int8_t CW33300::op_addu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sub(const Opcode& op)
+int8 CW33300::op_sub(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
-	std::uint32_t result = rs - rt;
+	uint32 result = rs - rt;
 	if (Math::DetectOverflowSubtract(rs, rt, result))
 	{
 		cpu()->RaiseException(ExceptionType::Overflow);
@@ -58,7 +58,7 @@ std::int8_t CW33300::op_sub(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_subu(const Opcode& op)
+int8 CW33300::op_subu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -67,11 +67,11 @@ std::int8_t CW33300::op_subu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_addi(const Opcode& op)
+int8 CW33300::op_addi(const Opcode& op)
 {
 	R_GET(rs);
 
-	std::uint32_t result = rs + op.imm_se;
+	uint32 result = rs + op.imm_se;
 	if (Math::DetectOverflowAdd(rs, op.imm_se, result))
 	{
 		cpu()->RaiseException(ExceptionType::Overflow);
@@ -84,24 +84,24 @@ std::int8_t CW33300::op_addi(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_addiu(const Opcode& op)
+int8 CW33300::op_addiu(const Opcode& op)
 {
 	R_GET(rs);
 	R_SET(rt, rs + op.imm_se);
 	return 0;
 }
 
-std::int8_t CW33300::op_slt(const Opcode& op)
+int8 CW33300::op_slt(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
 
-	R_SET(rd, (std::int32_t(rs) < std::int32_t(rt)) ? 1 : 0);
+	R_SET(rd, (int32(rs) < int32(rt)) ? 1 : 0);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_sltu(const Opcode& op)
+int8 CW33300::op_sltu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -111,16 +111,16 @@ std::int8_t CW33300::op_sltu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_slti(const Opcode& op)
+int8 CW33300::op_slti(const Opcode& op)
 {
 	R_GET(rs);
 
-	R_SET(rt, (std::int32_t(rs) < std::int32_t(op.imm_se)) ? 1 : 0);
+	R_SET(rt, (int32(rs) < int32(op.imm_se)) ? 1 : 0);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_sltiu(const Opcode& op)
+int8 CW33300::op_sltiu(const Opcode& op)
 {
 	R_GET(rs);
 
@@ -129,7 +129,7 @@ std::int8_t CW33300::op_sltiu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_and(const Opcode& op)
+int8 CW33300::op_and(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -138,7 +138,7 @@ std::int8_t CW33300::op_and(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_or(const Opcode& op)
+int8 CW33300::op_or(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -147,7 +147,7 @@ std::int8_t CW33300::op_or(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_xor(const Opcode& op)
+int8 CW33300::op_xor(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -156,7 +156,7 @@ std::int8_t CW33300::op_xor(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_nor(const Opcode& op)
+int8 CW33300::op_nor(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -165,7 +165,7 @@ std::int8_t CW33300::op_nor(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_andi(const Opcode& op)
+int8 CW33300::op_andi(const Opcode& op)
 {
 	R_GET(rs);
 
@@ -173,7 +173,7 @@ std::int8_t CW33300::op_andi(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_ori(const Opcode& op)
+int8 CW33300::op_ori(const Opcode& op)
 {
 	R_GET(rs);
 
@@ -181,7 +181,7 @@ std::int8_t CW33300::op_ori(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_xori(const Opcode& op)
+int8 CW33300::op_xori(const Opcode& op)
 {
 	R_GET(rs);
 
@@ -189,7 +189,7 @@ std::int8_t CW33300::op_xori(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sll(const Opcode& op)
+int8 CW33300::op_sll(const Opcode& op)
 {
 	R_GET(rt);
 
@@ -197,7 +197,7 @@ std::int8_t CW33300::op_sll(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_srl(const Opcode& op)
+int8 CW33300::op_srl(const Opcode& op)
 {
 	R_GET(rt);
 
@@ -205,15 +205,15 @@ std::int8_t CW33300::op_srl(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sra(const Opcode& op)
+int8 CW33300::op_sra(const Opcode& op)
 {
 	R_GET(rt);
 
-	R_SET(rd, std::uint32_t(std::int32_t(rt) >> op.shift));
+	R_SET(rd, uint32(int32(rt) >> op.shift));
 	return 0;
 }
 
-std::int8_t CW33300::op_sllv(const Opcode& op)
+int8 CW33300::op_sllv(const Opcode& op)
 {
 	R_GET(rt);
 	R_GET(rs);
@@ -223,7 +223,7 @@ std::int8_t CW33300::op_sllv(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_srlv(const Opcode& op)
+int8 CW33300::op_srlv(const Opcode& op)
 {
 	R_GET(rt);
 	R_GET(rs);
@@ -233,55 +233,55 @@ std::int8_t CW33300::op_srlv(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_srav(const Opcode& op)
+int8 CW33300::op_srav(const Opcode& op)
 {
 	R_GET(rt);
 	R_GET(rs);
 
-	R_SET(rd, std::uint32_t(std::int32_t(rt) >> (rs & 0x1F)));
+	R_SET(rd, uint32(int32(rt) >> (rs & 0x1F)));
 	return 0;
 }
 
-std::int8_t CW33300::op_lui(const Opcode& op)
+int8 CW33300::op_lui(const Opcode& op)
 {
 	R_SET(rt, op.imm_ze << 16);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_mult(const Opcode& op)
+int8 CW33300::op_mult(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
 
-	std::uint64_t result = std::uint64_t(std::int64_t(std::int32_t(rs)) * std::int64_t(std::int32_t(rt)));
+	std::uint64_t result = std::uint64_t(std::int64_t(int32(rs)) * std::int64_t(int32(rt)));
 
-	_r_lo = std::uint32_t(result);
-	_r_hi = std::uint32_t(result >> 32);
+	_r_lo = uint32(result);
+	_r_hi = uint32(result >> 32);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_multu(const Opcode& op)
+int8 CW33300::op_multu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
 
 	std::uint64_t result = std::uint64_t(rs) * std::uint64_t(rt);
 
-	_r_lo = std::uint32_t(result);
-	_r_hi = std::uint32_t(result >> 32);
+	_r_lo = uint32(result);
+	_r_hi = uint32(result >> 32);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_div(const Opcode& op)
+int8 CW33300::op_div(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
 
-	auto rss = std::int32_t(rs);
-	auto rts = std::int32_t(rt);
+	auto rss = int32(rs);
+	auto rts = int32(rt);
 
 	if (rts == 0)
 	{
@@ -302,7 +302,7 @@ std::int8_t CW33300::op_div(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_divu(const Opcode& op)
+int8 CW33300::op_divu(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -321,21 +321,21 @@ std::int8_t CW33300::op_divu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_mfhi(const Opcode& op)
+int8 CW33300::op_mfhi(const Opcode& op)
 {
 	R_SET(rd, _r_hi);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_mflo(const Opcode& op)
+int8 CW33300::op_mflo(const Opcode& op)
 {
 	R_SET(rd, _r_lo);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_mthi(const Opcode& op)
+int8 CW33300::op_mthi(const Opcode& op)
 {
 	R_GET(rs);
 	_r_hi = rs;
@@ -343,7 +343,7 @@ std::int8_t CW33300::op_mthi(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_mtlo(const Opcode& op)
+int8 CW33300::op_mtlo(const Opcode& op)
 {
 	R_GET(rs);
 	_r_lo = rs;
@@ -351,7 +351,7 @@ std::int8_t CW33300::op_mtlo(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lb(const Opcode& op)
+int8 CW33300::op_lb(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -361,19 +361,19 @@ std::int8_t CW33300::op_lb(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint8_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint8_t>(op.imm_se + rs, val))
+	uint8 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint8>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
 	}
 
-	R_SET_DELAY(rt, std::int32_t(std::int8_t(val)), 1);
+	R_SET_DELAY(rt, int32(int8(val)), 1);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_lbu(const Opcode& op)
+int8 CW33300::op_lbu(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -383,8 +383,8 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint8_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint8_t>(op.imm_se + rs, val))
+	uint8 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint8>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
@@ -395,7 +395,7 @@ std::int8_t CW33300::op_lbu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lh(const Opcode& op)
+int8 CW33300::op_lh(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -405,19 +405,19 @@ std::int8_t CW33300::op_lh(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint16_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint16_t>(op.imm_se + rs, val))
+	uint16 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint16>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
 	}
 
-	R_SET_DELAY(rt, std::int32_t(std::int16_t(val)), 1);
+	R_SET_DELAY(rt, int32(int16(val)), 1);
 
 	return 0;
 }
 
-std::int8_t CW33300::op_lhu(const Opcode& op)
+int8 CW33300::op_lhu(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -427,8 +427,8 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint16_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint16_t>(op.imm_se + rs, val))
+	uint16 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint16>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
@@ -439,7 +439,7 @@ std::int8_t CW33300::op_lhu(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lw(const Opcode& op)
+int8 CW33300::op_lw(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -449,8 +449,8 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint32_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint32_t>(op.imm_se + rs, val))
+	uint32 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint32>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
@@ -461,7 +461,7 @@ std::int8_t CW33300::op_lw(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lwl(const Opcode& op)
+int8 CW33300::op_lwl(const Opcode& op)
 {
 	//-UNIMPLEMENTED
 	__debugbreak();
@@ -475,7 +475,7 @@ std::int8_t CW33300::op_lwl(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lwr(const Opcode& op)
+int8 CW33300::op_lwr(const Opcode& op)
 {
 	//-UNIMPLEMENTED
 	__debugbreak();
@@ -488,7 +488,7 @@ std::int8_t CW33300::op_lwr(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sb(const Opcode& op)
+int8 CW33300::op_sb(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -499,7 +499,7 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	if (!cpu()->playstation()->memInterface()->Write<std::uint8_t>(op.imm_se + rs, std::uint8_t(rt & 0xff)))
+	if (!cpu()->playstation()->memInterface()->Write<uint8>(op.imm_se + rs, uint8(rt & 0xff)))
 	{
 		__debugbreak();
 		return 0;
@@ -508,7 +508,7 @@ std::int8_t CW33300::op_sb(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sh(const Opcode& op)
+int8 CW33300::op_sh(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -519,7 +519,7 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	if (!cpu()->playstation()->memInterface()->Write<std::uint16_t>(op.imm_se + rs, std::uint16_t(rt & 0xffff)))
+	if (!cpu()->playstation()->memInterface()->Write<uint16>(op.imm_se + rs, uint16(rt & 0xffff)))
 	{
 		__debugbreak();
 		return 0;
@@ -528,7 +528,7 @@ std::int8_t CW33300::op_sh(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_sw(const Opcode& op)
+int8 CW33300::op_sw(const Opcode& op)
 {
 	if (GetCoprocessor(0)->GetRegister(12) & 0x10000)
 	{
@@ -539,7 +539,7 @@ std::int8_t CW33300::op_sw(const Opcode& op)
 	R_GET(rs);
 	R_GET(rt);
 
-	if (!cpu()->playstation()->memInterface()->Write<std::uint32_t>(op.imm_se + rs, rt))
+	if (!cpu()->playstation()->memInterface()->Write<uint32>(op.imm_se + rs, rt))
 	{
 		__debugbreak();
 		return 0;
@@ -548,7 +548,7 @@ std::int8_t CW33300::op_sw(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_swr(const Opcode& op)
+int8 CW33300::op_swr(const Opcode& op)
 {
 	//-UNIMPLEMENTED
 	__debugbreak();
@@ -562,7 +562,7 @@ std::int8_t CW33300::op_swr(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_swl(const Opcode& op)
+int8 CW33300::op_swl(const Opcode& op)
 {
 	//-UNIMPLEMENTED
 	__debugbreak();
@@ -575,26 +575,26 @@ std::int8_t CW33300::op_swl(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_j(const Opcode& op)
+int8 CW33300::op_j(const Opcode& op)
 {
 	Jump((_r_pc & 0xf0000000) | (op.cop << 2));
 	return 0;
 }
 
-std::int8_t CW33300::op_jal(const Opcode& op)
+int8 CW33300::op_jal(const Opcode& op)
 {
 	SetRegister(31, _r_pc + 4);
 	return op_j(op);
 }
 
-std::int8_t CW33300::op_jr(const Opcode& op)
+int8 CW33300::op_jr(const Opcode& op)
 {
 	R_GET(rs);
 	Jump(rs);
 	return 0;
 }
 
-std::int8_t CW33300::op_jalr(const Opcode& op)
+int8 CW33300::op_jalr(const Opcode& op)
 {
 	R_SET(rd, _r_pc + 4);
 	R_GET(rs);
@@ -602,7 +602,7 @@ std::int8_t CW33300::op_jalr(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_beq(const Opcode& op)
+int8 CW33300::op_beq(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -613,7 +613,7 @@ std::int8_t CW33300::op_beq(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_bne(const Opcode& op)
+int8 CW33300::op_bne(const Opcode& op)
 {
 	R_GET(rs);
 	R_GET(rt);
@@ -624,10 +624,10 @@ std::int8_t CW33300::op_bne(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_bltz(const Opcode& op)
+int8 CW33300::op_bltz(const Opcode& op)
 {
 	R_GET(rs);
-	if (std::int32_t(rs) < 0)
+	if (int32(rs) < 0)
 	{
 		Jump(_r_pc + (op.imm_se << 2));
 	}
@@ -635,10 +635,10 @@ std::int8_t CW33300::op_bltz(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_bgez(const Opcode& op)
+int8 CW33300::op_bgez(const Opcode& op)
 {
 	R_GET(rs);
-	if (std::int32_t(rs) >= 0)
+	if (int32(rs) >= 0)
 	{
 		Jump(_r_pc + (op.imm_se << 2));
 	}
@@ -646,10 +646,10 @@ std::int8_t CW33300::op_bgez(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_bgtz(const Opcode& op)
+int8 CW33300::op_bgtz(const Opcode& op)
 {
 	R_GET(rs);
-	if (std::int32_t(rs) > 0)
+	if (int32(rs) > 0)
 	{
 		Jump(_r_pc + (op.imm_se << 2));
 	}
@@ -657,10 +657,10 @@ std::int8_t CW33300::op_bgtz(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_blez(const Opcode& op)
+int8 CW33300::op_blez(const Opcode& op)
 {
 	R_GET(rs);
-	if (std::int32_t(rs) <= 0)
+	if (int32(rs) <= 0)
 	{
 		Jump(_r_pc + (op.imm_se << 2));
 	}
@@ -668,23 +668,11 @@ std::int8_t CW33300::op_blez(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_bltzal(const Opcode& op)
-{
-	R_GET(rs);
-	SetRegister(31, _r_pc + 4);
-	if (std::int32_t(rs) < 0)
-	{
-		Jump(_r_pc + (op.imm_se << 2));
-	}
-
-	return 0;
-}
-
-std::int8_t CW33300::op_bgezal(const Opcode& op)
+int8 CW33300::op_bltzal(const Opcode& op)
 {
 	R_GET(rs);
 	SetRegister(31, _r_pc + 4);
-	if (std::int32_t(rs) >= 0)
+	if (int32(rs) < 0)
 	{
 		Jump(_r_pc + (op.imm_se << 2));
 	}
@@ -692,19 +680,31 @@ std::int8_t CW33300::op_bgezal(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_syscall(const Opcode& op)
+int8 CW33300::op_bgezal(const Opcode& op)
+{
+	R_GET(rs);
+	SetRegister(31, _r_pc + 4);
+	if (int32(rs) >= 0)
+	{
+		Jump(_r_pc + (op.imm_se << 2));
+	}
+
+	return 0;
+}
+
+int8 CW33300::op_syscall(const Opcode& op)
 {
 	cpu()->RaiseException(ExceptionType::Syscall);
 	return 0;
 }
 
-std::int8_t CW33300::op_break(const Opcode& op)
+int8 CW33300::op_break(const Opcode& op)
 {
 	cpu()->RaiseException(ExceptionType::BP);
 	return 0;
 }
 
-std::int8_t CW33300::op_copn(const Opcode& op)
+int8 CW33300::op_copn(const Opcode& op)
 {
 	Processor* coprocessor = GetCoprocessor(op.op & 0b011);
 	if (coprocessor != nullptr)
@@ -715,7 +715,7 @@ std::int8_t CW33300::op_copn(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_lwcn(const Opcode& op)
+int8 CW33300::op_lwcn(const Opcode& op)
 {
 	//lwc is only implemented on cop2
 	if ((op.op & 0b11) != 2)
@@ -726,8 +726,8 @@ std::int8_t CW33300::op_lwcn(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint32_t val;
-	if (!cpu()->playstation()->memInterface()->Read<std::uint32_t>(op.imm_se + rs, val))
+	uint32 val;
+	if (!cpu()->playstation()->memInterface()->Read<uint32>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
@@ -737,7 +737,7 @@ std::int8_t CW33300::op_lwcn(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_swcn(const Opcode& op)
+int8 CW33300::op_swcn(const Opcode& op)
 {
 	//swc is only implemented on cop2
 	if ((op.op & 0b11) != 2)
@@ -748,8 +748,8 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 
 	R_GET(rs);
 
-	std::uint32_t val = cpu()->gte()->GetRegister(op.rt);
-	if (!cpu()->playstation()->memInterface()->Write<std::uint32_t>(op.imm_se + rs, val))
+	uint32 val = cpu()->gte()->GetRegister(op.rt);
+	if (!cpu()->playstation()->memInterface()->Write<uint32>(op.imm_se + rs, val))
 	{
 		__debugbreak();
 		return 0;
@@ -758,7 +758,7 @@ std::int8_t CW33300::op_swcn(const Opcode& op)
 	return 0;
 }
 
-std::int8_t CW33300::op_invalid(const Opcode& op)
+int8 CW33300::op_invalid(const Opcode& op)
 {
 	cpu()->RaiseException(ExceptionType::RI);
 	return 0;
@@ -768,12 +768,12 @@ void CW33300::Init()
 {
 }
 
-void CW33300::SetRegisterImmediate(std::uint8_t index, std::uint32_t value)
+void CW33300::SetRegisterImmediate(uint8 index, uint32 value)
 {
 	if (index != 0)
 	{
 #if DEBUG_LOG_ENABLED
-		std::cout << "		R" << std::uint16_t(index) << ": 0x" << std::hex << _registers[index] << " -> 0x" << value << "\n";
+		std::cout << "		R" << uint16(index) << ": 0x" << std::hex << _registers[index] << " -> 0x" << value << "\n";
 #endif
 		Processor::SetRegisterImmediate(index, value);
 
@@ -806,7 +806,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 	}
 #endif
 
-	std::int8_t opResult = instructionRef->instruction(opcode);
+	int8 opResult = instructionRef->instruction(opcode);
 
 #if DEBUG_LOG_ENABLED
 	if (didDebugBreak)
@@ -816,7 +816,7 @@ void CW33300::ExecuteInstruction(Opcode opcode)
 #endif
 }
 
-Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
+Processor* CW33300::GetCoprocessor(uint8 idx) const
 {
 	switch (idx)
 	{
@@ -829,7 +829,7 @@ Processor* CW33300::GetCoprocessor(std::uint8_t idx) const
 	}
 }
 
-void CW33300::MoveExecutionTo(std::uint32_t address)
+void CW33300::MoveExecutionTo(uint32 address)
 {
 	_r_pc = address;
 	_r_npc = address + 4;
@@ -854,7 +854,7 @@ ProcessorInstruction* CW33300::DecodeInstruction(const Opcode& opcode)
 	return &_instructionMap[std::min(size_t(opcode.op), _instructionMap.size() - 1)];
 }
 
-void CW33300::Jump(std::uint32_t address)
+void CW33300::Jump(uint32 address)
 {
 	_delaySlotAddress = _r_pc;
 	_r_npc = address;
@@ -863,8 +863,8 @@ void CW33300::Jump(std::uint32_t address)
 void CW33300::ProcessNextInstruction()
 {
 	_currentInstructionAddress = _r_pc;
-	std::uint32_t val;
-	if (cpu()->playstation()->memInterface()->Read<std::uint32_t>(_currentInstructionAddress, val))
+	uint32 val;
+	if (cpu()->playstation()->memInterface()->Read<uint32>(_currentInstructionAddress, val))
 	{
 		Opcode opcode(val);
 		_r_pc = _r_npc;
@@ -932,8 +932,8 @@ CW33300::CW33300(CXD8530BQ* cpu) : Processor(cpu)
 	*/
 #endif
 
-#define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
-#define INST_F(name, format, mask) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); }, InstructionStructure(InstructionFormat::##format, mask))
+#define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->int8 { return op_##name(opcode); })
+#define INST_F(name, format, mask) ProcessorInstruction(#name, [this](Opcode opcode)->int8 { return op_##name(opcode); }, InstructionStructure(InstructionFormat::##format, mask))
 	//Since operations are encoded in 5 or 6 bit values, just put them in a vector and retrieve by index.
 
 	_instructionMap =

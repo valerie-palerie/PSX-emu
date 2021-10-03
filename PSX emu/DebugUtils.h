@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-
+#include "MathUtils.h"
 #include "MemoryTypes.h"
 
 struct ProcessorInstruction;
@@ -21,10 +21,10 @@ namespace Debug
 	protected:
 		int _allowedTriggerAmount;
 
-		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) = 0;
+		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, uint32 pc) = 0;
 
 	public:
-		bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc);
+		bool EvaluateCondition(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, uint32 pc);
 		BaseProcessorDebugCondition(int allowedTriggerAmount) : _allowedTriggerAmount(allowedTriggerAmount) {}
 		virtual ~BaseProcessorDebugCondition() = default;
 	};
@@ -35,7 +35,7 @@ namespace Debug
 		std::unordered_set<std::string> _encounteredInstructions;
 		std::string _instruction; //if empty, track all instructions
 
-		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) override;
+		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, uint32 pc) override;
 	public:
 
 		ProcessorDebugCondition_ReachFirstOfInstruction(std::string instruction = "", int allowedTriggerAmount = -1);
@@ -44,11 +44,11 @@ namespace Debug
 	struct ProcessorDebugCondition_FirstOfInstructionMatchesSignature : public ProcessorDebugCondition_ReachFirstOfInstruction
 	{
 	protected:
-		std::uint32_t _signature;
+		uint32 _signature;
 
-		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) override;
+		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, uint32 pc) override;
 	public:
-		ProcessorDebugCondition_FirstOfInstructionMatchesSignature(std::string instruction = "", std::uint32_t signature = 0x0, int allowedTriggerAmount = -1)
+		ProcessorDebugCondition_FirstOfInstructionMatchesSignature(std::string instruction = "", uint32 signature = 0x0, int allowedTriggerAmount = -1)
 			: ProcessorDebugCondition_ReachFirstOfInstruction(instruction, allowedTriggerAmount)
 			, _signature(signature)
 		{
@@ -57,12 +57,12 @@ namespace Debug
 
 	struct ProcessorDebugCondition_ReachAddress : public BaseProcessorDebugCondition
 	{
-		std::uint32_t _address;
+		uint32 _address;
 
-		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, std::uint32_t pc) override;
+		virtual bool EvaluateCondition_Internal(Processor* processor, const Opcode& currentOpcode, ProcessorInstruction* currentInstruction, uint32 pc) override;
 	public:
 
-		ProcessorDebugCondition_ReachAddress(std::uint32_t address, int allowedTriggerAmount = 1);
+		ProcessorDebugCondition_ReachAddress(uint32 address, int allowedTriggerAmount = 1);
 	};
 
 	struct MemoryDebugCondition_MemoryAccess
@@ -73,7 +73,7 @@ namespace Debug
 		MemoryAccessFlags _accessFlags;
 
 	public:
-		bool EvaluateCondition(std::uint32_t address, MemoryAccessFlags accessFlags);
+		bool EvaluateCondition(uint32 address, MemoryAccessFlags accessFlags);
 
 		MemoryDebugCondition_MemoryAccess(AddressRange addressRange, MemoryAccessFlags accessFlags, int allowedTriggerAmount)
 		: _allowedTriggerAmount(allowedTriggerAmount)
@@ -84,8 +84,8 @@ namespace Debug
 		virtual ~MemoryDebugCondition_MemoryAccess() = default;
 	};
 
-	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, std::uint32_t pc);
-	void LogRegisterWrites(const std::vector<std::uint32_t>& readRegs, const std::vector<std::uint32_t>& writeRegs);
+	void LogInstruction(const Processor* processor, const Opcode& opcode, ProcessorInstruction* instruction, uint32 pc);
+	void LogRegisterWrites(const std::vector<uint32>& readRegs, const std::vector<uint32>& writeRegs);
 
 }
 

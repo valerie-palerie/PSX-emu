@@ -50,10 +50,10 @@ Playstation::Playstation()
 	_components.push_back(&_dma);
 	_components.push_back(&_cpu);
 
-	std::basic_ifstream<std::uint8_t> input("SCPH1001.bin", std::ios::binary);
-	std::vector<std::uint8_t> buffer(
-		(std::istreambuf_iterator<std::uint8_t>(input)),
-		(std::istreambuf_iterator<std::uint8_t>()));
+	std::basic_ifstream<uint8> input("SCPH1001.bin", std::ios::binary);
+	std::vector<uint8> buffer(
+		(std::istreambuf_iterator<uint8>(input)),
+		(std::istreambuf_iterator<uint8>()));
 	input.close();
 
 	_bios.Write(0, std::move(buffer));

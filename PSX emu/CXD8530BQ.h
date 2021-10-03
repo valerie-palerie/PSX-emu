@@ -31,7 +31,7 @@ public:
 	void CheckPendingInterrupts();
 
 	void ExecuteInstruction(Opcode opcode);
-	void RaiseException(ExceptionType exceptionType, std::uint32_t data = 0x0);
+	void RaiseException(ExceptionType exceptionType, uint32 data = 0x0);
 
 	template<typename StoreT, class... Args>
 	void QueueDelayMemStore(Args...);

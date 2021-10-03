@@ -1,22 +1,23 @@
 #pragma once
 #include <cstdint>
 #include "MemoryInterface.h"
+#include "MathUtils.h"
 
 class Processor;
 
 struct BaseDelayedMemStore
 {
 protected:
-	std::uint8_t _remainingDelay;
+	uint8 _remainingDelay;
 
 	virtual void ApplyData() = 0;
 
 public:
-	std::uint8_t remainingDelay() const { return _remainingDelay; }
+	uint8 remainingDelay() const { return _remainingDelay; }
 
 	bool Tick();
 
-	BaseDelayedMemStore(std::uint8_t delay)
+	BaseDelayedMemStore(uint8 delay)
 		: _remainingDelay(delay)
 	{
 	}
@@ -39,7 +40,7 @@ protected:
 	}
 
 public:
-	DelayedMemStore_Ptr(T* target, T data, std::uint8_t delay)
+	DelayedMemStore_Ptr(T* target, T data, uint8 delay)
 		: BaseDelayedMemStore(delay)
 		, _data(data)
 		, _target(target)
@@ -52,7 +53,7 @@ struct DelayedMemStore_Addr : public BaseDelayedMemStore
 {
 protected:
 	MemoryInterface* _interface;
-	std::uint32_t _address;
+	uint32 _address;
 	T _data;
 
 	virtual void ApplyData() override
@@ -65,7 +66,7 @@ protected:
 	}
 
 public:
-	DelayedMemStore_Addr(MemoryInterface* interface, std::uint32_t address, T data, std::uint8_t delay)
+	DelayedMemStore_Addr(MemoryInterface* interface, uint32 address, T data, uint8 delay)
 		: BaseDelayedMemStore(delay)
 		, _interface(interface)
 		, _address(address)
@@ -78,15 +79,15 @@ struct DelayedMemStore_ProcessorReg : public BaseDelayedMemStore
 {
 protected:
 	Processor* _processor;
-	std::uint8_t _register;
-	std::uint32_t _data;
+	uint8 _register;
+	uint32 _data;
 
 	virtual void ApplyData() override;
 
 public:
-	std::uint8_t reg() const { return _register; }
+	uint8 reg() const { return _register; }
 
-	DelayedMemStore_ProcessorReg(Processor* processor, std::uint8_t reg, std::uint32_t data, std::uint8_t delay)
+	DelayedMemStore_ProcessorReg(Processor* processor, uint8 reg, uint32 data, uint8 delay)
 		: BaseDelayedMemStore(delay)
 		, _processor(processor)
 		, _register(reg)

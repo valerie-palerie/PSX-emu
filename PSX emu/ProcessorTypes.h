@@ -1,25 +1,26 @@
 #pragma once
 #include <cstdint>
 #include <functional>
+#include "MathUtils.h"
 
 struct Opcode
 {
 public:
-	std::uint8_t op; //bits 31-26
-	std::uint8_t rs; //bits 25-21
-	std::uint8_t rt; //bits 20-16
-	std::uint8_t rd; //bits 15-11
-	std::uint8_t shift; //bits 10-6
-	std::uint8_t func; //bits 5-0
+	uint8 op; //bits 31-26
+	uint8 rs; //bits 25-21
+	uint8 rt; //bits 20-16
+	uint8 rd; //bits 15-11
+	uint8 shift; //bits 10-6
+	uint8 func; //bits 5-0
 
-	std::uint16_t imm; //bits 15-0
-	std::uint32_t imm_ze; //bits 15-0 zero extended
-	std::uint32_t imm_se; //bits 15-0 sign-extended
-	std::uint32_t cop; //bits 25 - 0
-	std::uint32_t bits; //bits 31 - 0
+	uint16 imm; //bits 15-0
+	uint32 imm_ze; //bits 15-0 zero extended
+	uint32 imm_se; //bits 15-0 sign-extended
+	uint32 cop; //bits 25 - 0
+	uint32 bits; //bits 31 - 0
 
 	//Helper function for debugging
-	std::uint8_t GetSegment(std::uint8_t index) const
+	uint8 GetSegment(uint8 index) const
 	{
 		switch (index)
 		{
@@ -39,7 +40,7 @@ public:
 		}
 	}
 
-	explicit Opcode(std::uint32_t binary)
+	explicit Opcode(uint32 binary)
 	{
 		op = (binary >> 26) & 0b111111;
 		rs = ((binary >> 21) & 0b11111);
@@ -49,8 +50,8 @@ public:
 		func = ((binary) & 0b111111);
 
 		imm = binary & 0xffff;
-		imm_se = std::uint32_t(std::int16_t(imm));
-		imm_ze = std::uint32_t(imm);
+		imm_se = uint32(int16(imm));
+		imm_ze = uint32(imm);
 		cop = binary & 0x3ffffff;
 		bits = binary;
 	}
@@ -71,9 +72,9 @@ struct InstructionStructure
 {
 public:
 	InstructionFormat format;
-	std::uint8_t segmentMask;
+	uint8 segmentMask;
 
-	InstructionStructure(InstructionFormat format = InstructionFormat::R, std::uint8_t segmentMask = 0x00)
+	InstructionStructure(InstructionFormat format = InstructionFormat::R, uint8 segmentMask = 0x00)
 		: format(format)
 		, segmentMask(segmentMask)
 	{
@@ -84,10 +85,10 @@ struct ProcessorInstruction
 {
 public:
 	std::string name;
-	std::function<std::int8_t(const Opcode&)> instruction;
+	std::function<int8(const Opcode&)> instruction;
 	InstructionStructure structure;
 
-	ProcessorInstruction(std::string name, std::function<std::int8_t(const Opcode&)> instruction, InstructionStructure structure = InstructionStructure())
+	ProcessorInstruction(std::string name, std::function<int8(const Opcode&)> instruction, InstructionStructure structure = InstructionStructure())
 		: name(std::move(name))
 		, instruction(std::move(instruction))
 		, structure(structure)

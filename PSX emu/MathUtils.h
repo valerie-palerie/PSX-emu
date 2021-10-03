@@ -2,19 +2,27 @@
 #include <cstdint>
 #include <algorithm>
 
+using uint = unsigned int;
+using uint8 = std::uint8_t;
+using uint16 = std::uint16_t;
+using uint32 = std::uint32_t;
+using int8 = std::int8_t;
+using int16 = std::int16_t;
+using int32 = std::int32_t;
+
 namespace Math
 {
-	bool DetectOverflowAdd(std::uint32_t lhs, std::uint32_t rhs, std::uint32_t result);
-	bool DetectOverflowSubtract(std::uint32_t lhs, std::uint32_t rhs, std::uint32_t result);
+	bool DetectOverflowAdd(uint32 lhs, uint32 rhs, uint32 result);
+	bool DetectOverflowSubtract(uint32 lhs, uint32 rhs, uint32 result);
 
 	template<typename T>
-	bool GetBit(T val, std::uint8_t bitIndex)
+	bool GetBit(T val, uint8 bitIndex)
 	{
 		return val & (1 << bitIndex);
 	}
 
 	template<typename T>
-	T ToggleBit(T val, std::uint8_t bitIndex, bool set)
+	T ToggleBit(T val, uint8 bitIndex, bool set)
 	{
 		if (set)
 		{
@@ -29,7 +37,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T GetBits(T val, std::uint8_t highBit, std::uint8_t lowBit)
+	T GetBits(T val, uint8 highBit, uint8 lowBit)
 	{
 		if (highBit < lowBit)
 			std::swap(highBit, lowBit);
@@ -50,7 +58,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T SetBits(T val, std::uint8_t highBit, std::uint8_t lowBit, T newVal)
+	T SetBits(T val, uint8 highBit, uint8 lowBit, T newVal)
 	{
 		if (highBit < lowBit)
 			std::swap(highBit, lowBit);
@@ -72,7 +80,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T ToggleBits(T val, std::uint8_t highBit, std::uint8_t lowBit, bool set)
+	T ToggleBits(T val, uint8 highBit, uint8 lowBit, bool set)
 	{
 		return SetBits(val, highBit, lowBit, set ? T(~0) : T(0));
 	}

@@ -1,7 +1,9 @@
 #pragma once
+#include "MathUtils.h"
+
 namespace MemoryMap
 {
-	enum MemoryMap : std::uint32_t
+	enum MemoryMap : uint32
 	{
 		RAM_BASE = 0x00000000,
 		RAM_SIZE = 0x200000,
@@ -59,20 +61,20 @@ enum class MemorySegment
 struct AddressRange
 {
 public:
-	std::uint32_t start;
-	std::uint32_t end;
+	uint32 start;
+	uint32 end;
 
-	bool Contains(std::uint32_t address) const;
-	bool MapAddress(std::uint32_t address, std::uint32_t& out_offset) const;
+	bool Contains(uint32 address) const;
+	bool MapAddress(uint32 address, uint32& out_offset) const;
 
-	AddressRange(std::uint32_t start, std::uint32_t end)
+	AddressRange(uint32 start, uint32 end)
 		: start(start)
 		, end(end)
 	{
 	}
 };
 
-enum class MemoryAccessFlags : std::uint8_t
+enum class MemoryAccessFlags : uint8
 {
 	None = 0b00,
 	Read = 0b01,

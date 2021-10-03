@@ -8,65 +8,65 @@
 #define C_GET(name) auto (c_##name) = cpu()->cw33300()->GetRegister(op.name)
 #define C_SET(name, val) cpu()->cw33300()->SetRegister(op.name, val)
 
-std::int8_t COP0::op_mfc(const Opcode& op)
+int8 COP0::op_mfc(const Opcode& op)
 {
 	R_GET(rd);
 	C_SET(rt, rd);
 	return 0;
 }
 
-std::int8_t COP0::op_cfc(const Opcode& op)
+int8 COP0::op_cfc(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_mtc(const Opcode& op)
+int8 COP0::op_mtc(const Opcode& op)
 {
 	C_GET(rt);
 	R_SET(rd, c_rt);
 	return 0;
 }
 
-std::int8_t COP0::op_ctc(const Opcode& op)
+int8 COP0::op_ctc(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_lwc(const Opcode& op)
+int8 COP0::op_lwc(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_swc(const Opcode& op)
+int8 COP0::op_swc(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_bcf(const Opcode& op)
+int8 COP0::op_bcf(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_bct(const Opcode& op)
+int8 COP0::op_bct(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
 }
 
-std::int8_t COP0::op_rfe(const Opcode& op)
+int8 COP0::op_rfe(const Opcode& op)
 {
-	std::uint32_t sr = GetRegister(12);
+	uint32 sr = GetRegister(12);
 	Math::SetBits(sr, 3, 0, sr >> 2);
 	SetRegister(12, sr);
 	return 0;
 }
 
-std::int8_t COP0::op_invalid(const Opcode& op)
+int8 COP0::op_invalid(const Opcode& op)
 {
 	__debugbreak();
 	return 0;
@@ -80,7 +80,7 @@ void COP0::ExecuteInstruction(Opcode opcode)
 	std::cout << "	[" << instructionRef->name << "]\n";
 #endif
 
-	std::int8_t opResult = instructionRef->instruction(opcode);
+	int8 opResult = instructionRef->instruction(opcode);
 }
 
 ProcessorInstruction* COP0::DecodeInstruction(const Opcode& opcode)
@@ -152,7 +152,7 @@ COP0::COP0(CXD8530BQ* cpu) : Processor(cpu)
 		  010000 |1|0000| N/A  | N/A  | N/A  | 010000 | COP0 10h  ;=RFE				idx:6
 		  1100nn | rs   | rt   | <--immediate16bit--> | LWCn rt_dat,[rs+imm]		handled on main processor
 		  1110nn | rs   | rt   | <--immediate16bit--> | SWCn rt_dat,[rs+imm]		handled on main processor */
-#define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->std::int8_t { return op_##name(opcode); })
+#define INST(name) ProcessorInstruction(#name, [this](Opcode opcode)->int8 { return op_##name(opcode); })
 	_instructionMap =
 	{
 		INST(mfc), INST(cfc), INST(mtc), INST(ctc), INST(bcf), INST(bct), INST(rfe),

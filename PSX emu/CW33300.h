@@ -4,6 +4,7 @@
 #include <vector>
 #include "Processor.h"
 #include "DebugUtils.h"
+#include "MathUtils.h"
 
 class CXD8530BQ;
 
@@ -14,14 +15,14 @@ class CW33300 : public Processor
 protected:
 	//Internal registers separate from the 32 user available registers.
 	//Initialize with 0xbadbad to make it clear what's uninitialized memory and what isn't.
-	std::uint32_t _r_pc = 0xbadbad;
-	std::uint32_t _r_npc = 0xbadbad; //Not a real hardware register, helper for jumps.
-	std::uint32_t _r_lo = 0xbadbad;
-	std::uint32_t _r_hi = 0xbadbad;
+	uint32 _r_pc = 0xbadbad;
+	uint32 _r_npc = 0xbadbad; //Not a real hardware register, helper for jumps.
+	uint32 _r_lo = 0xbadbad;
+	uint32 _r_hi = 0xbadbad;
 
-	std::uint32_t _currentInstructionAddress = 0xbadbad; //Address of currently executing instruction
+	uint32 _currentInstructionAddress = 0xbadbad; //Address of currently executing instruction
 
-	std::uint32_t _delaySlotAddress = 0xbadbad; //Address of upcoming delay slot
+	uint32 _delaySlotAddress = 0xbadbad; //Address of upcoming delay slot
 
 	std::vector<ProcessorInstruction> _branchInstructionMap;
 	std::vector<ProcessorInstruction> _specialInstructionMap;
@@ -34,7 +35,7 @@ protected:
 
 public:
 	//****** Instruction definitions ******//
-#define INST(name) std::int8_t op_##name(const Opcode& op)
+#define INST(name) int8 op_##name(const Opcode& op)
 	//---ALU arithmetic
 	INST(add); INST(addu); INST(sub); INST(subu); INST(addi); INST(addiu);
 	//---ALU Comparison
@@ -61,16 +62,16 @@ public:
 
 	//****** Processor Implementation ******//
 	virtual void Init() override;
-	void SetRegisterImmediate(std::uint8_t index, std::uint32_t value) override;
+	void SetRegisterImmediate(uint8 index, uint32 value) override;
 	void ExecuteInstruction(Opcode opcode) override;
 
 	//****** CW333300 ******//
-	Processor* GetCoprocessor(std::uint8_t idx) const;
+	Processor* GetCoprocessor(uint8 idx) const;
 
-	void MoveExecutionTo(std::uint32_t address);
+	void MoveExecutionTo(uint32 address);
 	void ProcessNextInstruction();
 	ProcessorInstruction* DecodeInstruction(const Opcode& opcode);
-	void Jump(std::uint32_t address);
+	void Jump(uint32 address);
 
 	explicit CW33300(CXD8530BQ* cpu);
 };

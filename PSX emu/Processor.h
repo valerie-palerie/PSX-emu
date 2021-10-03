@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include "MathUtils.h"
 #include "ProcessorTypes.h"
 
 class CXD8530BQ;
@@ -12,7 +13,7 @@ private:
 	CXD8530BQ* _cpu;
 
 protected:
-	std::vector<std::uint32_t> _registers;
+	std::vector<uint32> _registers;
 
 	std::vector<ProcessorInstruction> _instructionMap;
 
@@ -21,9 +22,9 @@ public:
 
 	virtual void Init() {}
 
-	virtual std::uint32_t GetRegister(std::uint8_t index) const;
-	virtual void SetRegister(std::uint8_t index, std::uint32_t value, std::uint8_t delay = 0);
-	virtual void SetRegisterImmediate(std::uint8_t index, std::uint32_t value);
+	virtual uint32 GetRegister(uint8 index) const;
+	virtual void SetRegister(uint8 index, uint32 value, uint8 delay = 0);
+	virtual void SetRegisterImmediate(uint8 index, uint32 value);
 
 	virtual void ExecuteInstruction(Opcode opcode) = 0;
 
