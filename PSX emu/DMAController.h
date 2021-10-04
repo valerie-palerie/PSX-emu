@@ -1,6 +1,7 @@
 #pragma once
 #include "Memory.h"
 #include "PlaystationComponent.h"
+#include "MathUtils.h"
 
 class Playstation;
 class MemoryChip;
@@ -9,8 +10,38 @@ class GPU;
 class CDROMController;
 class SPU;
 
-class DMAController : public PlaystationComponent, public MemoryChip
+class DMAController : public PlaystationComponent, public IMemory
 {
+public:
+	enum class Status
+	{
+		Inactive,
+		Active,
+		Chopping,
+		Waiting
+	};
+
+	struct Channel
+	{
+		uint32 baseAddress;
+		uint32 blockControl;
+		uint32 channelControl;
+		uint32 unknown0xfc;
+
+		uint syncMode() const { return Math::GetBits(channelControl, 9, 10); }
+	};
+
+	struct Registers
+	{
+		uint32 dmaControl;
+		uint32 dmaInterrupt;
+		uint32 unknown0xf8;
+		uint32 unknown0xfc;
+	};
+
+	static_assert(sizeof(Channel) == (sizeof(uint32) * 4));
+	static_assert(sizeof(Registers) == (sizeof(uint32) * 4));
+
 protected:
 	MemoryChip* _dram;
 	MDEC* _mdec;
@@ -18,29 +49,28 @@ protected:
 	CDROMController* _cdrom;
 	SPU* _spu;
 	
-public:
-	enum Map
-	{
-		DMA0_BASE = 0x0,
-		DMA1_BASE = 0x10,
-		DMA2_BASE = 0x20,
-		DMA3_BASE = 0x30,
-		DMA4_BASE = 0x40,
-		DMA5_BASE = 0x50,
-		DMA6_BASE =	0x60,
-		DMA_CONTROL = 0x70,
-		DMA_INTERRUPT = 0x74,
+	Status _status;
+	uint _remainingChoppingCycles;
 
-		BLOCK_CONTROL_OFFSET = 0x4,
-		CHANNEL_CONTROL_OFFSET = 0x8,
-	};
+	std::vector<Channel> _channels;
+	Registers _registers;
+
+public:
+	Status status() const { return _status; }
 
 	virtual void Init() override;
 	virtual void Tick(double deltaT) override;
 
+	virtual bool Write(uint32 address, const void* data, size_t size) override;
+
+	Channel* GetChannelAtAddress(uint32 address);
+	Channel* GetHighestPriorityActiveChannel();
+	void SetState(Status status);
+
+	void HandleChannelActivated();
 	void HandleIRQ();
+	void HandleHalting();
 	void HandleTransfers();
-	std::vector<uint> GetSortedActiveChannels() const;
 
 	DMAController(Playstation* playstation);
 };

@@ -5,7 +5,7 @@
 #include "GTE.h"
 #include "DelayedMemStore.h"
 
-class Playstation;
+class DMAController;
 
 class CXD8530BQ : public PlaystationComponent
 {
@@ -13,6 +13,8 @@ private:
 	CW33300 _cw33300;
 	COP0 _cop0;
 	GTE _gte;
+
+	DMAController* _dma;
 
 	std::vector<std::unique_ptr<BaseDelayedMemStore>> _delayMemStores;
 
@@ -26,7 +28,6 @@ public:
 	virtual void Init() override;
 	virtual void Tick(double deltaT) override;
 
-	void Clock();
 	void ProcessDelayStores();
 	void CheckPendingInterrupts();
 

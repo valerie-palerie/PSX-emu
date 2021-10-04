@@ -1,6 +1,16 @@
 #include "Memory.h"
 #include <fstream>
 
+bool IMemory::Read(uint32 address, std::vector<uint8>& out_data) const
+{
+	return Read(address, &out_data[0], sizeof(uint8) * out_data.size());
+}
+
+bool IMemory::Write(uint32 address, std::vector<uint8> data)
+{
+	return Write(address, &data[0], sizeof(uint8) * data.size());
+}
+
 bool MemoryChip::Read(uint32 address, void* out_data, size_t size) const
 {
 	if (address + size > _mem.size())
@@ -25,16 +35,6 @@ bool MemoryChip::Write(uint32 address, const void* data, size_t size)
 
 	std::memcpy(&_mem[address], data, size);
 	return true;
-}
-
-bool MemoryChip::Read(uint32 address, std::vector<uint8>& out_data) const
-{
-	return Read(address, &out_data[0], sizeof(uint8) * out_data.size());
-}
-
-bool MemoryChip::Write(uint32 address, std::vector<uint8> data)
-{
-	return Write(address, &data[0], sizeof(uint8) * data.size());
 }
 
 void MemoryChip::DumpToFile(const std::string& filename)
