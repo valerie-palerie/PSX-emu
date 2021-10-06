@@ -17,8 +17,7 @@ public:
 	{
 		Inactive,
 		Active,
-		Chopping,
-		Waiting
+		Chopping
 	};
 
 	struct Channel
@@ -26,9 +25,16 @@ public:
 		uint32 baseAddress;
 		uint32 blockControl;
 		uint32 channelControl;
-		uint32 unknown0xfc;
+		uint32 unknown0xc;
 
+		bool transferFromRAM() const { return Math::GetBit(channelControl, 0); }
+		int memoryStep() const { return Math::GetBit(channelControl, 1) ? -4 : 4; }
+		bool choppingEnabled() const { return Math::GetBit(channelControl, 8); }
 		uint syncMode() const { return Math::GetBits(channelControl, 9, 10); }
+		uint choppingWindowDMA() const { return 1 << Math::GetBits(channelControl, 16, 18); }
+		uint choppingWindowCPU() const { return 1 << Math::GetBits(channelControl, 20, 22); }
+
+		bool isReadyForTransfer() const;
 	};
 
 	struct Registers
@@ -48,12 +54,15 @@ protected:
 	GPU* _gpu;
 	CDROMController* _cdrom;
 	SPU* _spu;
-	
-	Status _status;
-	uint _remainingChoppingCycles;
 
 	std::vector<Channel> _channels;
 	Registers _registers;
+
+	Status _status;
+	Channel* _activeChannel;
+	uint32 _currentTransferAddress;
+	uint _transferCount;
+	uint _remainingChoppingCycles;
 
 public:
 	Status status() const { return _status; }
@@ -65,12 +74,13 @@ public:
 
 	Channel* GetChannelAtAddress(uint32 address);
 	Channel* GetHighestPriorityActiveChannel();
-	void SetState(Status status);
+	void SetStatus(Status status);
 
-	void HandleChannelActivated();
 	void HandleIRQ();
-	void HandleHalting();
-	void HandleTransfers();
+	void HandleChopping();
+	void HandleActiveTransfer();
+
+	void HandleTransferComplete();
 
 	DMAController(Playstation* playstation);
 };

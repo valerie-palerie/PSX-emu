@@ -37,7 +37,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T GetBits(T val, uint8 highBit, uint8 lowBit)
+	T GetBits(T val, uint8 lowBit, uint8 highBit)
 	{
 		if (highBit < lowBit)
 			std::swap(highBit, lowBit);
@@ -58,7 +58,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T SetBits(T val, uint8 highBit, uint8 lowBit, T newVal)
+	T SetBits(T val, uint8 lowBit, uint8 highBit, T newVal)
 	{
 		if (highBit < lowBit)
 			std::swap(highBit, lowBit);
@@ -80,7 +80,7 @@ namespace Math
 	}
 
 	template<typename T>
-	T ToggleBits(T val, uint8 highBit, uint8 lowBit, bool set)
+	T ToggleBits(T val, uint8 lowBit, uint8 highBit, bool set)
 	{
 		return SetBits(val, highBit, lowBit, set ? T(~0) : T(0));
 	}
