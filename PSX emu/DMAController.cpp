@@ -56,6 +56,42 @@ bool DMAController::Write(uint32 address, const void* data, size_t size)
 	return true;
 }
 
+DMAController::Channel* DMAController::GetChannelAtAddress(uint32 address)
+{
+	if (address >= 0x70)
+		return nullptr;
+
+	return &_channels[address / 0x10];
+}
+
+DMAController::Channel* DMAController::GetHighestPriorityActiveChannel()
+{
+	Channel* validChannel = nullptr;
+	uint validChannelPriority = 8;
+	for (int i = 0; i <= 6; ++i)
+	{
+		bool channelEnabled = Math::GetBit(_registers.dmaControl, 3 + 4 * i);
+		if (!channelEnabled)
+		{
+			continue;
+		}
+
+		if (!Math::GetBit(_channels[i].channelControl, 1))
+		{
+			continue;
+		}
+
+		int channelPriority = Math::GetBits(_registers.dmaControl, i * 4, i * 4 + 2);
+		if (channelPriority <= validChannelPriority)
+		{
+			validChannel = &_channels[i];
+			validChannelPriority = channelPriority;
+		}
+	}
+
+	return validChannel;
+}
+
 void DMAController::SetStatus(Status status)
 {
 	switch (status)
@@ -121,29 +157,60 @@ void DMAController::HandleChopping()
 void DMAController::HandleActiveTransfer()
 {
 	uint syncMode = _activeChannel->syncMode();
-	if (syncMode >= 3)
-	{
-		__debugbreak();
-	}
-
-	uint32 blockSize = 0;
-	uint32 blockAmount = 0;
 	switch (syncMode)
 	{
 	case 0:
-		blockSize = 1;
-		blockAmount = Math::GetBits(_activeChannel->blockControl, 0, 15);
+		HandleDirectTransfer(_activeChannel);
 		break;
 	case 1:
-		blockSize = Math::GetBits(_activeChannel->blockControl, 0, 15);
-		blockAmount = Math::GetBits(_activeChannel->blockControl, 16, 31);
+		HandleSyncedTransfer(_activeChannel);
 		break;
 	case 2:
-		blockSize = 1;
-		blockAmount = 0;
+		HandleLinkedListTransfer(_activeChannel);
 		break;
+	default:
+		__debugbreak();
 	}
+}
 
+void DMAController::HandleDirectTransfer(Channel* channel)
+{
+	uint32 blockAmount = Math::GetBits(channel->blockControl, 0, 15);
+	if (blockAmount == 0)
+		blockAmount = 0x10000;
+
+	//transfer word at _currentTransferAddress
+	_transferCount += 1;
+	_currentTransferAddress += channel->memoryStep();
+
+	if (channel->choppingEnabled())
+	{
+		blockAmount -= 1;
+		Math::SetBits(channel->blockControl, 0, 15, blockAmount);
+		channel->baseAddress = Math::SetBits(channel->baseAddress, 23, 0, _currentTransferAddress);
+		if (blockAmount == 0)
+		{
+			HandleTransferComplete();
+		}
+
+		if (--_remainingChoppingCycles <= 0)
+		{
+			SetStatus(Status::Chopping);
+		}
+	}
+	else
+	{
+		if (_transferCount == blockAmount)
+		{
+			HandleTransferComplete();
+		}
+	}
+}
+
+void DMAController::HandleSyncedTransfer(Channel* channel)
+{
+	uint32 blockSize = Math::GetBits(channel->blockControl, 0, 15);
+	uint32 blockAmount = Math::GetBits(channel->blockControl, 16, 31);
 	if (blockAmount == 0)
 		blockAmount = 0x10000;
 	if (blockSize == 0)
@@ -151,54 +218,30 @@ void DMAController::HandleActiveTransfer()
 
 	//transfer word at _currentTransferAddress
 	_transferCount += 1;
-	_currentTransferAddress += _activeChannel->memoryStep();
+	_currentTransferAddress += channel->memoryStep();
+	channel->baseAddress = Math::SetBits(channel->baseAddress, 23, 0, _currentTransferAddress);
 
-	switch (syncMode)
+	if (_transferCount >= blockSize)
 	{
-	case 0:
-		if (_activeChannel->choppingEnabled())
+		blockAmount -= 1;
+		Math::SetBits(channel->blockControl, 16, 31, blockAmount);
+		if (blockAmount == 0)
 		{
-			blockAmount -= 1;
-			Math::SetBits(_activeChannel->blockControl, 0, 15, blockAmount);
-			_activeChannel->baseAddress = Math::SetBits(_activeChannel->baseAddress, 23, 0, _currentTransferAddress);
-			if (blockAmount == 0)
-			{
-				HandleTransferComplete();
-			}
-
-			if (--_remainingChoppingCycles <= 0)
-			{
-				SetStatus(Status::Chopping);
-			}
+			HandleTransferComplete();
 		}
 		else
 		{
-			if (_transferCount == blockAmount)
-			{
-				HandleTransferComplete();
-			}
+			SetStatus(Status::Inactive);
 		}
-		break;
-	case 1:
-		_activeChannel->baseAddress = Math::SetBits(_activeChannel->baseAddress, 23, 0, _currentTransferAddress);
-		if (_transferCount >= blockSize)
-		{
-			blockAmount -= 1;
-			Math::SetBits(_activeChannel->blockControl, 16, 31, blockAmount);
-			if (blockAmount == 0)
-			{
-				HandleTransferComplete();
-			}
-			else
-			{
-				SetStatus(Status::Inactive);
-			}
-		}
-		break;
-	case 2:
-		//linked list
-		break;
 	}
+}
+
+void DMAController::HandleLinkedListTransfer(Channel* channel)
+{
+	//transfer word at whatever _currentTransferAddress points to
+	//_currentTransferAddress = new linked list entry
+	//_activeChannel->baseAddress = Math::SetBits(_activeChannel->baseAddress, 23, 0, _currentTransferAddress);
+	//if linked list entry is 0xfffffff or whatever, we're done
 }
 
 void DMAController::HandleTransferComplete()
@@ -214,42 +257,6 @@ void DMAController::HandleTransferComplete()
 	{
 		SetStatus(Status::Inactive);
 	}
-}
-
-DMAController::Channel* DMAController::GetChannelAtAddress(uint32 address)
-{
-	if (address >= 0x70)
-		return nullptr;
-
-	return &_channels[address / 0x10];
-}
-
-DMAController::Channel* DMAController::GetHighestPriorityActiveChannel()
-{
-	Channel* validChannel = nullptr;
-	uint validChannelPriority = 8;
-	for (int i = 0; i <= 6; ++i)
-	{
-		bool channelEnabled = Math::GetBit(_registers.dmaControl, 3 + 4 * i);
-		if (!channelEnabled)
-		{
-			continue;
-		}
-
-		if (!Math::GetBit(_channels[i].channelControl, 1))
-		{
-			continue;
-		}
-
-		int channelPriority = Math::GetBits(_registers.dmaControl, i * 4, i * 4 + 2);
-		if (channelPriority <= validChannelPriority)
-		{
-			validChannel = &_channels[i];
-			validChannelPriority = channelPriority;
-		}
-	}
-
-	return validChannel;
 }
 
 DMAController::DMAController(Playstation* playstation)

@@ -80,6 +80,10 @@ public:
 	void HandleChopping();
 	void HandleActiveTransfer();
 
+	void HandleDirectTransfer(Channel* channel);	//Syncmode 0
+	void HandleSyncedTransfer(Channel* channel);	//Syncmode 1
+	void HandleLinkedListTransfer(Channel* channel);//Syncmode 2
+
 	void HandleTransferComplete();
 
 	DMAController(Playstation* playstation);
